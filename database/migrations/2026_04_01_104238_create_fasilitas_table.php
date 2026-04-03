@@ -11,21 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id('id_user');
-            $table->string('nama');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('role');
-            $table->timestamps();
-        });
+        Schema::create('fasilitas', function (Blueprint $table) {
+        $table->id();
+        $table->string('nama_fasilitas');
+        $table->text('keterangan')->nullable();
+        $table->decimal('harga_satuan', 10, 2);
+        $table->string('kategori');
+    });
     }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
-{
-    Schema::dropIfExists('users');
-}
+    {
+        Schema::dropIfExists('fasilitas');
+    }
 };
