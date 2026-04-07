@@ -47,9 +47,11 @@ class AuthController extends Controller
         'role' => $request->role
     ]);
 
-    return response()->json([
-        'message' => 'User berhasil dibuat',
-        'user' => $user
-    ]);
+    return redirect('/login')->with('success', 'Registrasi berhasil, silakan login');
 }
+
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
 }
