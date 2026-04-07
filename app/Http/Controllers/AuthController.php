@@ -51,5 +51,11 @@ class AuthController extends Controller
         'message' => 'User berhasil dibuat',
         'user' => $user
     ]);
+
+}
+    public function showRegister()
+{
+    return view('admin.auth.register'); // untuk menampilkan form register (frontnazwa)
 }
 }
+
