@@ -11,21 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('role');
-            $table->timestamps();
-        });
+    Schema::create('kategori_paket', function (Blueprint $table) {
+    $table->id();
+    $table->string('nama_kategori');
+    $table->text('deskripsi')->nullable();
+    $table->string('gambar')->nullable();
+});
     }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
-{
-    Schema::dropIfExists('users');
-}
+    {
+        Schema::dropIfExists('kategori_paket');
+    }
 };

@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('role');
-            $table->timestamps();
+        Schema::create('booking_fasilitas', function (Blueprint $table) {
+        $table->foreignId('id_booking')->constrained('booking');
+        $table->foreignId('id_fasilitas')->constrained('fasilitas');
+        $table->integer('jumlah');
         });
     }
 
@@ -25,7 +22,7 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-{
-    Schema::dropIfExists('users');
-}
+    {
+        Schema::dropIfExists('booking_fasilitas');
+    }
 };
