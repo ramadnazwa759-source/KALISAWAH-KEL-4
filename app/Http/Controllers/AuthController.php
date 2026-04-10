@@ -60,4 +60,29 @@ class AuthController extends Controller
     {
         return view('auth.register');
     }
+
+    // metrics sistem terdistribusi
+    public function metrics()
+{
+    $status = 1;
+    $memory = memory_get_usage();
+    $time = time();
+
+    $metrics = "
+# HELP app_status Status aplikasi (1=running)
+# TYPE app_status gauge
+app_status $status
+
+# HELP memory_usage Memory usage dalam bytes
+# TYPE memory_usage gauge
+memory_usage $memory
+
+# HELP request_time Timestamp request
+# TYPE request_time gauge
+request_time $time
+";
+
+    return response($metrics, 200)
+        ->header('Content-Type', 'text/plain');
+}
 }

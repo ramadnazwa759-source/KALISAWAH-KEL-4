@@ -8,18 +8,22 @@ Route::get('/test', function () {
     return "API WORKING";
 });
 
-// route metrics
+// route metrics (tugas sistem terdistribusi)
 Route::get('/metrics', function () {
+    $memory = memory_get_usage();
 
-    $status = app()->isDownForMaintenance() ? "maintenance" : "running";
+    $metrics = "
+# HELP app_status Application status
+# TYPE app_status gauge
+app_status 1
 
-    return response()->json([
-        "app_name" => "kalisawah",
-        "status" => $status,
-        "timestamp" => now(),
-        "memory_usage" => memory_get_usage()
-    ]);
+# HELP memory_usage Memory usage in bytes
+# TYPE memory_usage gauge
+memory_usage $memory
+";
 
+    return response($metrics, 200)
+        ->header('Content-Type', 'text/plain');
 });
 
 Route::post('/register', [AuthController::class, 'register']);
