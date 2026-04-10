@@ -9,8 +9,7 @@ class ProfilWisataController extends Controller
 {
     public function index()
     {
-        $data = ProfilWisata::first();
-        return view('profil.index', compact('data'));
+        return view('home');
     }
 
     public function create()
