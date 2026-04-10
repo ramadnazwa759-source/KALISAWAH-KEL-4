@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
+
 
 class LogRequest
 {
@@ -13,8 +15,15 @@ class LogRequest
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
-    {
-        return $next($request);
-    }
+
+    public function handle($request, Closure $next)
+{
+    Log::info('Request masuk', [
+        'method' => $request->method(),
+        'url' => $request->fullUrl(),
+        'ip' => $request->ip()
+    ]);
+
+    return $next($request);
+}
 }
