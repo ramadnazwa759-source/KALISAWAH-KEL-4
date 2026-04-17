@@ -24,12 +24,12 @@ class Booking extends Model
 
     public function paket()
     {
-        return $this->belongsTo(PaketWisata::class, 'id_paket');
+        return $this->belongsTo(PaketWisata::class, 'id_paket', 'id_paket');
     }
 
     public function pembayaran()
     {
-        return $this->hasOne(Pembayaran::class, 'id_booking');
+        return $this->hasOne(Pembayaran::class, 'id_booking', 'id_booking');
     }
 
     public function fasilitas()

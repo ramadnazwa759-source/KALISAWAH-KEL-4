@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaketWisata extends Model
 {
+    public $timestamps = false; 
     protected $table = 'paket_wisata';
-    protected $primaryKey = 'id_paket';
 
     protected $fillable = [
-        'id_kategori',
+        'kategori_paket_id',
         'nama_paket',
         'deskripsi',
         'harga',
@@ -21,7 +21,7 @@ class PaketWisata extends Model
 
     public function kategori()
     {
-        return $this->belongsTo(KategoriPaket::class, 'id_kategori');
+        return $this->belongsTo(KategoriPaket::class, 'kategori_paket_id');
     }
 
     public function booking()
@@ -35,3 +35,4 @@ class PaketWisata extends Model
                     ->withPivot('jumlah', 'keterangan');
     }
 }
+
