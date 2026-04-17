@@ -17,6 +17,7 @@
             height: 100vh;
         }
 
+        /* KIRI (GAMBAR) */
         .left {
             width: 50%;
             background: url('/images/arung-jeram.jpg') center/cover no-repeat;
@@ -39,6 +40,7 @@
             color: #1e40af;
         }
 
+        /* KANAN (FORM) */
         .right {
             width: 50%;
             display: flex;
@@ -88,9 +90,13 @@
             font-size: 12px;
         }
 
-        .success {
-            color: green;
-            font-size: 12px;
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
         }
     </style>
 </head>
@@ -109,20 +115,42 @@
         <div class="form-box">
             <h2>Login Account</h2>
 
-            <!-- ERROR / SUCCESS -->
+            <!-- SUCCESS -->
             @if(session('success'))
-                <div class="success">{{ session('success') }}</div>
+                <div class="alert-success">
+                    {{ session('success') }}
+                </div>
             @endif
 
+            <!-- ERROR -->
             @if($errors->any())
-                <div class="error">{{ $errors->first() }}</div>
+                <div class="error">
+                    {{ $errors->first() }}
+                </div>
             @endif
 
-            <!-- FORM LOGIN SESSION-BASED -->
             <form action="{{ route('login') }}" method="POST">
                 @csrf
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
+                <!-- EMAIL -->
+                <label style="display:block; margin-bottom:5px; font-size:16px;">Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Masukkan email"
+                    style="width:100%; padding:12px; border-radius:4px; border:1px solid #ccc; margin-bottom:15px;"
+                    required
+                >
+
+                <!-- PASSWORD -->
+                <label style="display:block; margin-bottom:5px; font-size:16px;">Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Masukkan password"
+                    style="width:100%; padding:12px; border-radius:4px; border:1px solid #ccc; margin-bottom:0px;"
+                    required
+                >
+
                 <button type="submit">Login</button>
             </form>
 

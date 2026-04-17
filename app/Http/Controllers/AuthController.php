@@ -53,7 +53,7 @@ class AuthController extends Controller
         'role' => $request->role
     ]);
 
-    return redirect('/login')->with('success', 'Registrasi berhasil, silakan login');
+    return redirect('/admin/login')->with('success', 'Registrasi berhasil, silakan login');
 }
 
     public function showRegister()

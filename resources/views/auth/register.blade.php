@@ -89,6 +89,16 @@
             color: red;
             font-size: 12px;
         }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
@@ -106,7 +116,14 @@
         <div class="form-box">
             <h2>Register Account</h2>
 
-            <form action="{{ route('register') }}" method="POST">
+            <!-- TAMPILKAN SESSION SUCCESS -->
+            @if(session('success'))
+                <div class="alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <form action="{{ route('register.submit') }}" method="POST">
                 @csrf
 
                 <input type="text" name="name" placeholder="Nama" value="{{ old('name') }}">
@@ -126,7 +143,7 @@
             </form>
 
             <div class="link">
-                <a href="/login">Sudah punya akun? Login</a>
+                <a href="{{ route('login') }}">Sudah punya akun? Login</a>
             </div>
         </div>
     </div>
