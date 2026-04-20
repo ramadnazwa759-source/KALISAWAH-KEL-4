@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 
 // Halaman awal
 Route::get('/', function () {
@@ -24,8 +25,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-    Route::get('/dashboard', function () {
-        return "Dashboard Admin";
-    });
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
+    Route::post('/logout', [AuthController::class, 'logout']);
 
 });

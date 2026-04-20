@@ -129,7 +129,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('login') }}" method="POST">
+            <form action="{{ route('login.submit') }}" method="POST">
                 @csrf
                 <!-- EMAIL -->
                 <label style="display:block; margin-bottom:5px; font-size:16px;">Email</label>
