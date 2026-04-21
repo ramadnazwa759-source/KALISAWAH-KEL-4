@@ -16,11 +16,13 @@ class DashboardController extends Controller
             Carbon::today()
         )->count();
 
+         $bookingHariIni = $bookingHariIni ?? 0;
+
         $totalPengunjung = Booking::sum(
             'jumlah_orang'      // sesuaikan nama kolom
         );
 
-        return view('dashboard.index', compact(
+        return view('admin.dashboard', compact(
             'totalBooking',
             'bookingHariIni',
             'totalPengunjung'
