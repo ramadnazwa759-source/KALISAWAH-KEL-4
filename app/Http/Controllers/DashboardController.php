@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Booking;
 use Carbon\Carbon;
 
@@ -20,7 +19,7 @@ class DashboardController extends Controller
             'jumlah_orang'      // sesuaikan nama kolom
         );
 
-        return view('dashboard.index', compact(
+        return view('admin.dashboard', compact(
             'totalBooking',
             'bookingHariIni',
             'totalPengunjung'

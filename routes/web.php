@@ -16,16 +16,20 @@ Route::get('/admin', function () {
 
 Route::prefix('admin')->group(function () {
 
+    // Login
     Route::get('/login', function () {
         return view('auth.login');
     })->name('login');
 
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
+    //Register
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
-    Route::post('/logout', [AuthController::class, 'logout']);
+    // logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 });
