@@ -1,57 +1,63 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaketWisataController;
 use App\Http\Controllers\FasilitasController;
 use App\Http\Controllers\KategoriPaketController;
 
-// Halaman awal
-Route::get('/', function () {
-    return view('welcome');
-});
 
-// Home
-Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-// CRUD (BACKEND 2)
+// PAKET WISATA 
 
-// LIST semua paket
-Route::get('paket', [PaketWisataController::class, 'index'])->name('paket.index');
+// GET semua paket
+//Route::get('paket', [PaketWisataController::class, 'index']);
 
-// FORM tambah paket
-Route::get('paket/create', [PaketWisataController::class, 'create'])->name('paket.create');
+// GET detail paket
+//Route::get('paket/{id}', [PaketWisataController::class, 'show']);
 
-// SIMPAN data baru
-Route::post('paket', [PaketWisataController::class, 'store'])->name('paket.store');
+// POST tambah paket
+//Route::post('paket', [PaketWisataController::class, 'store']);
 
-// FORM edit paket
-Route::get('paket/{id}/edit', [PaketWisataController::class, 'edit'])->name('paket.edit');
-
-// UPDATE data paket
-Route::put('paket/{id}', [PaketWisataController::class, 'update'])->name('paket.update');
+// PUT update paket
+//Route::put('paket/{id}', [PaketWisataController::class, 'update']);
 
 // DELETE paket
-Route::delete('paket/{id}', [PaketWisataController::class, 'destroy'])->name('paket.destroy');
-
-//kategori paket
-Route::get('kategori/create', [KategoriPaketController::class, 'create'])->name('kategori.create');
-Route::post('kategori', [KategoriPaketController::class, 'store'])->name('kategori.store');
-Route::get('kategori', [KategoriPaketController::class, 'index'])->name('kategori.index');
-
-// Fasilitas
-Route::get('fasilitas', [FasilitasController::class, 'index'])->name('fasilitas.index');
-Route::get('fasilitas/create', [FasilitasController::class, 'create'])->name('fasilitas.create');
-Route::post('fasilitas', [FasilitasController::class, 'store'])->name('fasilitas.store');
-Route::get('fasilitas/{id}/edit', [FasilitasController::class, 'edit'])->name('fasilitas.edit');
-
-// update (simpan perubahan)
-Route::put('fasilitas/{id}', [FasilitasController::class, 'update'])->name('fasilitas.update');
-
-// delete (hapus)
-Route::delete('fasilitas/{id}', [FasilitasController::class, 'destroy'])->name('fasilitas.destroy');
+//Route::delete('paket/{id}', [PaketWisataController::class, 'destroy']);
 
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// KATEGORI PAKET
+
+// GET semua kategori
+//Route::get('kategori', [KategoriPaketController::class, 'index']);
+
+// GET detail kategori
+//Route::get('kategori/{id}', [KategoriPaketController::class, 'show']);
+
+// POST tambah kategori
+//Route::post('kategori', [KategoriPaketController::class, 'store']);
+
+// PUT update kategori
+//Route::put('kategori/{id}', [KategoriPaketController::class, 'update']);
+
+// DELETE kategori
+//Route::delete('kategori/{id}', [KategoriPaketController::class, 'destroy']);
 
 
+// FASILITAS 
+
+// GET semua fasilitas
+//Route::get('fasilitas', [FasilitasController::class, 'index']);
+
+// GET detail fasilitas
+//Route::get('fasilitas/{id}', [FasilitasController::class, 'show']);
+
+// POST tambah fasilitas
+//Route::post('fasilitas', [FasilitasController::class, 'store']);
+
+// PUT update fasilitas
+//Route::put('fasilitas/{id}', [FasilitasController::class, 'update']);
+
+// DELETE fasilitas
+//Route::delete('fasilitas/{id}', [FasilitasController::class, 'destroy']);
+
+//Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
