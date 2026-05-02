@@ -25,7 +25,7 @@ return new class extends Migration
     $table->string('status_booking');
     $table->timestamps();
 });
-    }
+    } 
 
     /**
      * Reverse the migrations.
