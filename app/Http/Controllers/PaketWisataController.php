@@ -2,49 +2,97 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PaketWisata;
 use Illuminate\Http\Request;
+use App\Models\PaketWisata;
+use App\Models\KategoriPaket;
 
 class PaketWisataController extends Controller
 {
+    // Menampilkan semua paket wisata
     public function index()
     {
-        return PaketWisata::all();
+        $data = PaketWisata::with('kategori')->get();
+        return view('paket.index', compact('data'));
     }
 
+    // Menampilkan form tambah paket wisata
+    public function create()
+    {
+        $kategori = KategoriPaket::all();
+        return view('paket.create', compact('kategori'));
+    }
+
+    // Menyimpan paket wisata baru
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'id_kategori' => 'required',
+        $request->validate([
+            'kategori_paket_id' => 'required',
             'nama_paket' => 'required',
             'deskripsi' => 'required',
-            'harga' => 'required',
-            'kapasitas' => 'required',
+            'harga' => 'required|numeric',
+            'kapasitas' => 'required|numeric',
             'durasi' => 'required',
             'status' => 'required'
         ]);
 
-        return PaketWisata::create($data);
+        PaketWisata::create($request->all());
+
+        return redirect()->route('paket.index')->with('success', 'Paket berhasil ditambahkan.');
     }
 
-    public function show($id)
-    {
-        return PaketWisata::findOrFail($id);
+    
+   // Menampilkan form edit paket wisata
+public function edit($id)
+{
+    // Ambil paket berdasarkan id
+    $data = PaketWisata::find($id);
+
+    // Kalau tidak ditemukan, redirect ke index dengan pesan error
+    if (!$data) {
+        return redirect()->route('paket.index')->with('error', 'Data paket tidak ditemukan.');
     }
 
+    // Ambil semua kategori untuk dropdown
+    $kategori = KategoriPaket::all();
+
+    // Kirim variabel ke view
+    // Pastikan compact('data', 'kategori') sesuai dengan nama variabel di edit.blade.php
+    return view('paket.edit', compact('data', 'kategori'));
+}
+
+
+    // Menyimpan perubahan paket wisata
     public function update(Request $request, $id)
     {
-        $paket = PaketWisata::findOrFail($id);
+        $request->validate([
+            'kategori_paket_id' => 'required',
+            'nama_paket' => 'required',
+            'deskripsi' => 'required',
+            'harga' => 'required|numeric',
+            'kapasitas' => 'required|numeric',
+            'durasi' => 'required',
+            'status' => 'required'
+        ]);
 
-        $paket->update($request->all());
+        $data = PaketWisata::find($id);
+        if (!$data) {
+            return redirect()->route('paket.index')->with('error', 'Data paket tidak ditemukan.');
+        }
 
-        return $paket;
+        $data->update($request->all());
+
+        return redirect()->route('paket.index')->with('success', 'Paket berhasil diupdate.');
     }
 
+    // Menghapus paket wisata
     public function destroy($id)
     {
-        PaketWisata::destroy($id);
+        $data = PaketWisata::find($id); // sebelumnya typo: $id_pak
+        if ($data) {
+            $data->delete();
+            return redirect()->route('paket.index')->with('success', 'Paket berhasil dihapus.');
+        }
 
-        return response()->json(['message' => 'Deleted']);
+        return redirect()->route('paket.index')->with('error', 'Data paket tidak ditemukan.');
     }
 }

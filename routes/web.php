@@ -1,29 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/admin', function () {
-    return redirect('/admin/login');
-});
-
-Route::prefix('admin')->group(function () {
-
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-Route::get('/login', function () {
-    return view('admin.auth.login');
+// Login (bebas diakses)
+Route::get('/admin/login', function () {
+    return view('auth.login');
 })->name('login');
 
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-Route::get('/dashboard', function () {
-    return "Dashboard Admin";
-});
+// Group yang WAJIB login
+Route::prefix('admin')->group(function () {
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
 });

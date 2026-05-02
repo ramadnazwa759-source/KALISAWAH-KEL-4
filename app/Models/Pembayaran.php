@@ -24,11 +24,11 @@ class Pembayaran extends Model
 
     public function booking()
     {
-        return $this->belongsTo(Booking::class, 'id_booking');
+        return $this->belongsTo(Booking::class, 'id_booking', 'id_booking');
     }
 
     public function diskon()
     {
-        return $this->belongsTo(Diskon::class, 'id_diskon');
+        return $this->belongsTo(Diskon::class, 'id_diskon', 'id_diskon');
     }
 }
