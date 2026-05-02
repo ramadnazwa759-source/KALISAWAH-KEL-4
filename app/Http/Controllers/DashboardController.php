@@ -10,12 +10,12 @@ class DashboardController extends Controller
     {
         $totalBooking = Booking::count();
 
-        $bookingHariIni = Booking::whereDate(
-            'tanggal_booking',   // sesuaikan nama kolom
-            Carbon::today()
-        )->count();
+        // $bookingHariIni = Booking::whereDate(
+        //     'tanggal_booking',   // sesuaikan nama kolom
+        //     Carbon::today()
+        // )->count();
 
-         $bookingHariIni = $bookingHariIni ?? 0;
+        $bookingHariIni = $bookingHariIni ?? 0;
 
         $totalPengunjung = Booking::sum(
             'jumlah_orang'      // sesuaikan nama kolom

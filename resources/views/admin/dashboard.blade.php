@@ -1,247 +1,120 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard Admin - Kalisawah Adventure</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+@extends('layouts.admin')
 
-    @vite('resources/css/app.css')
+@section('title', 'Dashboard Admin')
 
-    <style>
-        :root {
-            --sidebar-bg: #ffffff;
-            --main-bg: #f8faff;
-            --primary-blue: #3b82f6;
-            --card-orange: #f5a623;
-            --card-blue: #7fb1ff;
-            --card-pink: #d99694;
-        }
+@push('styles')
+<style>
+    /* Style khusus Dashboard yang tidak ada di layout utama */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+    .card-stat {
+        padding: 25px;
+        border-radius: 12px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .card-orange { background: #F6A05D; }
+    .card-blue { background: #88B1F3; }
+    .card-red { background: #D99A9A; }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--main-bg);
-            margin: 0;
-            color: #333;
-        }
+    .stat-info h3 { font-size: 16px; font-weight: 500; opacity: 0.9; margin-bottom: 10px; }
+    .stat-info p { font-size: 36px; font-weight: 700; margin-bottom: 0; }
+    .card-stat i { font-size: 40px; opacity: 0.3; }
 
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
+    .info-box {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    .info-header {
+        padding: 15px 25px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+    }
+    .info-body { padding: 25px; line-height: 1.6; color: #555; }
+</style>
+@endpush
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            border-right: 2px solid #eef2f6;
-            display: flex;
-            flex-direction: column;
-        }
+@section('content')
+    <h1 class="page-title">Dashboard Admin</h1>
 
-        .logo-section {
-            padding: 30px 20px;
-            text-align: center;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .logo-section img {
-            max-width: 180px; /* Sesuaikan ukuran logo */
-        }
-
-        .menu {
-            list-style: none;
-            padding: 20px 0;
-            margin: 0;
-        }
-
-        .menu li {
-            padding: 12px 25px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.3s;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .menu li i {
-            margin-right: 15px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .menu li.active {
-            background: var(--primary-blue);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .menu li:hover:not(.active) {
-            background: #f0f7ff;
-            color: var(--primary-blue);
-        }
-
-        /* --- MAIN CONTENT --- */
-        .main {
-            flex: 1;
-            padding: 30px;
-        }
-
-        .top-navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-
-        .date-display {
-            color: #888;
-            font-size: 0.9rem;
-        }
-
-        .admin-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .admin-profile i {
-            font-size: 2rem;
-            color: #ccc;
-        }
-
-        h2.page-title {
-            color: var(--primary-blue);
-            text-transform: uppercase;
-            font-weight: 700;
-            margin-bottom: 25px;
-        }
-
-        /* --- CARDS --- */
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            padding: 25px;
-            border-radius: 12px;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
-
-        .card-info h3 { margin: 0; font-size: 1.1rem; font-weight: 400; }
-        .card-info h1 { margin: 5px 0 0; font-size: 2.5rem; }
-        .card-icon { font-size: 2.5rem; opacity: 0.5; }
-
-        .bg-orange { background: var(--card-orange); }
-        .bg-blue { background: var(--card-blue); }
-        .bg-pink { background: var(--card-pink); }
-
-        /* --- BOX CONTENT --- */
-        .info-box {
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #e0e0e0;
-        }
-
-        .info-box-header {
-            background: #fff;
-            padding: 15px 25px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            color: #555;
-            font-weight: 600;
-        }
-
-        .info-box-header i { color: #8e44ad; margin-right: 10px; }
-
-        .info-box-body {
-            padding: 25px;
-            line-height: 1.6;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <nav class="sidebar">
-        <div class="logo-section">
-            <img src="{{ asset('uploud/logo.png') }}" alt="Kalisawah Adventure">
+    <div class="stats-grid">
+        <div class="card-stat card-orange">
+            <div class="stat-info">
+                <h3>Total Booking</h3>
+                <p id="totalBooking">0</p>
+            </div>
+            <i class="fa-solid fa-calendar-days"></i>
         </div>
-        <ul class="menu">
-            <li class="active"><i class="fa-solid fa-house"></i> Dashboard</li>
-            <li><i class="fa-solid fa-calendar-plus"></i> Booking Wisata</li>
-            <li><i class="fa-solid fa-list-check"></i> Fasilitas</li>
-            <li><i class="fa-solid fa-tent"></i> Barang Camping</li>
-            <li><i class="fa-solid fa-newspaper"></i> Berita</li>
-        </ul>
-    </nav>
-
-    <main class="main">
-        <header class="top-navbar">
-            <div class="date-display">
-                {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+        <div class="card-stat card-blue">
+            <div class="stat-info">
+                <h3>Booking Hari ini</h3>
+                <p id="bookingHariIni">0</p>
             </div>
-            <div class="admin-profile">
-                <span>Admin Kalisawah</span>
-                <i class="fa-solid fa-circle-user"></i>
-            </div>
-        </header>
-
-        <h2 class="page-title">Dashboard Admin</h2>
-
-        <div class="cards-container">
-            <div class="card bg-orange">
-                <div class="card-info">
-                    <h3>Total Booking</h3>
-                    <h1>{{ $totalBooking ?? 200 }}</h1>
-                </div>
-                <div class="card-icon"><i class="fa-solid fa-calendar-days"></i></div>
-            </div>
-
-            <div class="card bg-blue">
-                <div class="card-info">
-                    <h3>Booking Hari Ini</h3>
-                    <h1>{{ $bookingHariIni ?? 8 }}</h1>
-                </div>
-                <div class="card-icon"><i class="fa-solid fa-square-check"></i></div>
-            </div>
-
-            <div class="card bg-pink">
-                <div class="card-info">
-                    <h3>Pengunjung</h3>
-                    <h1>{{ $totalPengunjung ?? 180 }}</h1>
-                </div>
-                <div class="card-icon"><i class="fa-solid fa-users"></i></div>
-            </div>
+            <i class="fa-solid fa-square-check"></i>
         </div>
-
-        <div class="info-box">
-            <div class="info-box-header">
-                <i class="fa-solid fa-comment-dots"></i> Tentang Sistem
+        <div class="card-stat card-red">
+            <div class="stat-info">
+                <h3>Pengunjung</h3>
+                <p id="totalPengunjung">0</p>
             </div>
-            <div class="info-box-body">
-                <p><strong>Selamat Datang Admin Kalisawah!</strong></p>
-                <p>Berikut ini informasi mengenai sistem pengelolaan wisata Kalisawah Adventure yang digunakan untuk mengelola booking, paket wisata, fasilitas, dan barang camping.</p>
-            </div>
+            <i class="fa-solid fa-users"></i>
         </div>
+    </div>
 
+    <div class="info-box">
+        <div class="info-header">
+            <i class="fa-solid fa-comment-dots" style="color: #8E44AD;"></i> Tentang Sistem
+        </div>
+        <div class="info-body">
+            <p>Selamat Datang Admin Kalisawah!</p>
+            <p>Berikut ini informasi mengenai sistem pengelolaan wisata Kalisawah Adventure yang digunakan untuk mengelola booking, paket wisata, fasilitas, dan barang camping.</p>
+        </div>
+    </div>
+@endsection
 
-    </main>
-</div>
+@push('scripts')
+<script>
+    // Pastikan token ada sebelum hit API
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "/admin/login";
 
-</body>
-</html>
+    // Fungsi Load Data dari API
+    async function loadDashboard() {
+        try {
+            const res = await fetch("http://127.0.0.1:8000/api/dashboard", {
+                headers: { "Authorization": "Bearer " + token }
+            });
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/admin/login";
+                return;
+            }
+
+            const data = await res.json();
+            document.getElementById("totalBooking").innerText = data.totalBooking || 0;
+            document.getElementById("bookingHariIni").innerText = data.bookingHariIni || 0;
+            document.getElementById("totalPengunjung").innerText = data.totalPengunjung || 0;
+        } catch (e) {
+            console.error("Gagal mengambil data dari API Dashboard");
+        }
+    }
+
+    // Jalankan fungsi saat halaman siap
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDashboard();
+    });
+</script>
+@endpush

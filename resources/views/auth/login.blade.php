@@ -2,163 +2,176 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Account - Kali Sawah</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
         }
 
         body {
+            font-family: 'Inter', sans-serif;
             display: flex;
             height: 100vh;
+            background-color: #ffffff;
         }
 
-        /* KIRI (GAMBAR) */
         .left {
             width: 50%;
-            background: url('/images/arung-jeram.jpg') center/cover no-repeat;
-            position: relative;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.6);
+            background: url('/uploud/foto.jpeg') center/cover no-repeat; /* BALIKIN BIAR MUNCUL */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 40px;
-            border-radius: 20px;
-            text-align: center;
         }
 
-        .overlay h1 {
-            color: #1e40af;
+        .overlay-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* KANAN (FORM) */
         .right {
             width: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #f4f4f4;
         }
 
         .form-box {
-            width: 350px;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
         }
 
-        h2 {
-            margin-bottom: 20px;
+        .form-box h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            text-align: center;
+            color: #000;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 16px;
+            color: #000;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 8px;
+            padding: 14px 18px;
             border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #333;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: #d1d1d1;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            background: #1d4ed8;
+            padding: 16px;
+            background: #0047ff;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
         }
 
         button:hover {
-            background: #1e3a8a;
-        }
-
-        .link {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .error {
-            color: red;
-            font-size: 12px;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
+            background: #0036c7;
         }
     </style>
 </head>
 <body>
 
-    <!-- KIRI -->
-    <div class="left">
-        <div class="overlay">
-            <h1>Kali Sawah Adventure</h1>
-            <p>Selamat datang kembali!</p>
-        </div>
-    </div>
+<div class="left">
+    <div class="overlay-card"></div>
+</div>
 
-    <!-- KANAN -->
-    <div class="right">
-        <div class="form-box">
-            <h2>Login Account</h2>
+<div class="right">
+    <div class="form-box">
+        <h2>Login Account</h2>
 
-            <!-- SUCCESS -->
-            @if(session('success'))
-                <div class="alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            <!-- ERROR -->
-            @if($errors->any())
-                <div class="error">
-                    {{ $errors->first() }}
-                </div>
-            @endif
-
-            <form action="{{ route('login.submit') }}" method="POST">
-                @csrf
-                <!-- EMAIL -->
-                <label style="display:block; margin-bottom:5px; font-size:16px;">Email</label>
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Masukkan email"
-                    style="width:100%; padding:12px; border-radius:4px; border:1px solid #ccc; margin-bottom:15px;"
-                    required
-                >
-
-                <!-- PASSWORD -->
-                <label style="display:block; margin-bottom:5px; font-size:16px;">Password</label>
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Masukkan password"
-                    style="width:100%; padding:12px; border-radius:4px; border:1px solid #ccc; margin-bottom:0px;"
-                    required
-                >
-
-                <button type="submit">Login</button>
-            </form>
-
-            <div class="link">
-                <a href="{{ route('register') }}">Belum punya akun? Register</a>
+        <form id="loginForm_pembuat">
+            <div class="input-group">
+                <label>Username</label>
+                <!-- tetap username, tapi isi email -->
+                <input type="text" name="username_pembuat" placeholder="Masukkan email" required>
             </div>
-        </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password_pembuat" placeholder="6+ characters" required>
+            </div>
+
+            <button type="submit">Login</button>
+        </form>
     </div>
+</div>
+
+<script>
+document.getElementById('loginForm_pembuat').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const email = document.querySelector('[name="username_pembuat"]').value.trim();
+    const password = document.querySelector('[name="password_pembuat"]').value.trim();
+
+    if (!email || !password) {
+        alert("Email dan password wajib diisi");
+        return;
+    }
+
+    try {
+        const res = await fetch("http://127.0.0.1:8000/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        console.log("LOGIN RESPONSE:", data);
+
+        if (res.ok) {
+            localStorage.setItem("token", data.token);
+            window.location.href = "/admin/dashboard";
+        } else {
+            alert(data.message || "Login gagal");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Server tidak bisa diakses");
+    }
+});
+</script>
 
 </body>
 </html>
