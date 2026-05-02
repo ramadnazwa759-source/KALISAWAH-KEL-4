@@ -6,6 +6,10 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BookingController;
 use App\Http\Controllers\API\KategoriPaketController;
 use App\Http\Controllers\API\PaketWisataController;
+use App\Http\Controllers\API\JenisInventarisController;
+use App\Http\Controllers\API\InventarisPerUnitController;
+
+
 
     // route public
     Route::get('/test', function () {
@@ -30,5 +34,7 @@ use App\Http\Controllers\API\PaketWisataController;
     Route::apiResource('kategori-paket', KategoriPaketController::class);
     Route::apiResource('paket-wisata', PaketWisataController::class);
     Route::apiResource('bookings', BookingController::class);
+    Route::apiResource('jenis-inventaris', JenisInventarisController::class);
+    Route::apiResource('inventaris-unit', InventarisPerUnitController::class);
 
 });
