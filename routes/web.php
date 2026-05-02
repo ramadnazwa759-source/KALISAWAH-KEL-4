@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\PaketWisataController;
+use App\Http\Controllers\FasilitasController;
+use App\Http\Controllers\KategoriPaketController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AuthController;
 
 // route metrics (tugas sistem terdistribusi)
 Route::get('/metrics', function () {
@@ -15,20 +20,4 @@ app_status 1
 memory_usage " . memory_get_usage()
     , 200)
     ->header('Content-Type', 'text/plain; version=0.0.4');
-});
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/login', function () {
-    return view('login');
-});
-
-Route::get('/register', function () {
-    return view('register');
-});
-
-Route::get('/dashboard', function () {
-    return "Dashboard Admin";
 });

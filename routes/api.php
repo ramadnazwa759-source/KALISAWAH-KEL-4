@@ -4,51 +4,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BookingController;
-use App\Http\Controllers\API\BookingFasilitasController;
+use App\Http\Controllers\API\KategoriPaketController;
+use App\Http\Controllers\API\PaketWisataController;
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/test', function () {
-    return "API WORKING";
-});
-
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
-/*
-|--------------------------------------------------------------------------
-| Protected Routes (Login Required)
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth:sanctum')->group(function () {
-
-    // logout
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    // get user login
-    Route::get('/user', function (Request $request) {
-        return $request->user();
+    // route public
+    Route::get('/test', function () {
+        return "API WORKING";
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin Booking Routes
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('admin')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/bookings', [BookingController::class, 'storeUser']); //booking pengunjung
 
-        // CRUD booking
-        Route::get('/bookings', [BookingController::class, 'index']);
-        Route::get('/bookings/{id}', [BookingController::class, 'show']);
-        Route::post('/bookings', [BookingController::class, 'store']);
-        Route::put('/bookings/{id}', [BookingController::class, 'update']);
-        Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
+    // route protected
+    Route::middleware('auth:sanctum')->group(function () {
 
+        Route::post('/logout', [AuthController::class, 'logout']);
+
+        Route::get('/user', function (Request $request) {
+            return $request->user();
+        });
     });
+
+    Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+
+    Route::apiResource('kategori-paket', KategoriPaketController::class);
+    Route::apiResource('paket-wisata', PaketWisataController::class);
+    Route::apiResource('bookings', BookingController::class);
 
 });
