@@ -4,25 +4,25 @@
 
 @section('content')
     <!-- HERO SECTION -->
-    <section class="relative h-[45vh] min-h-[400px] w-full overflow-hidden flex items-center justify-center text-center font-poppins">
+    <section class="relative h-[60vh] min-h-[500px] w-full overflow-hidden flex items-center justify-center text-center">
         <img src="{{ asset('images/camping.jpg') }}" alt="Hero Background" class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-black/60"></div>
-        <div class="relative z-10 px-6 max-w-5xl mx-auto pt-32 md:pt-48">
-            <h1 class="text-white text-4xl md:text-6xl font-bold mb-4 leading-tight drop-shadow-xl">
-                Detail Pemesanan
+        <div class="relative z-10 px-6 max-w-5xl mx-auto pt-20">
+            <h1 class="text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                Layanan Camping Kalisawah <br> Adventure
             </h1>
-            <p class="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-                Periksa kembali data reservasi Anda sebelum melakukan konfirmasi akhir untuk memastikan petualangan Anda berjalan lancar.
+            <p class="text-gray-200 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
+                Kalisawah Adventure menawarkan pengalaman camping di alam terbuka dengan suasana asri dan private.
             </p>
         </div>
     </section>
 
     <!-- SUMMARY SECTION -->
-    <section class="pt-32 pb-24 px-6 bg-[#F8FAFC]">
+    <section id="ringkasan" class="pt-32 pb-24 px-6 bg-[#F8FAFC] scroll-mt-20">
         <div class="max-w-[850px] mx-auto">
             
             <div class="mb-16 text-center">
-                <h2 class="text-3xl md:text-5xl font-black text-dark-navy mb-4">Ringkasan Pesanan</h2>
+                <h2 class="text-3xl md:text-5xl font-black text-dark-navy mb-4">Detail Pesanan</h2>
                 <div class="w-16 h-1.5 bg-secondary mx-auto rounded-full"></div>
                 <p class="mt-8 text-gray-400 font-medium max-w-lg mx-auto text-lg">Pastikan seluruh data di bawah ini sudah benar untuk menghindari kesalahan saat hari H.</p>
             </div>
@@ -114,7 +114,7 @@
                             <span class="text-4xl font-black text-primary drop-shadow-sm" id="display_total">Rp 0</span>
                         </div>
                     </div>
-                    <p class="mt-4 text-center text-gray-400 text-sm italic font-medium">*Pembayaran dilakukan saat kedatangan di lokasi (Check-in)</p>
+                    <p class="mt-4 text-center text-gray-400 text-sm italic font-medium">*Pembayaran DP 50%, pelunasan dilakukan saat kedatangan di lokasi (Check-in)</p>
                 </div>
             </div>
 
@@ -200,15 +200,23 @@
                 const ukuran = data.ukuran_tenda === '3-4' ? 'Tenda 3-4 Orang' : 'Tenda 6+ Orang';
                 document.getElementById('display_ukuran_tenda').innerText = ukuran;
 
-                const totalTiket = paketBasePrice * parseInt(data.jumlah_orang);
+                const unitPriceTiket = PRICING.pakets['Bawa Tenda Sendiri'];
+                const totalTiket = unitPriceTiket * parseInt(data.jumlah_orang);
                 const sewaLahan = data.ukuran_tenda === '6+' ? 50000 : 25000;
                 paketBasePrice = totalTiket + sewaLahan;
-                document.getElementById('price_label_paket').innerText = `Tiket (${data.jumlah_orang} org) + Sewa Lahan (${ukuran})`;
+                
+                document.getElementById('price_label_paket').innerHTML = `
+                    <div class="flex flex-col">
+                        <span>Tiket Camp (${data.jumlah_orang} x ${formatIDR(unitPriceTiket)})</span>
+                        <span class="text-xs text-gray-400 font-medium">Sewa Lahan ${ukuran} (${formatIDR(sewaLahan)})</span>
+                    </div>
+                `;
             } else {
                 // Fixed price packages (assume per tenda)
                 const tendaCount = Math.max(1, parseInt(data.jumlah_tenda));
-                paketBasePrice = paketBasePrice * tendaCount;
-                document.getElementById('price_label_paket').innerText = `Paket ${data.paket} (${tendaCount} Tenda)`;
+                const unitPrice = paketBasePrice;
+                paketBasePrice = unitPrice * tendaCount;
+                document.getElementById('price_label_paket').innerText = `Paket ${data.paket} (${tendaCount} x ${formatIDR(unitPrice)})`;
             }
             totalHarga += paketBasePrice;
             document.getElementById('price_value_paket').innerText = formatIDR(paketBasePrice);
@@ -236,7 +244,7 @@
                     // Update Pricing List
                     priceAddonsContainer.innerHTML += `
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500 font-medium">${item.name} (${qty}x)</span>
+                            <span class="text-gray-500 font-medium">${item.name} (${qty} x ${formatIDR(item.price)})</span>
                             <span class="text-dark-navy font-bold">${formatIDR(subtotal)}</span>
                         </div>
                     `;
@@ -264,7 +272,7 @@
                     // Update Pricing List
                     priceAddonsContainer.innerHTML += `
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500 font-medium">${item.name} (${qty}x)</span>
+                            <span class="text-gray-500 font-medium">${item.name} (${qty} x ${formatIDR(item.price)})</span>
                             <span class="text-dark-navy font-bold">${formatIDR(subtotal)}</span>
                         </div>
                     `;
