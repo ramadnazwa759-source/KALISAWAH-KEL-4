@@ -9,7 +9,7 @@
         <div class="absolute inset-0 bg-black/60"></div>
         <div class="relative z-10 px-6 max-w-5xl mx-auto pt-20">
             <h1 class="text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Layanan Camping Kalisawah <br> Adventure
+                Detail Pesanan <br>
             </h1>
             <p class="text-gray-200 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
                 Kalisawah Adventure menawarkan pengalaman camping di alam terbuka dengan suasana asri dan private.
@@ -22,7 +22,7 @@
         <div class="max-w-[850px] mx-auto">
             
             <div class="mb-16 text-center">
-                <h2 class="text-3xl md:text-5xl font-black text-dark-navy mb-4">Detail Pesanan</h2>
+                
                 <div class="w-16 h-1.5 bg-secondary mx-auto rounded-full"></div>
                 <p class="mt-8 text-gray-400 font-medium max-w-lg mx-auto text-lg">Pastikan seluruh data di bawah ini sudah benar untuk menghindari kesalahan saat hari H.</p>
             </div>
@@ -125,11 +125,11 @@
                     Kembali
                 </a>
                 
-                <button type="button" id="confirmBtn" onclick="confirmBooking()"
+                <button type="button" id="confirmBtn" onclick="goToPayment()"
                     style="background-color: #FFC236;"
                     class="w-full md:w-auto h-[60px] px-24 rounded-full text-white font-black text-xl flex items-center justify-center hover:opacity-90 transition-all duration-100 ease-in-out active:scale-[0.95] active:shadow-none active:brightness-95 shadow-xl shadow-yellow-500/20 uppercase tracking-[0.1em] gap-3">
-                    <span>Konfirmasi Booking</span>
-                    <i class="fa-solid fa-check-double"></i>
+                    <span>Lanjut</span>
+                    <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
         </div>
@@ -287,7 +287,7 @@
             document.getElementById('display_total').innerText = formatIDR(totalHarga);
         });
 
-        function confirmBooking() {
+        function goToPayment() {
             const btn = document.getElementById('confirmBtn');
             btn.disabled = true;
             btn.querySelector('span').innerText = 'Memproses...';
@@ -295,12 +295,10 @@
             document.getElementById('loadingOverlayDetail').classList.remove('hidden');
             document.getElementById('loadingOverlayDetail').classList.add('flex');
 
-            // Final Step (e.g., redirect home or to WA)
+            // Redirect to payment page
             setTimeout(() => {
-                alert('Pemesanan Berhasil Disimpan!');
-                localStorage.removeItem('booking_data');
-                window.location.href = "{{ route('home') }}";
-            }, 1500);
+                window.location.href = "{{ route('pembayaran') }}";
+            }, 800);
         }
     </script>
 @endsection

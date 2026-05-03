@@ -143,6 +143,63 @@
         </div>
     </section>
 
+    <!-- SECTION 3.5: PENCARIAN BOOKING (COMPACT OVAL STYLE) -->
+    <section id="pencarian-booking" class="py-12 px-6 md:px-20 relative z-30 flex justify-center">
+        <div class="w-full max-w-5xl">
+            <div class="text-center mb-8">
+                <h3 class="text-2xl md:text-3xl font-black text-dark-navy mb-2 tracking-tight">Temukan Data Booking Anda</h3>
+                <p class="text-gray-500 font-medium">Masukkan nomor HP, tanggal booking, atau nama.</p>
+            </div>
+
+            <div class="bg-white rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-gray-100 p-2 md:p-3 flex items-center gap-2 max-w-4xl mx-auto">
+                <form id="search-booking-form" action="{{ route('search.results') }}" method="GET" class="flex flex-col md:flex-row items-center w-full">
+                    <!-- Field 1: Phone -->
+                    <div class="flex-1 px-6 border-r border-gray-100 last:border-0 py-1">
+                        <label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-1">Nomor HP</label>
+                        <input type="text" name="phone" id="search-phone" placeholder="0812..." 
+                            class="w-full border-none focus:ring-0 p-0 font-bold text-dark-navy placeholder:text-gray-300 outline-none bg-transparent text-sm">
+                    </div>
+
+                    <!-- Field 2: Date -->
+                    <div class="flex-1 px-6 border-r border-gray-100 last:border-0 py-1">
+                        <label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-1">Tanggal</label>
+                        <input type="date" name="date" id="search-date" 
+                            class="w-full border-none focus:ring-0 p-0 font-bold text-dark-navy text-xs outline-none bg-transparent">
+                    </div>
+
+                    <!-- Field 3: Name -->
+                    <div class="flex-1 px-6 border-r border-gray-100 last:border-0 py-1">
+                        <label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-1">Nama</label>
+                        <input type="text" name="name" id="search-name" placeholder="Budi..." 
+                            class="w-full border-none focus:ring-0 p-0 font-bold text-dark-navy placeholder:text-gray-300 outline-none bg-transparent text-sm">
+                    </div>
+
+                    <!-- Compact Button -->
+                    <div class="px-4 shrink-0">
+                        <button type="submit" class="h-[45px] px-8 bg-primary text-white rounded-full font-bold text-sm shadow-md hover:bg-hover-primary transition-all active:scale-[0.95] flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i> Cari
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('search-booking-form').addEventListener('submit', function(e) {
+            const phone = document.getElementById('search-phone').value;
+            const date = document.getElementById('search-date').value;
+            const name = document.getElementById('search-name').value;
+
+            if (!phone && !date && !name) {
+                e.preventDefault();
+                alert('Silakan isi minimal satu kolom untuk mencari data booking Anda.');
+            }
+        });
+    </script>
+
+
+
     <!-- SECTION 4: PILIH PAKET SERU KAMU -->
     <section class="py-24 px-6 md:px-20 max-w-7xl mx-auto">
         <div class="text-center mb-16">

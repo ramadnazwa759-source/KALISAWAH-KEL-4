@@ -42,3 +42,16 @@ Route::get('/outbound', function () {
 Route::get('/paintball', function () {
     return view('paintball');
 });
+
+// halaman pembayaran
+Route::get('/pembayaran', function () {
+    return view('pembayaran');
+})->name('pembayaran');
+
+Route::get('/status-booking', function () {
+    return view('status-booking');
+})->name('status.booking');
+
+Route::get('/search-results', function () {
+    return view('search-results');
+})->name('search.results');
