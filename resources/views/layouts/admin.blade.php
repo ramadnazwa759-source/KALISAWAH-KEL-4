@@ -65,15 +65,11 @@
         {{-- MENU SIDEBAR TETAP LENGKAP --}}
         <a href="/admin/dashboard" class="menu-item {{ Request::is('admin/dashboard') ? 'active' : '' }}">
             <i class="fa-solid fa-house"></i> Dashboard
-        </a>
-        <a href="/admin/booking" class="menu-item {{ Request::is('admin/booking*') ? 'active' : '' }}">
-            <i class="fa-solid fa-calendar-plus"></i> Booking
-        </a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-box"></i> Paket Wisata</a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-tent"></i> Fasilitas</a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-image"></i> Galeri</a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-newspaper"></i> Berita</a>
-        <a href="#" class="menu-item"><i class="fa-solid fa-chart-line"></i> Laporan</a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-calendar-plus"></i>Booking</a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-box"></i>Wisata</a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-tent"></i>Paket Wisata</a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-newspaper"></i>Konten</a>
+        <a href="#" class="menu-item"><i class="fa-solid fa-chart-line"></i>Laporam</a>
     </div>
 
     <div class="main-content">
