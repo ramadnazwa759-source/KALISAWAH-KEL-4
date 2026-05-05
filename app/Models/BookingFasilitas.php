@@ -13,4 +13,9 @@ class BookingFasilitas extends Model
         'id_fasilitas',
         'jumlah'
     ];
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class, 'id_booking');
+    }
 }
