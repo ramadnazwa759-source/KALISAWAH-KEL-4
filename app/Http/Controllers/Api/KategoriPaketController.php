@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller; // controller dasar Laravel
 use Illuminate\Http\Request; // menangkap request dari Postman / client

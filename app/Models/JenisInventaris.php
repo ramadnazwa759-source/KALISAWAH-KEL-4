@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class JenisInventaris extends Model
 {
     protected $table = 'jenis_inventaris';
-    protected $primaryKey = 'id_jenis_inventaris';
+    public $timestamps = false;
 
     protected $fillable = [
         'nama_barang',
@@ -15,8 +15,8 @@ class JenisInventaris extends Model
         'keterangan'
     ];
 
-    public function unit()
+    public function units()
     {
-        return $this->hasMany(InventarisPerunit::class, 'id_jenis');
+        return $this->belongsTo(JenisInventaris::class, 'id_jenis', 'id');
     }
 }

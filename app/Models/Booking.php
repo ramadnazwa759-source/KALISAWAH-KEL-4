@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     protected $table = 'booking';
-    protected $primaryKey = 'id_booking';
 
     protected $fillable = [
         'kode_booking',
@@ -22,19 +21,26 @@ class Booking extends Model
         'status_booking'
     ];
 
+    // RELASI KE PAKET WISATA
     public function paket()
     {
-        return $this->belongsTo(PaketWisata::class, 'id_paket', 'id_paket');
+        return $this->belongsTo(PaketWisata::class, 'id_paket', 'id');
     }
 
+    // RELASI KE PEMBAYARAN
     public function pembayaran()
     {
-        return $this->hasOne(Pembayaran::class, 'id_booking', 'id_booking');
+        return $this->hasOne(Pembayaran::class, 'id_booking', 'id');
     }
 
+    // RELASI KE FASILITAS (MANY TO MANY)
     public function fasilitas()
     {
-        return $this->belongsToMany(Fasilitas::class, 'booking_fasilitas', 'id_booking', 'id_fasilitas')
-                    ->withPivot('jumlah');
+        return $this->belongsToMany(
+            Fasilitas::class,
+            'booking_fasilitas',
+            'id_booking',
+            'id_fasilitas'
+        )->withPivot('jumlah');
     }
 }
