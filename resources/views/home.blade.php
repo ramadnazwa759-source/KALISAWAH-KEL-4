@@ -19,7 +19,7 @@
                                 Rasakan pengalaman tak terlupakan di Kali Sawah Adventure, menyatu dengan alam yang asri.
                             </p>
                             <div class="flex flex-wrap gap-4">
-                                <a href="#" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Lihat Paket</a>
+                                <a href="#" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
                             </div>
                         </div>
                     </div>
@@ -143,43 +143,57 @@
         </div>
     </section>
 
-    <!-- SECTION 3.5: PENCARIAN BOOKING (COMPACT OVAL STYLE) -->
-    <section id="pencarian-booking" class="py-12 px-6 md:px-20 relative z-30 flex justify-center">
-        <div class="w-full max-w-5xl">
-            <div class="text-center mb-8">
-                <h3 class="text-2xl md:text-3xl font-black text-dark-navy mb-2 tracking-tight">Temukan Data Booking Anda</h3>
-                <p class="text-gray-500 font-medium">Masukkan nomor HP, tanggal booking, atau nama.</p>
+    <!-- SECTION 3.5: PENCARIAN BOOKING (PRECISE TRAVEL BAR) -->
+    <section id="pencarian-booking" class="py-20 px-6 md:px-20 bg-[#f8f9fb]">
+        <div class="max-w-[1100px] mx-auto">
+            <!-- Title Section -->
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#0057c2] mb-3">Cari Booking Anda</h2>
+                <p class="text-gray-500 font-medium">Temukan riwayat pesanan Anda dengan memasukkan data di bawah ini</p>
             </div>
 
-            <div class="bg-white rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-gray-100 p-2 md:p-3 flex items-center gap-2 max-w-4xl mx-auto">
-                <form id="search-booking-form" action="{{ route('search.results') }}" method="GET" class="flex flex-col md:flex-row items-center w-full">
-                    <!-- Field 1: Phone -->
-                    <div class="flex-1 px-6 border-r border-gray-100 last:border-0 py-1">
-                        <label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-1">Nomor HP</label>
-                        <input type="text" name="phone" id="search-phone" placeholder="0812..." 
-                            class="w-full border-none focus:ring-0 p-0 font-bold text-dark-navy placeholder:text-gray-300 outline-none bg-transparent text-sm">
+            <!-- Single Elegant Card -->
+            <div class="bg-white rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100 p-6">
+                <form id="search-booking-form" action="{{ route('search.results') }}" method="GET" class="flex flex-col md:flex-row items-end gap-4">
+                    
+                    <!-- Field 1: Phone (25%) -->
+                    <div class="w-full md:w-[25%] space-y-1.5">
+                        <label class="block text-[10px] font-bold text-[#f5a623] uppercase tracking-wider ml-1">Nomor HP</label>
+                        <div class="relative group">
+                            <i class="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0057c2] text-xs transition-colors"></i>
+                            <input type="text" name="phone" id="search-phone" placeholder="Contoh: 0812..." 
+                                class="w-full h-[50px] pl-10 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0057c2] transition-all text-sm font-semibold text-dark-navy placeholder:text-gray-300">
+                        </div>
                     </div>
 
-                    <!-- Field 2: Date -->
-                    <div class="flex-1 px-6 border-r border-gray-100 last:border-0 py-1">
-                        <label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-1">Tanggal</label>
-                        <input type="date" name="date" id="search-date" 
-                            class="w-full border-none focus:ring-0 p-0 font-bold text-dark-navy text-xs outline-none bg-transparent">
+                    <!-- Field 2: Date (25%) -->
+                    <div class="w-full md:w-[25%] space-y-1.5">
+                        <label class="block text-[10px] font-bold text-[#f5a623] uppercase tracking-wider ml-1">Tanggal Booking</label>
+                        <div class="relative group">
+                            <i class="fa-solid fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0057c2] text-xs transition-colors"></i>
+                            <input type="date" name="date" id="search-date" 
+                                class="w-full h-[50px] pl-10 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0057c2] transition-all text-sm font-semibold text-dark-navy cursor-pointer">
+                        </div>
                     </div>
 
-                    <!-- Field 3: Name -->
-                    <div class="flex-1 px-6 border-r border-gray-100 last:border-0 py-1">
-                        <label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-1">Nama</label>
-                        <input type="text" name="name" id="search-name" placeholder="Budi..." 
-                            class="w-full border-none focus:ring-0 p-0 font-bold text-dark-navy placeholder:text-gray-300 outline-none bg-transparent text-sm">
+                    <!-- Field 3: Name (30%) -->
+                    <div class="w-full md:w-[30%] space-y-1.5">
+                        <label class="block text-[10px] font-bold text-[#f5a623] uppercase tracking-wider ml-1">Nama Pemesan</label>
+                        <div class="relative group">
+                            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0057c2] text-xs transition-colors"></i>
+                            <input type="text" name="name" id="search-name" placeholder="Nama lengkap Anda" 
+                                class="w-full h-[50px] pl-10 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0057c2] transition-all text-sm font-semibold text-dark-navy placeholder:text-gray-300">
+                        </div>
                     </div>
 
-                    <!-- Compact Button -->
-                    <div class="px-4 shrink-0">
-                        <button type="submit" class="h-[45px] px-8 bg-primary text-white rounded-full font-bold text-sm shadow-md hover:bg-hover-primary transition-all active:scale-[0.95] flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-magnifying-glass text-xs"></i> Cari
+                    <!-- Search Button (20%) -->
+                    <div class="w-full md:w-[20%]">
+                        <button type="submit" class="w-full h-[50px] bg-[#0057c2] hover:bg-[#004bb1] text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/10">
+                            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                            <span>Cari Data</span>
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -246,7 +260,7 @@
     <section class="py-20 bg-light-gray overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 md:px-20 mb-12">
             <h2 class="text-2xl md:text-3xl font-bold text-center text-dark-navy">
-                Yang Sudah Seru di <span class="text-secondary">Kalisawah</span>
+                Yang Sudah Seru di <span class="text-secondary">Experience</span>
             </h2>
         </div>
         
@@ -453,4 +467,4 @@
             animation-play-state: paused;
         }
     </style>
-@endsection
+@endsection

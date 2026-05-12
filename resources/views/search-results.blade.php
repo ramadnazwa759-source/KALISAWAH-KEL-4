@@ -107,11 +107,9 @@
         function renderResults(data) {
             const container = document.getElementById('found-list');
             container.classList.remove('hidden');
-            
-            // Format IDR
+
             const formatIDR = (val) => 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
 
-            // Replicate the exact card style from status-booking
             const cardHtml = `
                 <div class="bg-white rounded-[32px] shadow-xl p-8 md:p-12 border border-gray-100 space-y-12">
                     <!-- STATUS BADGE -->
