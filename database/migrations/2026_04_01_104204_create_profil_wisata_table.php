@@ -13,13 +13,13 @@ return new class extends Migration
         {
             Schema::create('profil_wisata', function (Blueprint $table) {
         $table->id('id');
-        $table->string('nama_wisata');
+        $table->string('nama_wisata', 255);
         $table->text('deskripsi');
-        $table->string('alamat');
-        $table->string('no_hp');
-        $table->string('email');
-        $table->string('instagram')->nullable();
-        $table->string('tiktok')->nullable();
+        $table->string('alamat', 255);
+        $table->string('no_hp', 20);
+        $table->string('email', 255);
+        $table->string('instagram', 100)->nullable();
+        $table->string('tiktok', 100)->nullable();
         $table->text('maps_link')->nullable();
     });
     }

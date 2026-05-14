@@ -20,7 +20,7 @@ class KategoriPaketController extends Controller
     }
 
     // MENAMPILKAN 1 DATA BERDASARKAN ID
-    // GET /api/kategori-paket/{id}
+    // GET /apautentii/kategori-paket/{id}
  
     public function show($id)
     {

@@ -13,9 +13,17 @@ return new class extends Migration
     {
             Schema::create('jenis_inventaris', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('id_subkategori');
             $table->string('nama_barang');
-            $table->string('kategori');
-            $table->text('keterangan')->nullable();
+            $table->text('spesifikasi')->nullable();
+
+            $table->timestamps();
+
+            $table->foreign('id_subkategori')
+                ->references('id_subkategori')
+                ->on('subkategori_inventaris')
+                ->onDelete('cascade');
         });
     }
 
