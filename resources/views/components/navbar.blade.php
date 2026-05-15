@@ -16,8 +16,8 @@
             </a>
             <ul class="dropdown-menu absolute left-0 top-full mt-2 w-64 bg-white border-t-4 border-primary rounded-b-lg shadow-xl hidden py-2 list-none">
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Gathering & Team Building</a></li>
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Rafting Banyuwangi</a></li>
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Camping Banyuwangi</a></li>
+                <li><a href="/rafting" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Rafting Banyuwangi</a></li>
+                <li><a href="/camping" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Camping Banyuwangi</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Outbound Banyuwangi</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Wargame Banyuwangi (Paintball)</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Jeep Tour Banyuwangi</a></li>
@@ -31,8 +31,8 @@
                 Aktivitas <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </a>
             <ul class="dropdown-menu absolute left-0 top-full mt-2 w-56 bg-white border-t-4 border-primary rounded-b-lg shadow-xl hidden py-2 list-none">
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Rafting</a></li>
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Camping</a></li>
+                <li><a href="/rafting" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Rafting</a></li>
+                <li><a href="/camping" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Camping</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Outbound</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Paintball</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Jeep Adventure</a></li>
@@ -59,8 +59,8 @@
         <div class="font-bold text-primary border-b border-gray-100 pb-2">Paket Wisata</div>
         <ul class="pl-4 space-y-2 list-none">
             <li><a href="#" class="text-sm text-gray-600">Gathering & Team Building</a></li>
-            <li><a href="#" class="text-sm text-gray-600">Rafting Banyuwangi</a></li>
-            <li><a href="#" class="text-sm text-gray-600">Camping Banyuwangi</a></li>
+            <li><a href="/rafting" class="text-sm text-gray-600">Rafting Banyuwangi</a></li>
+            <li><a href="/camping" class="text-sm text-gray-600">Camping Banyuwangi</a></li>
         </ul>
         <a href="#" class="block font-bold text-primary">Cerita Kalisawah</a>
         <a href="#" class="block font-bold text-primary">Fasilitas</a>

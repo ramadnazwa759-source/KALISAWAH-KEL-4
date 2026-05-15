@@ -78,16 +78,17 @@
                 <hr class="border-gray-100">
 
                 <!-- C. FOOTER BUTTONS -->
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 pt-10">
-                    <a href="javascript:history.back()" 
-                        class="btn-action w-full md:w-auto h-[55px] px-10 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 font-bold text-lg flex items-center justify-center hover:bg-gray-200 transition-all duration-100 ease-in-out active:scale-[0.95] shadow-sm uppercase tracking-widest">
+                <div class="flex flex-row flex-nowrap items-center justify-center gap-4 pt-16 pb-20">
+                    <a href="{{ route('home') }}" 
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] shadow-sm uppercase tracking-widest">
                         Kembali
                     </a>
                     
                     <button type="button" onclick="finishBooking()"
                         style="background-color: #FFC236;"
-                        class="btn-action w-full md:w-auto h-[55px] px-16 rounded-xl text-white font-bold text-lg flex items-center justify-center hover:opacity-90 transition-all duration-100 ease-in-out active:scale-[0.95] shadow-lg shadow-yellow-500/20 uppercase tracking-widest">
-                        Konfirmasi
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
+                        <span>Konfirmasi</span>
+                        <i class="fa-solid fa-chevron-right text-sm"></i>
                     </button>
                 </div>
             </div>

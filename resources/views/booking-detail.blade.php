@@ -9,7 +9,7 @@
         <div class="absolute inset-0 bg-black/60"></div>
         <div class="relative z-10 px-6 max-w-5xl mx-auto pt-20">
             <h1 class="text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Detail Pesanan <br>
+                Layanan Camping Kalisawah <br> Adventure
             </h1>
             <p class="text-gray-200 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
                 Kalisawah Adventure menawarkan pengalaman camping di alam terbuka dengan suasana asri dan private.
@@ -18,11 +18,11 @@
     </section>
 
     <!-- SUMMARY SECTION -->
-    <section id="ringkasan" class="pt-32 pb-24 px-6 bg-[#F8FAFC] scroll-mt-20">
+    <section id="ringkasan" class="pt-32 pb-60 px-6 bg-[#F8FAFC] scroll-mt-20">
         <div class="max-w-[850px] mx-auto">
             
             <div class="mb-16 text-center">
-                
+                <h2 class="text-3xl md:text-5xl font-black text-dark-navy mb-4">Rincian Reservasi</h2>
                 <div class="w-16 h-1.5 bg-secondary mx-auto rounded-full"></div>
                 <p class="mt-8 text-gray-400 font-medium max-w-lg mx-auto text-lg">Pastikan seluruh data di bawah ini sudah benar untuk menghindari kesalahan saat hari H.</p>
             </div>
@@ -56,18 +56,21 @@
                             <label class="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Waktu Kedatangan</label>
                             <p id="display_waktu" class="text-2xl font-black text-dark-navy border-b-2 border-gray-50 pb-2">-</p>
                         </div>
-                        <div class="flex gap-10">
-                            <div class="flex-1">
-                                <label class="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Orang</label>
-                                <p id="display_orang" class="text-2xl font-black text-dark-navy border-b-2 border-gray-50 pb-2">0</p>
+                        <div class="flex flex-col gap-6 w-full">
+                            <div class="flex gap-10">
+                                <div class="flex-1">
+                                    <label class="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Pengunjung Tambahan</label>
+                                    <p id="display_orang" class="text-2xl font-black text-dark-navy border-b-2 border-gray-50 pb-2">0</p>
+                                </div>
+                                <div id="tenda_display_container" class="flex-1 hidden">
+                                    <label class="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Tenda</label>
+                                    <p id="display_tenda" class="text-2xl font-black text-dark-navy border-b-2 border-gray-50 pb-2">0</p>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <label class="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Tenda</label>
-                                <p id="display_tenda" class="text-2xl font-black text-dark-navy border-b-2 border-gray-50 pb-2">0</p>
+                            <div id="ukuran_tenda_display_container" class="hidden">
+                                <label class="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Ukuran Tenda (Sewa Lahan)</label>
+                                <p id="display_ukuran_tenda" class="text-2xl font-black text-dark-navy border-b-2 border-gray-50 pb-2">-</p>
                             </div>
-                        <div id="ukuran_tenda_display_container" class="hidden">
-                            <label class="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Ukuran Tenda</label>
-                            <p id="display_ukuran_tenda" class="text-2xl font-black text-dark-navy border-b-2 border-gray-50 pb-2">-</p>
                         </div>
                     </div>
                 </div>
@@ -100,13 +103,8 @@
                     </h3>
                     
                     <div class="space-y-4 bg-gray-50/40 rounded-3xl p-8 border border-gray-100">
-                        <div class="flex justify-between items-center text-lg">
-                            <span class="text-gray-500 font-bold" id="price_label_paket">Paket Pilihan</span>
-                            <span class="text-dark-navy font-black" id="price_value_paket">Rp 0</span>
-                        </div>
-                        
-                        <div id="price_addons_list" class="space-y-4 pt-4 border-t border-gray-100">
-                            <!-- JS Items -->
+                        <div id="price_items_container" class="space-y-4">
+                            <!-- JS Items: Packages, Visitors, Add-ons -->
                         </div>
 
                         <div class="pt-8 border-t-2 border-gray-200 mt-6 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -114,22 +112,22 @@
                             <span class="text-4xl font-black text-primary drop-shadow-sm" id="display_total">Rp 0</span>
                         </div>
                     </div>
-                    <p class="mt-4 text-center text-gray-400 text-sm italic font-medium">*Pembayaran DP 50%, pelunasan dilakukan saat kedatangan di lokasi (Check-in)</p>
+                    <p class="mt-4 text-center text-gray-400 text-sm italic font-medium">*Pembayaran DP minimal 10%, pelunasan dilakukan saat kedatangan di lokasi (Check-in)</p>
                 </div>
             </div>
 
             <!-- FOOTER BUTTONS -->
-            <div class="mt-24 pt-12 border-t-2 border-gray-200 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="mt-24 pt-12 border-t-2 border-gray-200 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8">
                 <a href="{{ route('booking.create') }}" 
-                    class="w-full md:w-auto h-[55px] px-12 rounded-full border border-gray-200 bg-white text-gray-400 font-bold text-lg flex items-center justify-center hover:bg-gray-50 transition-all duration-100 ease-in-out active:scale-[0.95] active:shadow-none active:brightness-95 shadow-sm uppercase tracking-widest">
+                    class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] shadow-sm uppercase tracking-widest">
                     Kembali
                 </a>
                 
                 <button type="button" id="confirmBtn" onclick="goToPayment()"
                     style="background-color: #FFC236;"
-                    class="w-full md:w-auto h-[60px] px-24 rounded-full text-white font-black text-xl flex items-center justify-center hover:opacity-90 transition-all duration-100 ease-in-out active:scale-[0.95] active:shadow-none active:brightness-95 shadow-xl shadow-yellow-500/20 uppercase tracking-[0.1em] gap-3">
+                    class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
                     <span>Lanjut</span>
-                    <i class="fa-solid fa-chevron-right"></i>
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
                 </button>
             </div>
         </div>
@@ -140,26 +138,32 @@
         <div class="w-24 h-24 border-8 border-white/20 rounded-full flex items-center justify-center mb-8 relative">
             <div class="absolute inset-0 border-8 border-secondary border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <h3 class="text-3xl font-black mb-2">Finalisasi Booking</h3>
-        <p class="text-blue-200">Menyimpan petualangan Anda...</p>
+        <h3 class="text-3xl font-black mb-2">Memproses Pesanan</h3>
+        <p class="text-blue-200">Mohon tunggu sebentar...</p>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const data = JSON.parse(localStorage.getItem('booking_data'));
+            let data = null;
+            try {
+                data = JSON.parse(localStorage.getItem('booking_data'));
+            } catch (e) {
+                console.error("Error parsing booking data", e);
+            }
 
-            if (!data) {
+            if (!data || !data.nama_pemesan || !data.selected_packages || data.selected_packages.length === 0) {
+                alert('Data booking tidak ditemukan atau tidak lengkap. Silakan isi kembali data reservasi Anda.');
                 window.location.href = "{{ route('booking.create') }}";
                 return;
             }
 
             // Prices Data
-            const PRICING = {
+            const PRICING_CONFIG = {
                 pakets: {
-                    'Nyaman Camp': 350000,
-                    'Seru Camp': 185000,
-                    'Santai Camp': 150000,
-                    'Bawa Tenda Sendiri': 25000 // Tiket per orang
+                    'Nyaman Camp': { price: 350000, pax: 6, includesTenda: true },
+                    'Seru Camp': { price: 185000, pax: 4, includesTenda: true },
+                    'Santai Camp': { price: 150000, pax: 4, includesTenda: true },
+                    'Bawa Tenda Sendiri': { price: 25000, pax: 0, includesTenda: false }
                 },
                 fasilitas: {
                     1: { name: 'Peralatan Masak', price: 50000 },
@@ -182,44 +186,85 @@
             // Map Data
             document.getElementById('display_nama').innerText = data.nama_pemesan;
             document.getElementById('display_wa').innerText = data.no_hp;
-            document.getElementById('display_paket').innerText = data.paket;
             document.getElementById('display_tanggal').innerText = data.tanggal_kunjungan;
             document.getElementById('display_waktu').innerText = data.jam + ' WIB';
-            document.getElementById('display_orang').innerText = data.jumlah_orang;
-            document.getElementById('display_tenda').innerText = data.jumlah_tenda || 0;
+            document.getElementById('display_orang').innerText = data.total_pengunjung;
 
+            // Clear and start populating
             let totalHarga = 0;
-            const priceAddonsContainer = document.getElementById('price_addons_list');
-            priceAddonsContainer.innerHTML = ''; // Clear
+            const priceItemsContainer = document.getElementById('price_items_container');
+            priceItemsContainer.innerHTML = ''; 
 
-            // 1. Calculate Package Price
-            let paketBasePrice = PRICING.pakets[data.paket] || 0;
-            if (data.paket === 'Bawa Tenda Sendiri') {
-                // Show Ukuran Tenda
+            // 1. Calculate Packages & Extra Tickets
+            let totalCapacity = 0;
+            let packagesPrice = 0;
+            const packagesDisplay = document.getElementById('display_paket');
+            packagesDisplay.innerHTML = '';
+            
+            let hasSewaLahan = false;
+
+            // Header for Packages
+            priceItemsContainer.innerHTML += `
+                <div class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mb-4">Subtotal Paket & Tiket</div>
+            `;
+
+            data.selected_packages.forEach(pkg => {
+                const config = PRICING_CONFIG.pakets[pkg.name];
+                
+                if (pkg.name === 'Bawa Tenda Sendiri') {
+                    hasSewaLahan = true;
+                    packagesDisplay.innerHTML += `<div class="text-sm font-bold text-gray-500 mb-1">${pkg.name}</div>`;
+                } else {
+                    const subtotal = config.price * pkg.qty;
+                    packagesPrice += subtotal;
+                    totalCapacity += (config.pax * pkg.qty);
+                    
+                    packagesDisplay.innerHTML += `<div class="text-sm font-bold text-gray-500 mb-1">${pkg.name} x ${pkg.qty}</div>`;
+                    
+                    priceItemsContainer.innerHTML += `
+                        <div class="flex justify-between items-center text-sm md:text-base">
+                            <span class="text-gray-500 font-medium">${pkg.name} (${pkg.qty} x ${formatIDR(config.price)})</span>
+                            <span class="text-dark-navy font-bold">${formatIDR(subtotal)}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            if (packagesDisplay.innerHTML === '') packagesDisplay.innerText = '-';
+
+            // 2. Extra People Calculation
+            const extraPeople = parseInt(data.total_pengunjung) || 0;
+            const extraTicketPrice = extraPeople * 25000;
+            
+            if (extraPeople > 0) {
+                priceItemsContainer.innerHTML += `
+                    <div class="flex justify-between items-center text-sm md:text-base">
+                        <span class="text-gray-500 font-medium">Pengunjung Tambahan (${extraPeople} x ${formatIDR(25000)})</span>
+                        <span class="text-dark-navy font-bold">${formatIDR(extraTicketPrice)}</span>
+                    </div>
+                `;
+            }
+
+            // 3. Sewa Lahan Logic
+            let sewaLahanPrice = 0;
+            if (hasSewaLahan) {
+                document.getElementById('tenda_display_container').classList.remove('hidden');
+                document.getElementById('display_tenda').innerText = data.jumlah_tenda || 0;
                 document.getElementById('ukuran_tenda_display_container').classList.remove('hidden');
                 const ukuran = data.ukuran_tenda === '3-4' ? 'Tenda 3-4 Orang' : 'Tenda 6+ Orang';
                 document.getElementById('display_ukuran_tenda').innerText = ukuran;
-
-                const unitPriceTiket = PRICING.pakets['Bawa Tenda Sendiri'];
-                const totalTiket = unitPriceTiket * parseInt(data.jumlah_orang);
-                const sewaLahan = data.ukuran_tenda === '6+' ? 50000 : 25000;
-                paketBasePrice = totalTiket + sewaLahan;
                 
-                document.getElementById('price_label_paket').innerHTML = `
-                    <div class="flex flex-col">
-                        <span>Tiket Camp (${data.jumlah_orang} x ${formatIDR(unitPriceTiket)})</span>
-                        <span class="text-xs text-gray-400 font-medium">Sewa Lahan ${ukuran} (${formatIDR(sewaLahan)})</span>
+                sewaLahanPrice = data.ukuran_tenda === '6+' ? 50000 : 25000;
+                
+                priceItemsContainer.innerHTML += `
+                    <div class="flex justify-between items-center text-sm md:text-base">
+                        <span class="text-gray-500 font-medium">Sewa Lahan (${ukuran})</span>
+                        <span class="text-dark-navy font-bold">${formatIDR(sewaLahanPrice)}</span>
                     </div>
                 `;
-            } else {
-                // Fixed price packages (assume per tenda)
-                const tendaCount = Math.max(1, parseInt(data.jumlah_tenda));
-                const unitPrice = paketBasePrice;
-                paketBasePrice = unitPrice * tendaCount;
-                document.getElementById('price_label_paket').innerText = `Paket ${data.paket} (${tendaCount} x ${formatIDR(unitPrice)})`;
             }
-            totalHarga += paketBasePrice;
-            document.getElementById('price_value_paket').innerText = formatIDR(paketBasePrice);
+            
+            totalHarga += packagesPrice + extraTicketPrice + sewaLahanPrice;
 
             // 2. Handle Add-ons (Fasilitas)
             let hasAddons = false;
@@ -229,9 +274,14 @@
                 const container = document.getElementById('fasilitas_list_container');
                 const list = document.getElementById('display_fasilitas');
                 container.classList.remove('hidden');
+
+                // Header for Services
+                priceItemsContainer.innerHTML += `
+                    <div class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mt-6 mb-4">Tambahan Layanan</div>
+                `;
                 
                 Object.entries(data.fasilitas).forEach(([id, qty]) => {
-                    const item = PRICING.fasilitas[id];
+                    const item = PRICING_CONFIG.fasilitas[id];
                     const subtotal = item.price * qty;
                     totalHarga += subtotal;
 
@@ -242,8 +292,8 @@
                     </li>`;
 
                     // Update Pricing List
-                    priceAddonsContainer.innerHTML += `
-                        <div class="flex justify-between items-center text-sm">
+                    priceItemsContainer.innerHTML += `
+                        <div class="flex justify-between items-center text-sm md:text-base">
                             <span class="text-gray-500 font-medium">${item.name} (${qty} x ${formatIDR(item.price)})</span>
                             <span class="text-dark-navy font-bold">${formatIDR(subtotal)}</span>
                         </div>
@@ -257,9 +307,16 @@
                 const container = document.getElementById('makanan_list_container');
                 const list = document.getElementById('display_makanan');
                 container.classList.remove('hidden');
+
+                // Add spacing if header not already added for add-ons
+                if (Object.keys(data.fasilitas).length === 0) {
+                     priceItemsContainer.innerHTML += `
+                        <div class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mt-6 mb-4">Tambahan Layanan</div>
+                    `;
+                }
                 
                 Object.entries(data.makanan).forEach(([id, qty]) => {
-                    const item = PRICING.makanan[id];
+                    const item = PRICING_CONFIG.makanan[id];
                     const subtotal = item.price * qty;
                     totalHarga += subtotal;
 
@@ -270,8 +327,8 @@
                     </li>`;
 
                     // Update Pricing List
-                    priceAddonsContainer.innerHTML += `
-                        <div class="flex justify-between items-center text-sm">
+                    priceItemsContainer.innerHTML += `
+                        <div class="flex justify-between items-center text-sm md:text-base">
                             <span class="text-gray-500 font-medium">${item.name} (${qty} x ${formatIDR(item.price)})</span>
                             <span class="text-dark-navy font-bold">${formatIDR(subtotal)}</span>
                         </div>
@@ -297,7 +354,7 @@
 
             // Redirect to payment page
             setTimeout(() => {
-                window.location.href = "{{ route('pembayaran') }}";
+                window.location.href = "{{ route('pembayaran.camping') }}";
             }, 800);
         }
     </script>

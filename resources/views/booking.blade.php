@@ -29,70 +29,94 @@
             </div>
 
             <!-- FORM START -->
-            <div class="mb-16 text-center">
-                <h2 class="text-3xl md:text-5xl font-black text-dark-navy mb-4">Isi Data Reservasi</h2>
-                <div class="w-20 h-1.5 bg-secondary mx-auto rounded-full"></div>
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl md:text-4xl font-black text-dark-navy mb-3">Isi Data Reservasi</h2>
+                <div class="w-20 h-1 bg-secondary mx-auto rounded-full"></div>
             </div>
 
-            <form id="bookingForm" method="GET" onsubmit="return false;" class="space-y-16">
+            <form id="bookingForm" method="GET" onsubmit="return false;" class="space-y-10">
                 @csrf
                 <input type="hidden" id="paket_hidden" value="{{ request('paket', 'Pilih Paket Camp') }}">
                 
                 <!-- 1. CORE DATA SECTION -->
-                <div class="space-y-10">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Name -->
-                        <div class="space-y-3">
-                            <label for="nama_pemesan" class="block text-sm font-black text-gray-400 uppercase tracking-widest">Name</label>
+                        <div class="space-y-2.5">
+                            <label for="nama_pemesan" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">Name</label>
                             <input type="text" id="nama_pemesan" name="nama_pemesan" placeholder="Enter your name" required 
-                                class="w-full px-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 focus:border-secondary focus:bg-white focus:ring-0 outline-none transition-all text-dark-navy font-bold">
+                                class="w-full h-[56px] px-6 rounded-xl border border-gray-200 bg-white outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
                         </div>
-
+ 
                         <!-- Whatsapp -->
-                        <div class="space-y-3">
-                            <label for="no_hp" class="block text-sm font-black text-gray-400 uppercase tracking-widest">Whatsapp</label>
+                        <div class="space-y-2.5">
+                            <label for="no_hp" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">Whatsapp</label>
                             <input type="text" id="no_hp" name="no_hp" placeholder="Enter your number" required 
-                                class="w-full px-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 focus:border-secondary focus:bg-white focus:ring-0 outline-none transition-all text-dark-navy font-bold">
+                                class="w-full h-[56px] px-6 rounded-xl border border-gray-200 bg-white outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Tanggal -->
-                        <div class="space-y-3">
-                            <label for="tanggal_kunjungan" class="block text-sm font-black text-gray-400 uppercase tracking-widest">Tanggal</label>
+                        <div class="space-y-2.5">
+                            <label for="tanggal_kunjungan" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">Tanggal</label>
                             <input type="date" id="tanggal_kunjungan" name="tanggal_kunjungan" required 
-                                class="w-full px-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 focus:border-secondary focus:bg-white focus:ring-0 outline-none transition-all text-dark-navy font-bold text-lg">
+                                class="w-full h-[56px] px-6 rounded-xl border border-gray-200 bg-white outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy cursor-pointer">
                         </div>
 
                         <!-- Jam -->
-                        <div class="space-y-3">
-                            <label for="jam" class="block text-sm font-black text-gray-400 uppercase tracking-widest">Jam</label>
+                        <div class="space-y-2.5">
+                            <label for="jam" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">Jam</label>
                             <input type="time" id="jam" name="jam" required 
-                                class="w-full px-6 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 focus:border-secondary focus:bg-white focus:ring-0 outline-none transition-all text-dark-navy font-bold text-lg">
+                                class="w-full h-[56px] px-6 rounded-xl border border-gray-200 bg-white outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy">
                         </div>
                     </div>
 
-                    <!-- Jumlah Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 bg-blue-50/30 rounded-3xl border border-blue-50">
-                        <div class="flex items-center justify-between gap-4">
-                            <label for="jumlah_orang" class="text-sm font-black text-primary uppercase tracking-widest">Jumlah Orang</label>
-                            <input type="number" id="jumlah_orang" name="jumlah_orang" min="1" value="1" 
-                                class="w-24 px-4 py-3 rounded-xl border-2 border-primary/10 text-center font-black text-primary focus:border-primary outline-none bg-white">
+                    <!-- Paket Terpilih Section -->
+                    <div class="space-y-6 pt-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] ml-1">Daftar Paket Dipilih</h4>
+                            <button type="button" onclick="openPackageSelector()" class="text-[11px] font-bold text-primary hover:text-hover-primary transition-colors flex items-center gap-2 mr-1">
+                                <i class="fa-solid fa-plus-circle text-[10px]"></i> TAMBAH PAKET
+                            </button>
                         </div>
-                        <div class="flex items-center justify-between gap-4">
-                            <label for="jumlah_tenda" class="text-sm font-black text-primary uppercase tracking-widest">Jumlah Tenda</label>
+                        
+                        <div id="selected_packages_container" class="space-y-6">
+                            <!-- JS populated -->
+                        </div>
+                    </div>
+
+                    <!-- Jumlah Grid (Visitor Section) -->
+                    <div class="space-y-6 pt-6">
+                        <div class="p-8 md:p-10 bg-white rounded-[2rem] border border-gray-200 shadow-sm space-y-6">
+                            <div class="flex items-center justify-between gap-4">
+                                <label for="jumlah_orang" class="text-[11px] font-bold text-primary uppercase tracking-[0.1em]">Pengunjung Tambahan</label>
+                                <div class="flex items-center gap-4 bg-gray-50/50 p-2 rounded-2xl border border-gray-100">
+                                    <button type="button" onclick="decrement('jumlah_orang')" 
+                                        class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-secondary hover:text-white transition-all active:scale-90 font-bold text-lg shadow-sm">-</button>
+                                    <input type="number" id="jumlah_orang" name="jumlah_orang" value="0" min="0" readonly
+                                        class="w-10 bg-transparent text-center font-bold text-primary text-sm outline-none">
+                                    <button type="button" onclick="increment('jumlah_orang')" 
+                                        class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-secondary hover:text-white transition-all active:scale-90 font-bold text-lg shadow-sm">+</button>
+                                </div>
+                            </div>
+                            <p class="text-[11px] font-medium text-gray-400 italic">“Tambahan orang di luar kapasitas paket dikenakan Rp 25.000/orang.”</p>
+                        </div>
+                        
+                        <div id="jumlah_tenda_wrapper" class="hidden p-8 bg-white rounded-[2rem] border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+                            <label for="jumlah_tenda" class="text-[11px] font-bold text-primary uppercase tracking-[0.1em]">Jumlah Tenda</label>
                             <input type="number" id="jumlah_tenda" name="jumlah_tenda" min="0" value="0" 
-                                class="w-24 px-4 py-3 rounded-xl border-2 border-primary/10 text-center font-black text-primary focus:border-primary outline-none bg-white">
+                                class="w-20 text-right font-bold text-primary outline-none bg-transparent">
                         </div>
 
                         <!-- DYNAMIC FIELD: Ukuran Tenda (Only for Bawa Tenda Sendiri) -->
-                        <div id="ukuran_tenda_container" class="hidden flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-primary/10 col-span-1 md:col-span-2">
+                        <div id="ukuran_tenda_container" class="hidden p-8 bg-white rounded-[2rem] border border-gray-200 shadow-sm flex-col md:flex-row items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-tent text-primary"></i>
-                                <label for="ukuran_tenda" class="text-sm font-black text-primary uppercase tracking-widest">Ukuran Tenda</label>
+                                <i class="fa-solid fa-tent text-primary text-sm"></i>
+                                <label for="ukuran_tenda" class="text-[11px] font-bold text-primary uppercase tracking-[0.1em]">Ukuran Tenda</label>
                             </div>
                             <select id="ukuran_tenda" name="ukuran_tenda" 
-                                class="w-full md:w-64 px-4 py-3 rounded-xl border-2 border-primary/10 font-black text-primary focus:border-primary outline-none bg-white appearance-none cursor-pointer">
+                                class="w-full md:w-64 h-[46px] px-4 rounded-xl border border-gray-200 font-bold text-primary focus:border-primary outline-none bg-white appearance-none cursor-pointer text-sm">
                                 <option value="3-4">Tenda Kapasitas 3–4 Orang</option>
                                 <option value="6+">Tenda Kapasitas 6+ Orang</option>
                             </select>
@@ -191,16 +215,18 @@
                     </div>
                 </div>
 
-                <!-- FOOTER BUTTONS -->
-                <div class="mt-40 pt-20 border-t-2 border-gray-100 flex flex-col md:flex-row items-center justify-between gap-8">
+                <!-- Navigation Buttons -->
+                <div class="mt-24 pt-12 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 border-t-2 border-gray-200">
                     <a href="{{ route('camping') }}" 
-                        class="w-full md:w-auto h-[55px] px-12 rounded-full border border-gray-200 bg-white text-gray-500 font-bold text-lg flex items-center justify-center hover:bg-gray-50 transition-all duration-100 ease-in-out active:scale-[0.95] active:shadow-none active:brightness-95 shadow-sm">
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] shadow-sm uppercase tracking-widest">
                         Kembali
                     </a>
+                    
                     <button type="submit" id="submitBtn"
                         style="background-color: #FFC236;"
-                        class="w-full md:w-auto h-[55px] px-16 rounded-full text-white font-bold text-lg flex items-center justify-center hover:opacity-90 transition-all duration-100 ease-in-out active:scale-[0.95] active:shadow-none active:brightness-95 shadow-lg shadow-yellow-500/20 disabled:opacity-50">
-                        Lanjut
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
+                        <span>Lanjut</span>
+                        <i class="fa-solid fa-chevron-right text-sm"></i>
                     </button>
                 </div>
 
@@ -218,7 +244,44 @@
     </div>
 
     <!-- SCRIPTS -->
+    <!-- PACKAGE SELECTOR MODAL -->
+    <div id="packageModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closePackageSelector()"></div>
+        <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8">
+            <h3 class="text-xl font-black text-dark-navy mb-6">Pilih Paket</h3>
+            <div class="grid grid-cols-1 gap-4">
+                <button type="button" onclick="addPackage('Nyaman Camp')" class="p-4 rounded-2xl border-2 border-gray-100 hover:border-primary text-left transition-all group">
+                    <span class="block font-black text-dark-navy group-hover:text-primary">Nyaman Camp</span>
+                    <span class="block text-xs text-gray-400 font-bold">Rp 350.000 / 6 Orang</span>
+                </button>
+                <button type="button" onclick="addPackage('Seru Camp')" class="p-4 rounded-2xl border-2 border-gray-100 hover:border-primary text-left transition-all group">
+                    <span class="block font-black text-dark-navy group-hover:text-primary">Seru Camp</span>
+                    <span class="block text-xs text-gray-400 font-bold">Rp 185.000 / 4 Orang</span>
+                </button>
+                <button type="button" onclick="addPackage('Santai Camp')" class="p-4 rounded-2xl border-2 border-gray-100 hover:border-primary text-left transition-all group">
+                    <span class="block font-black text-dark-navy group-hover:text-primary">Santai Camp</span>
+                    <span class="block text-xs text-gray-400 font-bold">Rp 150.000 / 4 Orang</span>
+                </button>
+                <button type="button" onclick="addPackage('Bawa Tenda Sendiri')" class="p-4 rounded-2xl border-2 border-gray-100 hover:border-primary text-left transition-all group">
+                    <span class="block font-black text-dark-navy group-hover:text-primary">Bawa Tenda Sendiri</span>
+                    <span class="block text-xs text-gray-400 font-bold">Tiket Rp 25.000 / Orang</span>
+                </button>
+            </div>
+            <button type="button" onclick="closePackageSelector()" class="mt-8 w-full py-4 text-gray-400 font-bold hover:text-gray-600">Batal</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script>
+        const PACKAGES_CONFIG = {
+            'Nyaman Camp': { price: 350000, pax: 6, includesTenda: true },
+            'Seru Camp': { price: 185000, pax: 4, includesTenda: true },
+            'Santai Camp': { price: 150000, pax: 4, includesTenda: true },
+            'Bawa Tenda Sendiri': { price: 25000, pax: 0, includesTenda: false }
+        };
+
+        let selectedPackages = [];
+
         function increment(id) {
             const input = document.getElementById(id);
             input.value = parseInt(input.value) + 1;
@@ -231,21 +294,91 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const paket = document.getElementById('paket_hidden').value;
+        function openPackageSelector() {
+            document.getElementById('packageModal').classList.remove('hidden');
+            document.getElementById('packageModal').classList.add('flex');
+        }
+
+        function closePackageSelector() {
+            document.getElementById('packageModal').classList.add('hidden');
+            document.getElementById('packageModal').classList.remove('flex');
+        }
+
+        function addPackage(name) {
+            selectedPackages.push({ name: name, qty: 1 });
+            renderSelectedPackages();
+            closePackageSelector();
+            updateTendaVisibility();
+        }
+
+        function removePackage(index) {
+            selectedPackages.splice(index, 1);
+            renderSelectedPackages();
+            updateTendaVisibility();
+        }
+
+        function updatePackageQty(index, delta) {
+            selectedPackages[index].qty = Math.max(1, selectedPackages[index].qty + delta);
+            renderSelectedPackages();
+        }
+
+        function renderSelectedPackages() {
+            const container = document.getElementById('selected_packages_container');
+            container.innerHTML = '';
+
+            selectedPackages.forEach((pkg, index) => {
+                const config = PACKAGES_CONFIG[pkg.name];
+                const html = `
+                    <div class="bg-white p-8 rounded-[2rem] border border-gray-200 flex items-center justify-between gap-4 shadow-sm">
+                        <div class="flex-1">
+                            <span class="block font-bold text-dark-navy text-lg uppercase tracking-wide">${pkg.name}</span>
+                            <span class="block text-xs text-gray-400 font-bold mt-1">${config.pax > 0 ? 'Kapasitas ' + config.pax + ' Orang' : 'Sewa Lahan'}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-primary text-sm">${pkg.qty} Paket</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+
+            if (selectedPackages.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-400 italic text-center py-4 border-2 border-dashed border-gray-100 rounded-2xl">Belum ada paket dipilih</p>';
+            }
+        }
+
+        function updateTendaVisibility() {
+            const hasCustomTenda = selectedPackages.some(pkg => !PACKAGES_CONFIG[pkg.name].includesTenda);
+            const tendaWrapper = document.getElementById('jumlah_tenda_wrapper');
             const ukuranTendaContainer = document.getElementById('ukuran_tenda_container');
 
-            if (paket === 'Bawa Tenda Sendiri') {
+            if (hasCustomTenda) {
+                tendaWrapper.classList.remove('hidden');
                 ukuranTendaContainer.classList.remove('hidden');
                 ukuranTendaContainer.classList.add('flex');
             } else {
+                tendaWrapper.classList.add('hidden');
                 ukuranTendaContainer.classList.add('hidden');
                 ukuranTendaContainer.classList.remove('flex');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialPaket = document.getElementById('paket_hidden').value;
+            if (initialPaket && initialPaket !== 'Pilih Paket Camp') {
+                addPackage(initialPaket);
+            } else {
+                renderSelectedPackages();
             }
         });
 
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Stop actual form submission
+            e.preventDefault();
+
+            if (selectedPackages.length === 0) {
+                alert('Silakan pilih minimal satu paket.');
+                return;
+            }
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
@@ -260,22 +393,22 @@
                 no_hp: document.getElementById('no_hp').value,
                 tanggal_kunjungan: document.getElementById('tanggal_kunjungan').value,
                 jam: document.getElementById('jam').value,
-                jumlah_orang: document.getElementById('jumlah_orang').value,
+                total_pengunjung: document.getElementById('jumlah_orang').value,
                 jumlah_tenda: document.getElementById('jumlah_tenda').value,
                 ukuran_tenda: document.getElementById('ukuran_tenda').value,
-                paket: document.getElementById('paket_hidden').value,
+                selected_packages: selectedPackages,
                 fasilitas: {},
                 makanan: {}
             };
 
             // Collect Dynamic Items
-            document.querySelectorAll('input[name^="fasilitas"]').forEach(input => {
+            document.querySelectorAll('input[id^="fasilitas_"]').forEach(input => {
                 const id = input.id.split('_')[1];
-                if(input.value > 0) formData.fasilitas[id] = input.value;
+                if(parseInt(input.value) > 0) formData.fasilitas[id] = parseInt(input.value);
             });
-            document.querySelectorAll('input[name^="makanan"]').forEach(input => {
+            document.querySelectorAll('input[id^="makanan_"]').forEach(input => {
                 const id = input.id.split('_')[1];
-                if(input.value > 0) formData.makanan[id] = input.value;
+                if(parseInt(input.value) > 0) formData.makanan[id] = parseInt(input.value);
             });
 
             // Save to localStorage

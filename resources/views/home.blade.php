@@ -36,7 +36,7 @@
                                 Nikmati malam bertabur bintang di area camping eksklusif Kalisawah Adventure.
                             </p>
                             <div class="flex flex-wrap gap-4">
-                                <a href="#" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Lihat Paket</a>
+                                <a href="#" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
                             </div>
                         </div>
                     </div>
@@ -153,44 +153,40 @@
             </div>
 
             <!-- Single Elegant Card -->
-            <div class="bg-white rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100 p-6">
-                <form id="search-booking-form" action="{{ route('search.results') }}" method="GET" class="flex flex-col md:flex-row items-end gap-4">
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 p-8 md:p-10">
+                <form id="search-booking-form" action="{{ route('search.results') }}" method="GET" class="flex flex-col md:flex-row items-end gap-6">
                     
-                    <!-- Field 1: Phone (25%) -->
-                    <div class="w-full md:w-[25%] space-y-1.5">
-                        <label class="block text-[10px] font-bold text-[#f5a623] uppercase tracking-wider ml-1">Nomor HP</label>
+                    <!-- Field 1: Phone (26%) -->
+                    <div class="w-full md:w-[26%]">
+                        <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Nomor HP</label>
                         <div class="relative group">
-                            <i class="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0057c2] text-xs transition-colors"></i>
                             <input type="text" name="phone" id="search-phone" placeholder="Contoh: 0812..." 
-                                class="w-full h-[50px] pl-10 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0057c2] transition-all text-sm font-semibold text-dark-navy placeholder:text-gray-300">
+                                class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
                         </div>
                     </div>
 
-                    <!-- Field 2: Date (25%) -->
-                    <div class="w-full md:w-[25%] space-y-1.5">
-                        <label class="block text-[10px] font-bold text-[#f5a623] uppercase tracking-wider ml-1">Tanggal Booking</label>
+                    <!-- Field 2: Date (26%) -->
+                    <div class="w-full md:w-[26%]">
+                        <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Tanggal Booking</label>
                         <div class="relative group">
-                            <i class="fa-solid fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0057c2] text-xs transition-colors"></i>
                             <input type="date" name="date" id="search-date" 
-                                class="w-full h-[50px] pl-10 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0057c2] transition-all text-sm font-semibold text-dark-navy cursor-pointer">
+                                class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy cursor-pointer">
                         </div>
                     </div>
 
-                    <!-- Field 3: Name (30%) -->
-                    <div class="w-full md:w-[30%] space-y-1.5">
-                        <label class="block text-[10px] font-bold text-[#f5a623] uppercase tracking-wider ml-1">Nama Pemesan</label>
+                    <!-- Field 3: Name (32%) -->
+                    <div class="w-full md:w-[32%]">
+                        <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Nama Pemesan</label>
                         <div class="relative group">
-                            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0057c2] text-xs transition-colors"></i>
                             <input type="text" name="name" id="search-name" placeholder="Nama lengkap Anda" 
-                                class="w-full h-[50px] pl-10 pr-4 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0057c2] transition-all text-sm font-semibold text-dark-navy placeholder:text-gray-300">
+                                class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
                         </div>
                     </div>
 
-                    <!-- Search Button (20%) -->
-                    <div class="w-full md:w-[20%]">
-                        <button type="submit" class="w-full h-[50px] bg-[#0057c2] hover:bg-[#004bb1] text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/10">
-                            <i class="fa-solid fa-magnifying-glass text-sm"></i>
-                            <span>Cari Data</span>
+                    <!-- Search Button (16%) -->
+                    <div class="w-full md:w-[16%]">
+                        <button type="submit" class="w-full h-[56px] bg-primary hover:bg-hover-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg active:scale-[0.98]">
+                            <span>Cari</span>
                         </button>
                     </div>
 
@@ -235,23 +231,27 @@
                 ];
             @endphp
             @foreach($pakets as $paket)
-            <div class="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-2">
+            @php
+                $route = '#';
+                if ($paket[0] == 'Camping Banyuwangi') {
+                    $route = route('camping');
+                } elseif ($paket[0] == 'Rafting Banyuwangi') {
+                    $route = route('rafting');
+                }
+            @endphp
+            <a href="{{ $route }}" class="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-2 flex flex-col h-full">
                 <div class="relative h-56 overflow-hidden">
                     <img src="https://picsum.photos/{{ $paket[2] }}/600/400" alt="{{ $paket[0] }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                 </div>
-                <div class="p-6">
+                <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-primary text-xl font-bold mb-3 leading-tight group-hover:text-hover-primary transition-colors">{{ $paket[0] }}</h3>
-                    <p class="text-gray-500 text-sm mb-6 line-clamp-2">{{ $paket[1] }}</p>
-                    @php
-                        $route = '#';
-                        if ($paket[0] == 'Camping Banyuwangi') {
-                            $route = route('camping');
-                        }
-                    @endphp
-                    <a href="{{ $route }}" class="block w-full text-center bg-secondary text-white py-3 rounded-xl font-bold shadow-md hover:bg-secondary/90 transition-all">Lihat Detail <i class="fa-solid fa-chevron-right ml-1 text-xs"></i></a>
+                    <p class="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">{{ $paket[1] }}</p>
+                    <div class="mt-auto block w-full text-center bg-secondary text-white py-3 rounded-xl font-bold shadow-md group-hover:bg-secondary/90 transition-all">
+                        Lihat Detail <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
+                    </div>
                 </div>
-            </div>
+            </a>
             @endforeach
         </div>
     </section>
@@ -260,7 +260,7 @@
     <section class="py-20 bg-light-gray overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 md:px-20 mb-12">
             <h2 class="text-2xl md:text-3xl font-bold text-center text-dark-navy">
-                Yang Sudah Seru di <span class="text-secondary">Experience</span>
+                 <span class="text-secondary">Experience</span>
             </h2>
         </div>
         
