@@ -10,7 +10,9 @@ class JenisInventarisController extends Controller
 {
     public function index()
     {
-        return JenisInventaris::all();
+       $data = JenisInventaris::all();
+
+        return view('admin.operasional.jenisInventaris.index', compact('data'));
     }
 
     public function store(Request $request)
@@ -21,7 +23,9 @@ class JenisInventarisController extends Controller
             'keterangan' => 'nullable'
         ]);
 
-        return JenisInventaris::create($data);
+        JenisInventaris::create($data);
+
+        return redirect()->route('admin.jenisInventaris.index')->with('success', 'Data inventaris berhasil ditambahkan!'); //frondend
     }
 
     public function show($id)
@@ -40,12 +44,16 @@ class JenisInventarisController extends Controller
         $item = JenisInventaris::findOrFail($id);
         $item->update($data);
 
-        return $item;
+        return redirect() ->route('admin.jenisInventaris.index')->with('success', 'Data inventaris berhasil diperbarui!');
     }
 
-    public function destroy($id)
+   public function destroy($id)
     {
-        JenisInventaris::destroy($id);
-        return response()->json(['message' => 'Data dihapus']);
+    $item = JenisInventaris::findOrFail($id);
+
+    $item->delete();
+
+
+    return redirect()->route('admin.jenisInventaris.index')->with('success', 'Jenis inventaris "' . $item->nama_barang . '" berhasil dihapus!');
     }
 }

@@ -4,7 +4,6 @@
 
 @push('styles')
 <style>
-    /* Style khusus Dashboard yang tidak ada di layout utama */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -53,21 +52,21 @@
         <div class="card-stat card-orange">
             <div class="stat-info">
                 <h3>Total Booking</h3>
-                <p id="totalBooking">0</p>
+                <p id="totalBooking">{{ $totalBooking }}</p>
             </div>
             <i class="fa-solid fa-calendar-days"></i>
         </div>
         <div class="card-stat card-blue">
             <div class="stat-info">
                 <h3>Booking Hari ini</h3>
-                <p id="bookingHariIni">0</p>
+                <p id="bookingHariIni">{{ $bookingHariIni }}</p>
             </div>
             <i class="fa-solid fa-square-check"></i>
         </div>
         <div class="card-stat card-red">
             <div class="stat-info">
                 <h3>Pengunjung</h3>
-                <p id="totalPengunjung">0</p>
+                <p id="totalPengunjung">{{ $totalPengunjung }}</p>
             </div>
             <i class="fa-solid fa-users"></i>
         </div>
@@ -86,35 +85,9 @@
 
 @push('scripts')
 <script>
-    // Pastikan token ada sebelum hit API
-    const token = localStorage.getItem("token");
-    if (!token) window.location.href = "/admin/login";
-
-    // Fungsi Load Data dari API
-    async function loadDashboard() {
-        try {
-            const res = await fetch("http://127.0.0.1:8000/api/dashboard", {
-                headers: { "Authorization": "Bearer " + token }
-            });
-
-            if (res.status === 401) {
-                localStorage.removeItem("token");
-                window.location.href = "/admin/login";
-                return;
-            }
-
-            const data = await res.json();
-            document.getElementById("totalBooking").innerText = data.totalBooking || 0;
-            document.getElementById("bookingHariIni").innerText = data.bookingHariIni || 0;
-            document.getElementById("totalPengunjung").innerText = data.totalPengunjung || 0;
-        } catch (e) {
-            console.error("Gagal mengambil data dari API Dashboard");
-        }
-    }
-
-    // Jalankan fungsi saat halaman siap
-    document.addEventListener('DOMContentLoaded', function() {
-        loadDashboard();
-    });
+    /* Script JavaScript lama yang cek localStorage dihapus total
+       agar tidak menendang user balik ke login.
+       Keamanan sudah dijaga oleh Middleware 'auth' di web.php
+    */
 </script>
 @endpush
