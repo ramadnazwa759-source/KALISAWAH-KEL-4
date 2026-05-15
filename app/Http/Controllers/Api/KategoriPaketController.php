@@ -9,19 +9,27 @@ use Illuminate\Support\Facades\Storage; // untuk hapus & simpan file gambar
 
 class KategoriPaketController extends Controller
 {
- 
+
     // MENAMPILKAN SEMUA DATA
     // GET /api/kategori-paket
 
     public function index()
     {
-        // ambil semua data dari tabel kategori_paket
-        return response()->json(KategoriPaket::all(), 200);
+        // // ambil semua data dari tabel kategori_paket
+        // return response()->json(KategoriPaket::all(), 200);
+
+        // Mengambil data dari database (sesuaikan dengan desain pagination di Figma)
+        $kategoris = KategoriPaket::paginate(6);
+
+        // 'admin.kategori.index' adalah lokasi file .blade.php kamu
+        // 'compact' digunakan untuk melempar data agar bisa dibaca oleh @foreach
+        return view('admin.layanan.kategoriPaket.index', compact('kategoris'));
+
     }
 
     // MENAMPILKAN 1 DATA BERDASARKAN ID
     // GET /api/kategori-paket/{id}
- 
+
     public function show($id)
     {
         // cari data berdasarkan id
@@ -63,10 +71,10 @@ class KategoriPaketController extends Controller
         ]);
 
         // kirim response berhasil
-        return response()->json($data, 201);
+        return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil ditambah!');
     }
 
-  
+
     // UPDATE DATA + GANTI GAMBAR
     // PUT /api/kategori-paket/{id}
     public function update(Request $request, $id)
@@ -101,7 +109,7 @@ class KategoriPaketController extends Controller
         // update data selain gambar
         $data->update($request->only('nama_kategori','deskripsi'));
 
-        return response()->json($data, 200);
+        return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil diperbarui!');
     }
 
     // MENGHAPUS DATA + GAMBAR
@@ -124,6 +132,6 @@ class KategoriPaketController extends Controller
         // hapus data dari database
         $data->delete();
 
-        return response()->json(['message' => 'Berhasil dihapus'], 200);
+        return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil dihapus!');
     }
 }

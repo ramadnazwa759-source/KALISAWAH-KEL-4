@@ -5,21 +5,29 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\PaketWisata;
 use Illuminate\Http\Request;
+use App\Models\KategoriPaket; // untuk ambil data kategori di dropdown modal
 
 class PaketWisataController extends Controller
 {
     // GET /api/paket-wisata
     public function index()
     {
-        $data = PaketWisata::all(); // <-- TANPA with()
+        // Ambil data dari database (Gunakan paginate agar tidak error .links)
+        $pakets = PaketWisata::with('kategori')->paginate(10);
 
-        return response()->json($data, 200);
+        // Ambil data kategori untuk modal tambah
+        $categories = KategoriPaket::all();
+
+        // Pastikan nama di dalam compact sesuai dengan nama variabel di atas
+        return view('admin.layanan.PaketWisata.index', compact('pakets', 'categories'));
     }
 
     // GET /api/paket-wisata/{id}
     public function show($id)
     {
-        $paket = PaketWisata::find($id); // <-- TANPA with()
+        // Menambahkan with('kategori') agar nama kategori muncul di tabel
+        $paket = PaketWisata::with('kategoriPaket')->find($id);
+
 
         if (!$paket) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
@@ -40,10 +48,10 @@ class PaketWisataController extends Controller
             'durasi' => 'required|string',
             'status' => 'required|string',
         ]);
+        
+        $paket = PaketWisata::with('kategori')->find($id);
 
-        $paket = PaketWisata::create($request->all());
-
-        return response()->json($paket, 201);
+        return redirect()->route('admin.paket-wisata.index')->with('success', 'Paket berhasil ditambah');
     }
 
     // PUT
@@ -71,6 +79,7 @@ class PaketWisataController extends Controller
 
         $paket->delete();
 
-        return response()->json(['message' => 'Berhasil dihapus'], 200);
+        return redirect()->route('admin.paket-wisata.index')->with('success', 'Paket berhasil dihapus');
+
     }
 }
