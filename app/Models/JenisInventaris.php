@@ -7,16 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 class JenisInventaris extends Model
 {
     protected $table = 'jenis_inventaris';
-    public $timestamps = false;
 
     protected $fillable = [
+        'id_subkategori',
         'nama_barang',
-        'kategori',
-        'keterangan'
+        'spesifikasi'
     ];
 
-    public function units()
+    public function subkategori()
     {
-        return $this->belongsTo(JenisInventaris::class, 'id_jenis', 'id');
+        return $this->belongsTo(
+            SubkategoriInventaris::class,
+            'id_subkategori'
+        );
+    }
+
+    public function inventarisPerUnit()
+    {
+        return $this->hasMany(
+            InventarisPerUnit::class,
+            'id_jenis_inventaris'
+        );
     }
 }

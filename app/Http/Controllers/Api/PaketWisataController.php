@@ -49,7 +49,7 @@ class PaketWisataController extends Controller
             'status' => 'required|string',
         ]);
         
-        $paket = PaketWisata::with('kategori')->find($id);
+        $paket = PaketWisata::create($request->all());
 
         return redirect()->route('admin.paket-wisata.index')->with('success', 'Paket berhasil ditambah');
     }

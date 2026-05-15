@@ -2,25 +2,34 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BookingController;
 use App\Http\Controllers\API\KategoriPaketController;
 use App\Http\Controllers\API\PaketWisataController;
-use App\Http\Controllers\API\JenisInventarisController;
-use App\Http\Controllers\API\InventarisPerUnitController;
+
+use App\Http\Controllers\API\FasilitasController;
+use App\Http\Controllers\API\PaketFasilitasController;
+use App\Http\Controllers\API\ProfilWisataController;
+
+use App\Http\Controllers\API\Inventaris\KategoriInventarisController;
+use App\Http\Controllers\API\Inventaris\SubkategoriInventarisController;
+use App\Http\Controllers\API\Inventaris\LokasiPenyimpananController;
+use App\Http\Controllers\API\Inventaris\JenisInventarisController;
+use App\Http\Controllers\API\Inventaris\InventarisPerUnitController;
 
 Route::get('/test', function () {
     return "API WORKING";
 });
 
-// Auth
-Route::post('/register', [AuthController::class, 'register']); // dari kamu
+// auth
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Booking user (pengunjung)
+// booking pengunjung
 Route::post('/bookings', [BookingController::class, 'storeUser']);
 
-
+// protected route
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -30,12 +39,27 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-// Admin
+// route admin
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
 
+    // pengelolaan paket wisata
     Route::apiResource('kategori-paket', KategoriPaketController::class);
     Route::apiResource('paket-wisata', PaketWisataController::class);
+
+    // pengelolaan profil wisata
+    Route::apiResource('profil-wisata', ProfilWisataController::class);
+
+    // pengelolaan booking
     Route::apiResource('bookings', BookingController::class);
+
+    // pengelolaan fasilitas
+    Route::apiResource('fasilitas', FasilitasController::class);
+    Route::apiResource('paket-fasilitas', PaketFasilitasController::class);
+
+    // pengelolaan inventaris
+    Route::apiResource('kategori-inventaris', KategoriInventarisController::class);
+    Route::apiResource('subkategori-inventaris', SubkategoriInventarisController::class);
+    Route::apiResource('lokasi-penyimpanan', LokasiPenyimpananController::class);
     Route::apiResource('jenis-inventaris', JenisInventarisController::class);
     Route::apiResource('inventaris-unit', InventarisPerUnitController::class);
 });

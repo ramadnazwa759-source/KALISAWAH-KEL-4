@@ -19,6 +19,7 @@ class Fasilitas extends Model
         'nama_fasilitas',
         'keterangan',
         'harga_satuan',
-        'kategori'
+        'kategori',
+        'stok',
     ];
 }

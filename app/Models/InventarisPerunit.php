@@ -4,20 +4,38 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class JenisInventaris extends Model
+class InventarisPerUnit extends Model
 {
-    protected $table = 'jenis_inventaris';
-    protected $primaryKey = 'id_jenis_inventaris';
-    public $timestamps = false;
+    protected $table = 'inventaris_perunit';
 
     protected $fillable = [
-        'nama_barang',
-        'kategori',
-        'keterangan'
+        'id_jenis_inventaris',
+        'id_lokasi',
+        'kode_barang',
+        'tanggal_beli',
+        'harga_beli',
+        'sumber_pembelian',
+        'kondisi_unit'
     ];
 
-    public function units()
+    protected $casts = [
+        'tanggal_beli' => 'date',
+        'harga_beli' => 'decimal:2'
+    ];
+
+    public function jenisInventaris()
     {
-        return $this->hasMany(InventarisPerUnit::class, 'id_jenis', 'id_jenis_inventaris');
+        return $this->belongsTo(
+            JenisInventaris::class,
+            'id_jenis_inventaris'
+        );
+    }
+
+    public function lokasi()
+    {
+        return $this->belongsTo(
+            LokasiPenyimpanan::class,
+            'id_lokasi'
+        );
     }
 }

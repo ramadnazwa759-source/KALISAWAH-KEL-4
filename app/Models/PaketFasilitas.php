@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class PaketFasilitas extends Model
 {
     protected $table = 'paket_fasilitas';
-    protected $primaryKey = 'id_pf';
+
+      public $timestamps = false; // 
 
     protected $fillable = [
         'id_paket',
@@ -15,4 +16,16 @@ class PaketFasilitas extends Model
         'jumlah',
         'keterangan'
     ];
+
+    // Relasi ke PaketWisata
+    public function paket()
+    {
+        return $this->belongsTo(PaketWisata::class, 'id_paket');
+    }
+
+    // Relasi ke Fasilitas
+    public function fasilitas()
+    {
+        return $this->belongsTo(Fasilitas::class, 'id_fasilitas');
+    }
 }

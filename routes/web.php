@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\API\JenisInventarisController;
+use App\Http\Controllers\API\Inventaris\JenisInventarisController;
 use App\Http\Controllers\API\KategoriPaketController;
 use App\Http\Controllers\API\PaketWisataController;
 
