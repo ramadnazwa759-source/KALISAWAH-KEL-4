@@ -11,15 +11,35 @@ class Fasilitas extends Model
 
     protected $table = 'fasilitas';
 
-    protected $primaryKey = 'id'; // WAJIB SESUAI DB
-
-    public $timestamps = false;
-
     protected $fillable = [
+        'kategori_fasilitas_id',
         'nama_fasilitas',
-        'keterangan',
-        'harga_satuan',
-        'kategori',
+        'tipe_fasilitas',
+        'harga',
         'stok',
+        'deskripsi',
+        'gambar',
+        'status'
     ];
+
+    // relasi ke kategori fasilitas
+    public function kategori()
+    {
+        return $this->belongsTo(
+            KategoriFasilitas::class,
+            'kategori_fasilitas_id'
+        );
+    }
+
+    // relasi ke paket fasilitas
+    public function paketFasilitas()
+    {
+        return $this->hasMany(PaketFasilitas::class);
+    }
+
+    // relasi ke booking fasilitas
+    public function bookingFasilitas()
+    {
+        return $this->hasMany(BookingFasilitas::class);
+    }
 }
