@@ -197,4 +197,17 @@ class FasilitasController extends Controller
             'message' => 'Fasilitas berhasil dihapus'
         ], 200);
     }
+
+        public function indexPublic()
+    {
+        $data = Fasilitas::where('status', 'aktif')
+            ->select(
+                'nama_fasilitas',
+                'stok',
+                'harga',
+            )
+            ->get();
+
+        return response()->json($data, 200);
+    }
 }
