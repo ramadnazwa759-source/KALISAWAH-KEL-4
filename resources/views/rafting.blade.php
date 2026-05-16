@@ -207,100 +207,120 @@
         </div>
     </section>
 
-    <!-- FASILITAS UMUM & KETENTUAN -->
-    <section class="py-24 px-6 md:px-20 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                
-                <!-- Fasilitas Umum -->
-                <div>
-                    <h2 class="text-3xl font-black text-dark-navy uppercase tracking-tight mb-10 flex items-center gap-4">
-                        <span class="w-3 h-10 bg-primary rounded-full"></span>
-                        Fasilitas Umum
-                    </h2>
+    <!-- SECTION: FASILITAS UMUM -->
+    <section class="py-24 md:py-32 px-6 md:px-20 bg-light-gray">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-dark-navy uppercase tracking-tight">Fasilitas Umum</h2>
+                <div class="w-20 h-1.5 bg-secondary mx-auto mt-4 rounded-full"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                @php
+                    $fasilitas = [
+                        ['icon' => 'fa-square-parking', 'label' => 'Area Parkir'],
+                        ['icon' => 'fa-mosque', 'label' => 'Mushola'],
+                        ['icon' => 'fa-bath', 'label' => 'Kamar Mandi'],
+                        ['icon' => 'fa-shower', 'label' => 'Ruang Bilas'],
+                        ['icon' => 'fa-house', 'label' => 'Aula'],
+                        ['icon' => 'fa-wifi', 'label' => 'Free WiFi'],
+                        ['icon' => 'fa-couch', 'label' => 'Rest Area'],
+                        ['icon' => 'fa-volume-high', 'label' => 'Sound System'],
+                        ['icon' => 'fa-camera', 'label' => 'Dokumentasi'],
+                        ['icon' => 'fa-user-tie', 'label' => 'Guide Profesional'],
+                    ];
+                @endphp
+
+                @foreach($fasilitas as $item)
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center gap-4 hover:shadow-md transition-all duration-300">
+                    <div class="w-14 h-14 bg-soft-blue text-primary rounded-2xl flex items-center justify-center text-2xl">
+                        <i class="fa-solid {{ $item['icon'] }}"></i>
+                    </div>
+                    <span class="font-bold text-dark-navy text-sm text-center uppercase tracking-wide">{{ $item['label'] }}</span>
+                </div>
+                @endforeach
+            </div>
+            
+            <p class="text-center text-gray-500 text-sm mt-12">Fasilitas di atas tersedia untuk semua pengunjung / pemesan paket rafting.</p>
+        </div>
+    </section>
+
+    <!-- SECTION: KETENTUAN & INFO BOOKING -->
+    <section class="py-24 md:py-32 px-6 md:px-20 bg-white border-t border-gray-100">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-stretch">
+                <!-- KETENTUAN RAFTING -->
+                <div class="bg-white p-8 md:p-12 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50 h-full flex flex-col">
+                    <h3 class="text-xl md:text-2xl font-bold text-dark-navy mb-8 flex items-center gap-3">
+                        <i class="fa-solid fa-circle-exclamation text-secondary text-3xl"></i>
+                        Ketentuan Rafting
+                    </h3>
+                    <ul class="space-y-5 flex-grow">
+                        <li class="flex gap-4 items-start text-gray-600">
+                            <i class="fa-solid fa-check text-green-500 mt-1.5"></i>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Minimal usia peserta adalah <strong>5 tahun</strong>.</span>
+                        </li>
+                        <li class="flex gap-4 items-start text-gray-600">
+                            <i class="fa-solid fa-check text-green-500 mt-1.5"></i>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Wajib menggunakan safety gear selama aktivitas.</span>
+                        </li>
+                        <li class="flex gap-4 items-start text-gray-600">
+                            <i class="fa-solid fa-check text-green-500 mt-1.5"></i>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Ikuti instruksi guide untuk keselamatan.</span>
+                        </li>
+                        <li class="flex gap-4 items-start text-gray-600">
+                            <i class="fa-solid fa-check text-green-500 mt-1.5"></i>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Tidak diperbolehkan membuang sampah ke sungai.</span>
+                        </li>
+                        <li class="flex gap-4 items-start text-gray-600">
+                            <i class="fa-solid fa-check text-green-500 mt-1.5"></i>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Kondisi cuaca dapat mempengaruhi aktivitas (demi keamanan).</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- INFORMASI BOOKING -->
+                <div class="bg-primary p-8 md:p-12 rounded-[40px] text-white shadow-2xl shadow-primary/20 h-full relative overflow-hidden flex flex-col">
+                    <!-- Decor -->
+                    <i class="fa-solid fa-calendar-check absolute -right-12 -bottom-12 text-[250px] text-white/5 rotate-12"></i>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
-                        @php
-                            $fasilitas = [
-                                ['icon' => 'fa-helmet-safety', 'label' => 'Peralatan Lengkap'],
-                                ['icon' => 'fa-user-tie', 'label' => 'Guide & Rescue'],
-                                ['icon' => 'fa-van-shuttle', 'label' => 'Transport Lokal'],
-                                ['icon' => 'fa-lock', 'label' => 'Locker'],
-                                ['icon' => 'fa-mosque', 'label' => 'Mushola'],
-                                ['icon' => 'fa-bath', 'label' => 'Kamar Mandi'],
-                                ['icon' => 'fa-wifi', 'label' => 'Free Wifi'],
-                                ['icon' => 'fa-square-parking', 'label' => 'Area Parkir'],
-                                ['icon' => 'fa-house', 'label' => 'Aula / Rest Area'],
-                            ];
-                        @endphp
-
-                        @foreach($fasilitas as $item)
-                            <div class="bg-white p-6 rounded-[24px] border border-gray-100 flex flex-col items-center gap-4 shadow-sm hover:shadow-md transition-all">
-                                <div class="w-14 h-14 bg-primary/5 text-primary rounded-2xl flex items-center justify-center text-2xl">
-                                    <i class="fa-solid {{ $item['icon'] }}"></i>
-                                </div>
-                                <span class="font-bold text-dark-navy text-[11px] uppercase tracking-widest text-center">{{ $item['label'] }}</span>
+                    <h3 class="text-xl md:text-2xl font-bold mb-8 flex items-center gap-3 relative z-10">
+                        <i class="fa-solid fa-calendar-day text-secondary text-3xl"></i>
+                        Informasi Booking
+                    </h3>
+                    <ul class="space-y-5 relative z-10 flex-grow">
+                        <li class="flex gap-4 items-start">
+                            <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-check text-[12px]"></i>
                             </div>
-                        @endforeach
-                    </div>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Open booking setiap hari.</span>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-check text-[12px]"></i>
+                            </div>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Reservasi minimal H-1 sebelum kegiatan.</span>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-check text-[12px]"></i>
+                            </div>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">DP (Down Payment) diperlukan untuk penguncian jadwal.</span>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-check text-[12px]"></i>
+                            </div>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Pelunasan dilakukan saat hari kegiatan di lokasi.</span>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-check text-[12px]"></i>
+                            </div>
+                            <span class="font-medium text-sm md:text-base leading-relaxed">Hubungi admin jika ada perubahan jadwal atau pembatalan.</span>
+                        </li>
+                    </ul>
                 </div>
-
-                <!-- Ketentuan & Info -->
-                <div class="space-y-8">
-                    <!-- Ketentuan -->
-                    <div class="bg-white p-10 rounded-[40px] border border-gray-100 shadow-xl relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16"></div>
-                        
-                        <h3 class="text-xl font-black text-dark-navy uppercase tracking-widest mb-8 flex items-center gap-3">
-                            <i class="fa-solid fa-circle-exclamation text-secondary text-2xl"></i>
-                            Ketentuan Rafting
-                        </h3>
-                        
-                        <ul class="space-y-4">
-                            <li class="flex gap-4 items-start">
-                                <div class="w-6 h-6 bg-secondary/10 text-secondary rounded-full flex items-center justify-center shrink-0 mt-0.5 font-black text-xs">!</div>
-                                <p class="text-gray-500 font-medium text-sm leading-relaxed">Minimal usia peserta adalah <strong>5 tahun</strong>.</p>
-                            </li>
-                            <li class="flex gap-4 items-start">
-                                <div class="w-6 h-6 bg-secondary/10 text-secondary rounded-full flex items-center justify-center shrink-0 mt-0.5 font-black text-xs">!</div>
-                                <p class="text-gray-500 font-medium text-sm leading-relaxed">Jadwal keberangkatan menyesuaikan dengan antrean booking.</p>
-                            </li>
-                            <li class="flex gap-4 items-start mt-6 pt-6 border-t border-gray-100">
-                                <span class="text-red-500 font-black uppercase text-[10px] tracking-[0.2em] mt-1">Dilarang bagi:</span>
-                            </li>
-                            <li class="grid grid-cols-2 gap-4">
-                                <div class="flex items-center gap-2 text-gray-400 font-bold text-xs uppercase tracking-wider">
-                                    <i class="fa-solid fa-xmark text-red-400"></i>
-                                    <span>Ibu Hamil</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-400 font-bold text-xs uppercase tracking-wider">
-                                    <i class="fa-solid fa-xmark text-red-400"></i>
-                                    <span>Penyakit Jantung</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-gray-400 font-bold text-xs uppercase tracking-wider">
-                                    <i class="fa-solid fa-xmark text-red-400"></i>
-                                    <span>Epilepsi</span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Jam Operasional -->
-                    <div class="bg-primary p-10 rounded-[40px] text-white shadow-xl shadow-primary/20 relative overflow-hidden">
-                        <i class="fa-solid fa-clock absolute -right-10 -bottom-10 text-[200px] text-white/5 rotate-12"></i>
-                        <h3 class="text-xl font-black uppercase tracking-[0.2em] mb-6">Informasi Booking</h3>
-                        <div class="flex items-center gap-6">
-                            <div class="w-16 h-16 bg-white/10 rounded-3xl flex items-center justify-center text-3xl">
-                                <i class="fa-solid fa-calendar-check"></i>
-                            </div>
-                            <div>
-                                <p class="text-blue-100 font-bold text-xs uppercase tracking-widest mb-1">Jam Operasional Booking</p>
-                                <p class="text-3xl font-black tracking-tight">08.00 - 16.00 <span class="text-lg">WIB</span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </section>

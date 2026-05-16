@@ -3,16 +3,27 @@
 @section('title', 'Booking Rafting - Kalisawah Adventure')
 
 @section('content')
+    @php
+        // HERO CONFIGURATION (Easy to change)
+        $heroImage = asset('images/rafting.jpg');
+        $heroTitle = 'Layanan Rafting <br> Kalisawah Adventure';
+        $heroSubtitle = 'Siapkan diri Anda untuk petualangan seru menyusuri jeram Sungai Badeng dengan suasana asri dan private.';
+    @endphp
+
     <!-- HERO SECTION -->
-    <section class="relative h-[60vh] min-h-[500px] w-full overflow-hidden flex items-center justify-center text-center">
-        <img src="{{ asset('images/rafting.jpg') }}" alt="Hero Background" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-black/60"></div>
+    <section class="relative h-[80vh] min-h-[600px] w-full overflow-hidden flex items-center justify-center text-center">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0">
+            <img src="{{ $heroImage }}" alt="Hero Background" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-[1px]"></div>
+        </div>
+
         <div class="relative z-10 px-6 max-w-5xl mx-auto pt-20">
-            <h1 class="text-white text-4xl md:text-6xl font-bold mb-6 leading-tight uppercase tracking-tight">
-                Layanan Rafting <br> Kalisawah Adventure
+            <h1 class="text-white text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight uppercase tracking-tight drop-shadow-2xl">
+                {!! $heroTitle !!}
             </h1>
-            <p class="text-gray-200 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
-                Siapkan diri Anda untuk petualangan seru menyusuri jeram Sungai Badeng dengan suasana asri dan private.
+            <p class="text-gray-200 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
+                {{ $heroSubtitle }}
             </p>
         </div>
     </section>

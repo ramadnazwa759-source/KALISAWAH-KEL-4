@@ -1,25 +1,25 @@
 @extends('layouts.app')
 
-@section('title', 'Pembayaran Camping - Kalisawah Adventure')
+@section('title', 'Pembayaran Outbound - Kalisawah Adventure')
 
 @section('content')
     <!-- HERO SECTION -->
-    <section class="relative h-[60vh] min-h-[500px] w-full overflow-hidden flex items-center justify-center text-center">
-        <img src="{{ asset('images/camping.jpg') }}" alt="Hero Background" class="absolute inset-0 w-full h-full object-cover object-top">
-        <div class="absolute inset-0 bg-black/60"></div>
+    <section class="relative h-[80vh] min-h-[600px] w-full overflow-hidden flex items-center justify-center text-center">
+        <img src="{{ asset('images/outbond.jpg') }}" alt="Hero Background" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-[1px]"></div>
         <div class="relative z-10 px-6 max-w-5xl mx-auto pt-20">
-            <h1 class="text-white text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Detail Pembayaran
+            <h1 class="text-white text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight uppercase tracking-tight drop-shadow-2xl">
+                FUN OUTBOUND
             </h1>
-            <p class="text-gray-200 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
-                Selesaikan pembayaran Anda untuk mengonfirmasi pesanan petualangan camping Anda.
+            <p class="text-gray-200 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
+                Siapkan Keseruan Team Building Bersama Kalisawah Adventure!
             </p>
         </div>
     </section>
 
     <!-- PAYMENT SECTION -->
-    <section id="pembayaran" class="py-24 px-6 bg-[#F8FAFC] scroll-mt-20">
-        <div class="max-w-[850px] mx-auto">
+    <section id="pembayaran" class="py-24 px-6 bg-[#F8FAFC] scroll-mt-20 relative">
+        <div class="max-w-[850px] mx-auto relative z-10">
 
             <!-- MAIN CONTENT CARD -->
             <div class="bg-white rounded-[32px] shadow-xl p-8 md:p-12 border border-gray-100 space-y-16">
@@ -33,24 +33,24 @@
 
                     <div class="space-y-6">
                         <div class="flex justify-between items-center text-lg">
-                            <span class="text-gray-500 font-bold">Nama Pelanggan</span>
+                            <span class="text-gray-500 font-bold">Nama Pemesan</span>
                             <span id="display_nama" class="text-dark-navy font-black">-</span>
                         </div>
                         <div class="flex justify-between items-center text-lg">
-                            <span class="text-gray-500 font-bold">Paket Camping</span>
+                            <span class="text-gray-500 font-bold">Paket Dipilih</span>
                             <span id="display_paket" class="text-primary font-black">-</span>
                         </div>
                         <div class="flex justify-between items-center text-lg">
-                            <span class="text-gray-500 font-bold">Tanggal</span>
-                            <span id="display_tanggal" class="text-dark-navy font-black">-</span>
+                            <span class="text-gray-500 font-bold">Jumlah Peserta</span>
+                            <span id="display_pax" class="text-dark-navy font-black">-</span>
                         </div>
                         <div class="flex justify-between items-center text-lg">
-                            <span class="text-gray-500 font-bold">Jumlah Orang / Tenda</span>
-                            <span id="display_jumlah" class="text-dark-navy font-black">-</span>
+                            <span class="text-gray-500 font-bold">Tanggal Booking</span>
+                            <span id="display_tanggal" class="text-dark-navy font-black">-</span>
                         </div>
                         
                         <div class="pt-8 border-t-2 border-gray-100 mt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <span class="text-2xl font-black text-dark-navy uppercase tracking-tighter">Total yang Harus Dibayar</span>
+                            <span class="text-2xl font-black text-dark-navy uppercase tracking-tighter">Total Pembayaran</span>
                             <span class="text-4xl font-black text-primary drop-shadow-sm" id="display_total">Rp 0</span>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                         <div>
                             <h3 class="text-xl font-black text-dark-navy uppercase tracking-widest flex items-center gap-3">
                                 <span class="w-2 h-8 bg-primary rounded-full"></span>
-                                Pilih Jenis Pembayaran
+                                Pilih Metode Pembayaran
                             </h3>
                         </div>
 
@@ -84,7 +84,7 @@
                     </div>
 
                     <!-- BANK TRANSFER INFO -->
-                    <div id="methodDetails" class="bg-gray-50 rounded-[32px] p-8 border border-gray-100 transition-all duration-300">
+                    <div id="methodDetails" class="bg-gray-50 rounded-[32px] p-8 border border-gray-100 transition-all duration-300 mb-12">
                         <div class="space-y-6">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-4">
@@ -108,24 +108,26 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
             <!-- FOOTER BUTTONS -->
             <div class="mt-24 pt-12 pb-40 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 border-t border-gray-100">
-                <a href="{{ route('booking.detail') }}" 
-                    class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98]">
+                <a href="{{ route('detail.booking.outbound') }}" 
+                    class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] uppercase tracking-widest">
                     Kembali
                 </a>
                 
                 <button type="button" id="confirmPaymentBtn" onclick="confirmPayment()"
                     style="background-color: #FFC236;"
-                    class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 gap-3">
-                    <span>Lanjut</span>
+                    class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 gap-3 uppercase tracking-widest">
+                    <span>LANJUT</span>
                     <i class="fa-solid fa-chevron-right text-sm"></i>
                 </button>
             </div>
         </div>
+
     </section>
 
     <!-- LOADING OVERLAY -->
@@ -133,7 +135,7 @@
         <div class="w-24 h-24 border-8 border-white/20 rounded-full flex items-center justify-center mb-8 relative">
             <div class="absolute inset-0 border-8 border-secondary border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <h3 class="text-3xl font-black mb-2">Memverifikasi Pembayaran</h3>
+        <h3 class="text-3xl font-black mb-2">Memproses...</h3>
         <p class="text-blue-200">Mohon tunggu sebentar...</p>
     </div>
 
@@ -148,82 +150,27 @@
                 console.error("Error parsing booking data", e);
             }
 
-            if (!data || !data.nama_pemesan || !data.selected_packages || data.category !== 'camping') {
+            if (!data || !data.nama_pemesan || !data.selected_packages || data.category !== 'outbound') {
                 return;
             }
-
-            const PRICING_CONFIG = {
-                pakets: {
-                    'Nyaman Camp': { price: 350000, pax: 6, includesTenda: true },
-                    'Seru Camp': { price: 185000, pax: 4, includesTenda: true },
-                    'Santai Camp': { price: 150000, pax: 4, includesTenda: true },
-                    'Bawa Tenda Sendiri': { price: 25000, pax: 0, includesTenda: false }
-                },
-                fasilitas: {
-                    1: { name: 'Peralatan Masak', price: 50000 },
-                    2: { name: 'Matras', price: 25000 },
-                    3: { name: 'Sleeping Bag', price: 35000 },
-                    4: { name: 'Lampu Tenda', price: 10000 },
-                    5: { name: 'Meja & Kursi', price: 100000 },
-                    6: { name: 'Kompor & Gas', price: 20000 }
-                },
-                makanan: {
-                    101: { name: 'Paket Grill (2-3 Orang)', price: 30000 },
-                    102: { name: 'Sarapan Tradisional', price: 16000 }
-                }
-            };
 
             const formatIDR = (val) => {
                 return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
             };
 
-            document.getElementById('display_nama').innerText = data.nama_pemesan;
-            document.getElementById('display_paket').innerText = data.selected_packages.map(p => p.name).join(', ');
-            document.getElementById('display_tanggal').innerText = data.tanggal_kunjungan;
-            
-            let jumlahText = `${data.total_pengunjung} Orang`;
-            if (parseInt(data.jumlah_tenda) > 0) {
-                jumlahText += ` / ${data.jumlah_tenda} Tenda`;
-            }
-            document.getElementById('display_jumlah').innerText = jumlahText;
-
-            // Re-calculate Total
-            let totalCapacity = 0;
-            let packagesPrice = 0;
-            let hasSewaLahan = false;
-
+            let totalPax = 0;
+            let totalHarga = 0;
             data.selected_packages.forEach(pkg => {
-                const config = PRICING_CONFIG.pakets[pkg.name];
-                if (config) {
-                    if (pkg.name === 'Bawa Tenda Sendiri') {
-                        hasSewaLahan = true;
-                    } else {
-                        packagesPrice += config.price * (pkg.qty || 1);
-                        totalCapacity += (config.pax * (pkg.qty || 1));
-                    }
-                }
+                const price = pkg.price || 110000;
+                totalHarga += price * pkg.qty;
+                totalPax += pkg.qty;
             });
 
-            const extraPeople = Math.max(0, parseInt(data.total_pengunjung) - totalCapacity);
-            const extraTicketPrice = extraPeople * 25000;
-            
-            let sewaLahanPrice = 0;
-            if (hasSewaLahan) {
-                sewaLahanPrice = data.ukuran_tenda === '6+' ? 50000 : 25000;
-            }
-
-            let totalHarga = packagesPrice + extraTicketPrice + sewaLahanPrice;
-
-            if (data.fasilitas) {
-                Object.entries(data.fasilitas).forEach(([id, qty]) => {
-                    if (PRICING_CONFIG.fasilitas[id]) totalHarga += PRICING_CONFIG.fasilitas[id].price * qty;
-                });
-            }
-            if (data.makanan) {
-                Object.entries(data.makanan).forEach(([id, qty]) => {
-                    if (PRICING_CONFIG.makanan[id]) totalHarga += PRICING_CONFIG.makanan[id].price * qty;
-                });
-            }
+            // Map Data
+            document.getElementById('display_nama').innerText = data.nama_pemesan;
+            document.getElementById('display_paket').innerText = data.selected_packages.map(p => p.name).join(', ');
+            document.getElementById('display_pax').innerText = totalPax + ' Orang';
+            document.getElementById('display_tanggal').innerText = data.tanggal_kunjungan;
 
             finalTotal = totalHarga;
             updateDisplayTotal();
@@ -245,10 +192,10 @@
             btn.querySelector('span').innerText = 'Memproses...';
             document.getElementById('loadingOverlayPayment').classList.remove('hidden');
             document.getElementById('loadingOverlayPayment').classList.add('flex');
+            
             setTimeout(() => {
-                alert('Pesanan Camping Anda Berhasil!');
-                window.location.href = "{{ route('status.booking') }}";
-            }, 2000);
+                window.location.href = "/status-booking-outbound";
+            }, 800);
         }
 
         function copyToClipboard(text) {

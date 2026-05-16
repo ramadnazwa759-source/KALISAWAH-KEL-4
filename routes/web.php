@@ -56,7 +56,23 @@ Route::get('/booking-rafting/detail', function () {
 // outbound
 Route::get('/outbound', function () {
     return view('outbound');
-});
+})->name('outbound');
+
+Route::get('/booking-outbound', function () {
+    return view('booking-outbound');
+})->name('booking.outbound');
+
+Route::get('/detail-booking-outbound', function () {
+    return view('detail-booking-outbound');
+})->name('detail.booking.outbound');
+
+Route::get('/pembayaran-outbound', function () {
+    return view('pembayaran-outbound');
+})->name('pembayaran.outbound');
+
+Route::get('/status-booking-outbound', function () {
+    return view('status-booking-outbound');
+})->name('status.booking.outbound');
 
 // paintball
 Route::get('/paintball', function () {

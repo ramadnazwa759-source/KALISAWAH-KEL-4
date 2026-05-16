@@ -149,8 +149,6 @@
             }
 
             if (!data || !data.nama_pemesan || !data.selected_packages || data.category !== 'rafting') {
-                alert('Data booking rafting tidak ditemukan. Silakan isi kembali.');
-                window.location.href = "{{ route('rafting') }}";
                 return;
             }
 

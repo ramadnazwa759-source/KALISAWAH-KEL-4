@@ -237,6 +237,8 @@
                     $route = route('camping');
                 } elseif ($paket[0] == 'Rafting Banyuwangi') {
                     $route = route('rafting');
+                } elseif ($paket[0] == 'Outbound Banyuwangi') {
+                    $route = route('outbound');
                 }
             @endphp
             <a href="{{ $route }}" class="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-2 flex flex-col h-full">

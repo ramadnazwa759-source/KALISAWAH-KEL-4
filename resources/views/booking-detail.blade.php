@@ -152,8 +152,6 @@
             }
 
             if (!data || !data.nama_pemesan || !data.selected_packages || data.selected_packages.length === 0) {
-                alert('Data booking tidak ditemukan atau tidak lengkap. Silakan isi kembali data reservasi Anda.');
-                window.location.href = "{{ route('booking.create') }}";
                 return;
             }
 

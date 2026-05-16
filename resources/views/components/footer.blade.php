@@ -16,9 +16,9 @@
         <div>
             <h3 class="text-lg font-bold mb-6 border-l-4 border-secondary pl-3">Paket Seru</h3>
             <ul class="space-y-3 text-gray-400 text-sm list-none p-0">
-                <li><a href="#" class="hover:text-secondary transition-colors">Rafting Banyuwangi</a></li>
-                <li><a href="#" class="hover:text-secondary transition-colors">Outbound Banyuwangi</a></li>
-                <li><a href="#" class="hover:text-secondary transition-colors">Camping</a></li>
+                <li><a href="{{ route('rafting') }}" class="hover:text-secondary transition-colors">Rafting Banyuwangi</a></li>
+                <li><a href="{{ route('outbound') }}" class="hover:text-secondary transition-colors">Outbound Banyuwangi</a></li>
+                <li><a href="{{ route('camping') }}" class="hover:text-secondary transition-colors">Camping</a></li>
                 <li><a href="#" class="hover:text-secondary transition-colors">Wargame</a></li>
                 <li><a href="#" class="hover:text-secondary transition-colors">Jeep Tour</a></li>
             </ul>

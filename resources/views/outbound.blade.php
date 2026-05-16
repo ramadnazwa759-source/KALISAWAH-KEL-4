@@ -1,193 +1,130 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>Outbound Kalisawah</title>
-  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-</head>
-<body>
+@extends('layouts.app')
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-overlay">
-    <h1>Outbound Kalisawah<br>Adventure</h1>
-    <p>
-      Kalisawah Adventure menawarkan pengalaman outbound seru dan edukatif 
-      untuk meningkatkan kebersamaan dan kerja tim.
-    </p>
-  </div>
-</section>
+@section('title', 'Fun Outbound - Kalisawah Adventure')
 
-<!-- LOKASI -->
-<section class="lokasi">
-  <h2>Lokasi Outbound Kalisawah</h2>
+@section('content')
+    @php
+        // HERO CONFIGURATION (Consistent with Booking Rafting)
+        $heroImage = asset('images/outbond.jpg');
+        $heroTitle = 'FUN OUTBOUND';
+        $heroSubtitle = 'Bangun Kekompakan, Seru Bareng Team!';
+        $heroDescription = 'Game seru & team building untuk family gathering, company outing, dan kebersamaan di alam terbuka Kalisawah Adventure.';
+    @endphp
 
-  <div class="img-top">
-    <img src="{{ asset('images/img1.jpg') }}">
-    <img src="{{ asset('images/img2.jpg') }}">
-  </div>
-
-  <div class="img-bottom">
-    <img src="{{ asset('images/img3.jpg') }}">
-  </div>
-</section>
-
-<!-- BOX 2 KOLOM -->
-<section class="info">
-  <div class="info-box">
-    <h3>Fasilitas yang tersedia:</h3>
-    <ul>
-      <li>Area Lapangan yang Luas</li>
-      <li>Sarana Prasarana Outbound</li>
-      <li>Tempat Istirahat</li>
-      <li>Mushola</li>
-      <li>20 Unit Kamar Mandi</li>
-      <li>Resto</li>
-      <li>Area Parkir Luas</li>
-    </ul>
-  </div>
-
-  <div class="info-box">
-    <h3>Permainan Outbound :</h3>
-    <ul>
-      <li>Mencari Ekor Lawan</li>
-      <li>Ekstafet Bola</li>
-      <li>Ekstafet Tepung</li>
-      <li>Eksekusi Cerdas</li>
-      <li>Balancing Water</li>
-      <li>Antonim Sinonim</li>
-      <li>Perang Prestasi</li>
-      <li>Ekstafet Mancing Mania</li>
-      <li>Ayam Mencari Induknya</li>
-      <li>dll</li>
-    </ul>
-  </div>
-</section>
-
-<!-- PAKET -->
-<section class="paket">
-  <h2>Pilihan Paket Outbound:</h2>
-
-  <!-- CARD 1 -->
-  <div class="paket-wrapper">
-    <h3>Paket Fun Outbound Kalisawah</h3>
-
-    <div class="paket-card">
-      <div class="paket-content">
-        <div>
-          <b>Manfaat :</b>
-          <ul>
-            <li>Meningkatkan kerjasama Team</li>
-            <li>Meningkatkan komunikasi</li>
-            <li>Mengembangkan kepemimpinan</li>
-          </ul>
+    <!-- HERO SECTION -->
+    <section class="relative h-screen min-h-[600px] w-full overflow-hidden">
+        <img src="{{ $heroImage }}" alt="Fun Outbound Kalisawah" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+        <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto mt-10 md:mt-0">
+            <div class="max-w-2xl">
+                <h1 class="text-primary text-4xl md:text-6xl lg:text-7xl font-bold mb-2 uppercase">{{ $heroTitle }}</h1>
+                <h2 class="font-script text-secondary text-4xl md:text-5xl lg:text-6xl mb-6">{{ $heroSubtitle }}</h2>
+                <p class="text-white/90 text-sm md:text-base font-bold tracking-wide mb-10 leading-relaxed max-w-xl">
+                    {{ $heroDescription }}
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{{ route('booking.outbound') }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">
+                        Pesan Sekarang
+                    </a>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div>
-          <b>Fasilitas :</b>
-          <ul>
-            <li>Fasilitator</li>
-            <li>Peralatan Outbound</li>
-            <li>Soundsystem</li>
-            <li>Kamar Mandi</li>
-            <li>Mushola</li>
-            <li>Free Wifi</li>
-          </ul>
+    <!-- INFO PAKET CARD -->
+    <div class="mt-12 py-14 px-6 md:px-20 max-w-6xl mx-auto">
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8 lg:p-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                
+                <!-- Info Kegiatan -->
+                <div class="flex items-start gap-5 pt-4 md:pt-0">
+                    <div class="w-12 h-12 bg-blue-50 text-primary rounded-xl flex items-center justify-center shrink-0 text-xl">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Info Kegiatan</h4>
+                        <div class="font-bold text-dark-navy text-lg">Min. 20 Pax</div>
+                        <div class="text-sm text-gray-500 font-medium mt-1">Team Building & Fun Game</div>
+                    </div>
+                </div>
+
+                <!-- Operasional -->
+                <div class="flex items-start gap-5 pt-6 md:pt-0 md:pl-12">
+                    <div class="w-12 h-12 bg-blue-50 text-primary rounded-xl flex items-center justify-center shrink-0 text-xl">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Operasional</h4>
+                        <div class="font-bold text-dark-navy text-lg">Setiap Hari <span class="text-sm font-medium text-gray-500">(By Booking)</span></div>
+                        <div class="text-sm text-gray-500 font-medium mt-1">08.00 – 17.00 WIB</div>
+                    </div>
+                </div>
+
+                <!-- Harga -->
+                <div class="flex items-start gap-5 pt-6 md:pt-0 md:pl-12">
+                    <div class="w-12 h-12 bg-yellow-50 text-secondary rounded-xl flex items-center justify-center shrink-0 text-xl">
+                        <i class="fa-solid fa-tags"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Harga Per Orang</h4>
+                        <div class="font-black text-secondary text-3xl md:text-4xl tracking-tight mt-1">110K <span class="text-lg text-gray-500 font-bold">/ PAX</span></div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-      </div>
-
-      <div class="paket-footer">
-        <span>Rp. 115.000 / pack</span>
-        <button>Pesan Paket</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CARD 2 -->
-  <div class="paket-wrapper">
-    <h3>Paket Outbound Love Kids & Parenting</h3>
-
-    <div class="paket-card">
-      <div class="paket-content">
-        <div>
-          <b>Manfaat :</b>
-          <ul>
-            <li>Kedekatan orang tua dan anak</li>
-            <li>Problem solving family</li>
-          </ul>
-        </div>
-
-        <div>
-          <b>Fasilitas :</b>
-          <ul>
-            <li>Fasilitator</li>
-            <li>Peralatan Outbound</li>
-            <li>Soundsystem</li>
-            <li>Kamar Mandi</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="paket-footer">
-        <span>Rp. 115.000 / pack</span>
-        <button>Pesan Paket</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CARD 3 -->
-  <div class="paket-wrapper">
-    <h3>Paket outbound School</h3>
-
-    <div class="paket-card">
-      <div class="paket-content">
-        <div>
-          <b>Manfaat :</b>
-          <ul>
-            <li>Pembelajaran aktif</li>
-            <li>Meningkatkan teamwork</li>
-          </ul>
-        </div>
-
-        <div>
-          <b>Fasilitas :</b>
-          <ul>
-            <li>Fasilitator</li>
-            <li>Peralatan Outbound</li>
-            <li>Sound</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="paket-footer">
-        <span>Rp. 50.000 / pack</span>
-        <button>Pesan Paket</button>
-      </div>
-    </div>
-  </div>
-
-</section>
-
-<!-- FOOTER -->
-<div class="footer">
-  <div class="footer-container">
-    <div>
-      <h3>KALISAWAH – Wisata Alam & Edukasi</h3>
-      <p>Wisata alam dengan konsep edukasi dan rekreasi keluarga di Banyuwangi.</p>
     </div>
 
-    <div>
-      <h4>Media Sosial</h4>
-      <p>Instagram : @kalisawah_official</p>
-      <p>Facebook : Kalisawah Banyuwangi</p>
-      <p>TikTok : @kalisawah.id</p>
-    </div>
-  </div>
+    <!-- FASILITAS UMUM SECTION -->
+    <section class="py-16 px-6 md:px-20 bg-light-gray">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-dark-navy">Fasilitas</h2>
+                <div class="w-16 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                @php
+                    $fasilitas = [
+                        ['icon' => 'fa-ticket', 'label' => 'Tiket Masuk'],
+                        ['icon' => 'fa-cookie', 'label' => 'Snack & Teh'],
+                        ['icon' => 'fa-bottle-water', 'label' => 'Air Mineral'],
+                        ['icon' => 'fa-user-tie', 'label' => 'Fasilitator'],
+                        ['icon' => 'fa-helmet-safety', 'label' => 'Peralatan Outbound'],
+                        ['icon' => 'fa-hand-holding-dollar', 'label' => 'Service Charge'],
+                        ['icon' => 'fa-volume-high', 'label' => 'Sound System'],
+                        ['icon' => 'fa-microphone', 'label' => 'Panggung'],
+                        ['icon' => 'fa-house', 'label' => 'Aula / Mushola'],
+                        ['icon' => 'fa-bath', 'label' => 'Kamar Mandi'],
+                        ['icon' => 'fa-wifi', 'label' => 'Free WiFi'],
+                        ['icon' => 'fa-square-parking', 'label' => 'Free Parkir'],
+                    ];
+                @endphp
 
-  <div class="footer-bottom">
-    © 2026 Kalisawah Banyuwangi
-  </div>
+                @foreach($fasilitas as $item)
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 flex flex-col items-center gap-3">
+                        <div class="w-12 h-12 bg-soft-blue text-primary rounded-full flex items-center justify-center text-xl">
+                            <i class="fa-solid {{ $item['icon'] }}"></i>
+                        </div>
+                        <span class="font-bold text-dark-navy text-sm text-center">{{ $item['label'] }}</span>
+                    </div>
+                @endforeach
+            </div>
+            
+            <p class="text-center text-gray-500 text-sm mt-8">Fasilitas di atas tersedia untuk semua pemesan paket outbound.</p>
+        </div>
+    </section>
 
-</body>
-</html>
+    <style>
+        .font-script {
+            font-family: 'Pacifico', cursive;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+@endsection
