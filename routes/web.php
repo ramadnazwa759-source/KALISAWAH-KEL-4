@@ -79,6 +79,22 @@ Route::get('/paintball', function () {
     return view('paintball');
 });
 
+Route::get('/booking-paintball', function () {
+    return view('booking-paintball');
+});
+
+Route::get('/detail-booking-paintball', function () {
+    return view('detail-booking-paintball');
+});
+
+Route::get('/pembayaran-paintball', function () {
+    return view('pembayaran-paintball');
+});
+
+Route::get('/status-booking-paintball', function () {
+    return view('status-booking-paintball');
+});
+
 // halaman pembayaran
 Route::get('/pembayaran/camping', function () {
     return view('pembayaran-camping');

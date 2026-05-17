@@ -44,6 +44,7 @@
                     <div>
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Info Kegiatan</h4>
                         <div class="font-bold text-dark-navy text-lg">Min. 20 Pax</div>
+                        <div class="text-sm text-gray-500 font-medium mt-1">Durasi 2,5 Jam</div>
                         <div class="text-sm text-gray-500 font-medium mt-1">Team Building & Fun Game</div>
                     </div>
                 </div>
