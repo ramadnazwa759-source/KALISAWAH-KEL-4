@@ -111,3 +111,32 @@ Route::get('/status-booking', function () {
 Route::get('/search-results', function () {
     return view('search-results');
 })->name('search.results');
+
+// gathering
+Route::get('/gathering', function () {
+    return view('gathering');
+})->name('gathering');
+
+Route::get('/gathering/1day', function () {
+    return view('gathering-1day');
+});
+
+Route::get('/gathering/2d1n', function () {
+    return view('gathering-2d1n');
+});
+
+Route::get('/booking-gathering', function () {
+    return view('booking-gathering');
+});
+
+Route::get('/detail-booking-gathering', function () {
+    return view('detail-booking-gathering');
+})->name('detail-booking-gathering');
+
+Route::get('/pembayaran-gathering', function () {
+    return view('pembayaran-gathering');
+})->name('pembayaran-gathering');
+
+Route::get('/status-booking-gathering', function () {
+    return view('status-booking-gathering');
+})->name('status-booking-gathering');

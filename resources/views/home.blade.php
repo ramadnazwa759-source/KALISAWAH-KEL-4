@@ -241,6 +241,8 @@
                     $route = route('outbound');
                 } elseif ($paket[0] == 'Wargame Paintball') {
                     $route = url('/paintball');
+                } elseif ($paket[0] == 'Gathering & Team Building') {
+                    $route = route('gathering');
                 }
             @endphp
             <a href="{{ $route }}" class="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-2 flex flex-col h-full">
