@@ -31,112 +31,53 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center max-w-5xl mx-auto">
-            
-            <!-- Card 1: NYAMAN CAMP -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex flex-col">
+            @forelse($pakets as $paket)
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex flex-col hover:shadow-2xl transition-all hover:-translate-y-2">
                 <div class="relative h-56 overflow-hidden shrink-0">
-                    <img src="{{ asset('images/campvila.jpg') }}" alt="Nyaman Camp" class="w-full h-full object-cover">
+                    <img src="{{ $paket->gambar ? asset('storage/' . $paket->gambar) : asset('images/camp1.jpg') }}" alt="{{ $paket->nama }}" class="w-full h-full object-cover">
                 </div>
                 <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-primary text-xl font-bold mb-2 leading-tight text-center">NYAMAN CAMP</h3>
-                    <p class="text-gray-500 text-sm text-center mb-6">Lebih lega dan nyaman untuk menikmati malam bersama keluarga atau rombongan.</p>
+                    <h3 class="text-primary text-xl font-bold mb-2 leading-tight text-center uppercase">{{ $paket->nama }}</h3>
+                    <p class="text-gray-500 text-sm text-center mb-6 leading-relaxed">{{ $paket->deskripsi }}</p>
                     
+                    @if($paket->fasilitas && $paket->fasilitas->isNotEmpty())
                     <div class="space-y-4 mb-6 flex-grow">
                         <div>
                             <h4 class="font-bold text-dark-navy text-sm mb-2"><i class="fa-solid fa-box-open text-secondary mr-2"></i>Fasilitas</h4>
                             <ul class="text-gray-500 text-sm list-disc pl-5 space-y-1">
-                                <li>Tiket 6 orang + tenda besar kapasitas 6 orang</li>
-                                <li>Kasur busa + 2 bantal & 2 sleeping bag</li>
-                                <li>Lampu tenda & lampu aksesoris</li>
-                                <li>Kursi & meja camping</li>
-                                <li>Area santai dengan alas tikar</li>
+                                @foreach($paket->fasilitas as $fas)
+                                    <li>
+                                        {{ $fas->nama_fasilitas }} 
+                                        @if($fas->pivot->jumlah)
+                                            (x{{ $fas->pivot->jumlah }})
+                                        @endif
+                                        @if($fas->pivot->keterangan)
+                                            - {{ $fas->pivot->keterangan }}
+                                        @endif
+                                    </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
+                    @endif
 
                     <div class="pt-4 border-t border-gray-100 mt-auto text-center">
-                        <span class="text-dark-navy font-bold text-xl">Rp 350.000</span> <span class="text-gray-400 text-xs">/ Tenda / 6 Orang</span>
+                        <span class="text-dark-navy font-bold text-xl">Rp {{ number_format($paket->harga, 0, ',', '.') }}</span> 
+                        @if($paket->kapasitas)
+                            <span class="text-gray-400 text-xs">/ Tenda / {{ $paket->kapasitas }} Orang</span>
+                        @endif
                     </div>
                 </div>
             </div>
-
-            <!-- Card 2: SERU CAMP -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex flex-col">
-                <div class="relative h-56 overflow-hidden shrink-0">
-                    <img src="{{ asset('images/camppinus.jpg') }}" alt="Seru Camp" class="w-full h-full object-cover">
+            @empty
+            <div class="col-span-full text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-soft-blue text-primary text-2xl mb-4">
+                    <i class="fa-solid fa-tent"></i>
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-primary text-xl font-bold mb-2 leading-tight text-center">SERU CAMP</h3>
-                    <p class="text-gray-500 text-sm text-center mb-6">Serunya camping di alam terbuka dengan pengalaman yang berkesan.</p>
-                    
-                    <div class="space-y-4 mb-6 flex-grow">
-                        <div>
-                            <h4 class="font-bold text-dark-navy text-sm mb-2"><i class="fa-solid fa-box-open text-secondary mr-2"></i>Fasilitas</h4>
-                            <ul class="text-gray-500 text-sm list-disc pl-5 space-y-1">
-                                <li>Tiket 4 orang + tenda kapasitas 4 orang</li>
-                                <li>Kasur busa</li>
-                                <li>Lampu tenda</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-gray-100 mt-auto text-center">
-                        <span class="text-dark-navy font-bold text-xl">Rp 185.000</span> <span class="text-gray-400 text-xs">/ Tenda / 4 Orang</span>
-                    </div>
-                </div>
+                <h3 class="text-lg font-bold text-dark-navy mb-1">Belum Ada Paket Camping</h3>
+                <p class="text-gray-500 text-sm max-w-md mx-auto">Silakan tambahkan data paket camping melalui panel admin atau database.</p>
             </div>
-
-            <!-- Card 3: SANTAI CAMP -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex flex-col">
-                <div class="relative h-56 overflow-hidden shrink-0">
-                    <img src="{{ asset('images/camp1.jpg') }}" alt="Santai Camp" class="w-full h-full object-cover">
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-primary text-xl font-bold mb-2 leading-tight text-center">SANTAI CAMP</h3>
-                    <p class="text-gray-500 text-sm text-center mb-6">Camping sederhana dan santai untuk menikmati suasana alam.</p>
-                    
-                    <div class="space-y-4 mb-6 flex-grow">
-                        <div>
-                            <h4 class="font-bold text-dark-navy text-sm mb-2"><i class="fa-solid fa-box-open text-secondary mr-2"></i>Fasilitas</h4>
-                            <ul class="text-gray-500 text-sm list-disc pl-5 space-y-1">
-                                <li>Tiket 4 orang + tenda kapasitas 4 orang</li>
-                                <li>Matras</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-gray-100 mt-auto text-center">
-                        <span class="text-dark-navy font-bold text-xl">Rp 150.000</span> <span class="text-gray-400 text-xs">/ Tenda / 4 Orang</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 4: BAWA TENDA SENDIRI -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex flex-col">
-                <div class="relative h-56 overflow-hidden shrink-0">
-                    <img src="{{ asset('images/camppagi.jpg') }}" alt="Bawa Tenda Sendiri" class="w-full h-full object-cover">
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-primary text-xl font-bold mb-2 leading-tight text-center">BAWA TENDA SENDIRI</h3>
-                    <p class="text-gray-500 text-sm text-center mb-6">Pilihan hemat untuk kamu yang ingin membawa perlengkapan sendiri.</p>
-                    
-                    <div class="space-y-4 mb-6 flex-grow">
-                        <div>
-                            <h4 class="font-bold text-dark-navy text-sm mb-2"><i class="fa-solid fa-money-bill-wave text-secondary mr-2"></i>Harga Tiket & Sewa Lahan</h4>
-                            <ul class="text-gray-500 text-sm list-disc pl-5 space-y-1">
-                                <li>Tiket Camp: <strong>Rp 25.000 / Orang</strong></li>
-                                <li>Sewa Lahan Tenda 3–4 orang: <strong>Rp 25.000</strong></li>
-                                <li>Sewa Lahan Tenda 6 orang ke atas: <strong>Rp 50.000</strong></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-gray-100 mt-auto text-center">
-                        <span class="text-transparent font-bold text-lg select-none">&nbsp;</span>
-                    </div>
-                </div>
-            </div>
-
+            @endforelse
         </div>
         
         <!-- MAIN BOOKING BUTTON -->
@@ -284,50 +225,22 @@
                 <form id="selectPaketForm" class="space-y-4">
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Pilih salah satu paket:</label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Option 1 -->
+                        @forelse($pakets as $index => $paket)
                         <label class="paket-label relative flex items-center h-20 cursor-pointer rounded-2xl border border-gray-200 bg-white px-5 shadow-sm hover:border-green-500 transition-all duration-150 active:scale-[0.97] active:shadow-inner">
-                            <input type="radio" name="paket_camping" value="Nyaman Camp" class="sr-only peer" required>
+                            <input type="radio" name="paket_camping" value="{{ $paket->nama }}" class="sr-only peer" {{ $index === 0 ? 'required' : '' }}>
                             <div class="flex flex-col">
-                                <span class="text-base font-bold text-dark-navy uppercase tracking-tight">Nyaman Camp</span>
-                                <span class="text-sm font-semibold text-blue-600 mt-0.5">Rp 350.000</span>
+                                <span class="text-base font-bold text-dark-navy uppercase tracking-tight">{{ $paket->nama }}</span>
+                                <span class="text-sm font-semibold text-blue-600 mt-0.5">Rp {{ number_format($paket->harga, 0, ',', '.') }}</span>
                             </div>
                             <div class="paket-check absolute right-3 top-3 hidden items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white shadow-md z-10">
                                 <i class="fa-solid fa-check text-xs"></i>
                             </div>
                         </label>
-                        <!-- Option 2 -->
-                        <label class="paket-label relative flex items-center h-20 cursor-pointer rounded-2xl border border-gray-200 bg-white px-5 shadow-sm hover:border-green-500 transition-all duration-150 active:scale-[0.97] active:shadow-inner">
-                            <input type="radio" name="paket_camping" value="Seru Camp" class="sr-only peer">
-                            <div class="flex flex-col">
-                                <span class="text-base font-bold text-dark-navy uppercase tracking-tight">Seru Camp</span>
-                                <span class="text-sm font-semibold text-blue-600 mt-0.5">Rp 185.000</span>
-                            </div>
-                            <div class="paket-check absolute right-3 top-3 hidden items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white shadow-md z-10">
-                                <i class="fa-solid fa-check text-xs"></i>
-                            </div>
-                        </label>
-                        <!-- Option 3 -->
-                        <label class="paket-label relative flex items-center h-20 cursor-pointer rounded-2xl border border-gray-200 bg-white px-5 shadow-sm hover:border-green-500 transition-all duration-150 active:scale-[0.97] active:shadow-inner">
-                            <input type="radio" name="paket_camping" value="Santai Camp" class="sr-only peer">
-                            <div class="flex flex-col">
-                                <span class="text-base font-bold text-dark-navy uppercase tracking-tight">Santai Camp</span>
-                                <span class="text-sm font-semibold text-blue-600 mt-0.5">Rp 150.000</span>
-                            </div>
-                            <div class="paket-check absolute right-3 top-3 hidden items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white shadow-md z-10">
-                                <i class="fa-solid fa-check text-xs"></i>
-                            </div>
-                        </label>
-                        <!-- Option 4 -->
-                        <label class="paket-label relative flex items-center h-20 cursor-pointer rounded-2xl border border-gray-200 bg-white px-5 shadow-sm hover:border-green-500 transition-all duration-150 active:scale-[0.97] active:shadow-inner">
-                            <input type="radio" name="paket_camping" value="Bawa Tenda Sendiri" class="sr-only peer">
-                            <div class="flex flex-col">
-                                <span class="text-base font-bold text-dark-navy uppercase tracking-tight">Bawa Tenda</span>
-                                <span class="text-sm font-semibold text-blue-600 mt-0.5">Mulai Rp 25k</span>
-                            </div>
-                            <div class="paket-check absolute right-3 top-3 hidden items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white shadow-md z-10">
-                                <i class="fa-solid fa-check text-xs"></i>
-                            </div>
-                        </label>
+                        @empty
+                        <div class="col-span-full text-center py-6 text-gray-500 text-sm">
+                            Tidak ada paket camping yang tersedia saat ini.
+                        </div>
+                        @endforelse
                     </div>
                 </form>
             </div>

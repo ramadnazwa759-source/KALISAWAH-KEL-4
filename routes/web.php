@@ -13,9 +13,7 @@ Route::get('/kabar/{slug}', [ProfilWisataController::class, 'showKabar'])->name(
 
 // HALAMAN PAKET
 // camping
-Route::get('/camping', function () {
-    return view('camping');
-})->name('camping');
+Route::get('/camping', [ProfilWisataController::class, 'camping'])->name('camping');
 
 // halaman form booking
 Route::get('/booking', [BookingController::class, 'create'])->name('booking.create');
