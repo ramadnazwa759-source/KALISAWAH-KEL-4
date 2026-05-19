@@ -218,49 +218,29 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            @php
-                $pakets = [
-                    ['Rafting Banyuwangi', 'Sensasi arung jeram seru & menantang di Sungai Banyuwangi', 'id/1019'],
-                    ['Outbound Banyuwangi', 'Kegiatan outbound seru untuk kerja sama tim & pengembangan diri', 'id/1020'],
-                    ['Camping Banyuwangi', 'Pengalaman camping seru di alam bebas dengan fasilitas lengkap', 'id/1021'],
-                    ['Gathering & Team Building', 'Acara gathering seru & menyenangkan untuk perusahaan dan komunitas', 'id/1022'],
-                    ['Wargame Paintball', 'Permainan paintball seru dan menegangkan di alam terbuka', 'id/1023'],
-                    ['Jeep Tour Banyuwangi', 'Jelajahi keindahan Banyuwangi dengan jeep offroad', 'id/1024'],
-                    ['Villa & Menginap', 'Nikmati penginapan nyaman di tengah alam Banyuwangi', 'id/1025'],
-                    ['Adventure Game', 'Panahan, shooting target, dan permainan seru lainnya', 'id/1026'],
-                ];
-            @endphp
-            @foreach($pakets as $paket)
-            @php
-                $route = '#';
-                if ($paket[0] == 'Camping Banyuwangi') {
-                    $route = route('camping');
-                } elseif ($paket[0] == 'Rafting Banyuwangi') {
-                    $route = route('rafting');
-                } elseif ($paket[0] == 'Outbound Banyuwangi') {
-                    $route = route('outbound');
-                } elseif ($paket[0] == 'Wargame Paintball') {
-                    $route = url('/paintball');
-                } elseif ($paket[0] == 'Gathering & Team Building') {
-                    $route = route('gathering');
-                } elseif ($paket[0] == 'Jeep Tour Banyuwangi') {
-                    $route = url('/jeeptour');
-                }
-            @endphp
-            <a href="{{ $route }}" class="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-2 flex flex-col h-full">
+            @forelse($categories as $category)
+            <a href="{{ $category->slug }}" class="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-2 flex flex-col h-full">
                 <div class="relative h-56 overflow-hidden">
-                    <img src="https://picsum.photos/{{ $paket[2] }}/600/400" alt="{{ $paket[0] }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <img src="{{ $category->gambar ? asset('storage/' . $category->gambar) : 'https://picsum.photos/id/1019/600/400' }}" alt="{{ $category->nama }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                 </div>
                 <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-primary text-xl font-bold mb-3 leading-tight group-hover:text-hover-primary transition-colors">{{ $paket[0] }}</h3>
-                    <p class="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">{{ $paket[1] }}</p>
+                    <h3 class="text-primary text-xl font-bold mb-3 leading-tight group-hover:text-hover-primary transition-colors">{{ $category->nama }}</h3>
+                    <p class="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">{{ $category->deskripsi }}</p>
                     <div class="mt-auto block w-full text-center bg-secondary text-white py-3 rounded-xl font-bold shadow-md group-hover:bg-secondary/90 transition-all">
                         Lihat Detail <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
                     </div>
                 </div>
             </a>
-            @endforeach
+            @empty
+            <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-soft-blue text-primary text-2xl mb-4">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h3 class="text-lg font-bold text-dark-navy mb-1">Belum Ada Kategori Wisata</h3>
+                <p class="text-gray-500 text-sm max-w-md mx-auto">Silakan tambahkan data kategori wisata melalui panel admin atau database.</p>
+            </div>
+            @endforelse
         </div>
     </section>
 
@@ -317,27 +297,38 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            @for($i=1; $i<=3; $i++)
+            @forelse($kabars as $kabar)
             <article class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all flex flex-col h-full">
                 <div class="relative h-64">
-                    <span class="absolute top-4 left-4 z-10 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">Corporate</span>
-                    <img src="https://picsum.photos/id/{{ 1030 + $i }}/800/600" alt="Blog" class="w-full h-full object-cover">
+                    <span class="absolute top-4 left-4 z-10 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">Kabar Wisata</span>
+                    <img src="{{ $kabar->foto ? asset('storage/' . $kabar->foto) : 'https://picsum.photos/id/1031/800/600' }}" alt="{{ $kabar->judul }}" class="w-full h-full object-cover">
                 </div>
                 <div class="p-8 flex flex-col flex-grow">
                     <div class="flex items-center gap-3 text-gray-400 text-xs font-semibold mb-4">
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-calendar"></i> 24 April 2025</span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot"></i> Banyuwangi</span>
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-calendar"></i> 
+                            {{ $kabar->tanggal ? \Carbon\Carbon::parse($kabar->tanggal)->translatedFormat('d F Y') : \Carbon\Carbon::parse($kabar->created_at)->translatedFormat('d F Y') }}
+                        </span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot"></i> Glenmore, Banyuwangi</span>
                     </div>
-                    <h3 class="text-primary text-xl font-bold mb-4 leading-tight">Gathering Seru PT. Pertamina di Kalisawah Adventure</h3>
+                    <h3 class="text-primary text-xl font-bold mb-4 leading-tight">{{ $kabar->judul }}</h3>
                     <p class="text-gray-500 text-sm mb-8 line-clamp-3 leading-relaxed">
-                        Mengusung tema "Unity in Adventure", tim Pertamina sukses menggelar kegiatan outbound dan rafting yang luar biasa...
+                        {{ Str::limit(strip_tags($kabar->isi_berita), 120) }}
                     </p>
                     <div class="mt-auto">
-                        <a href="#" class="text-primary font-bold flex items-center gap-2 hover:gap-4 transition-all">Baca Cerita <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="{{ route('kabar.detail', $kabar->slug) }}" class="text-primary font-bold flex items-center gap-2 hover:gap-4 transition-all">Baca Cerita <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </article>
-            @endfor
+            @empty
+            <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-dashed border-gray-200">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-soft-blue text-primary text-2xl mb-4">
+                    <i class="fa-solid fa-newspaper"></i>
+                </div>
+                <h3 class="text-lg font-bold text-dark-navy mb-1">Belum Ada Cerita Seru</h3>
+                <p class="text-gray-500 text-sm max-w-md mx-auto">Nantikan rangkuman cerita dan kegiatan seru kami berikutnya di Kalisawah Adventure.</p>
+            </div>
+            @endforelse
         </div>
     </section>
 

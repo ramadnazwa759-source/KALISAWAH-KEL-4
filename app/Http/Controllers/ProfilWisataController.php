@@ -9,7 +9,22 @@ class ProfilWisataController extends Controller
 {
     public function index()
     {
-        return view('home');
+        $categories = \App\Models\KategoriPaket::all();
+        $kabars = \App\Models\Berita::latest('tanggal')->get();
+        return view('home', compact('categories', 'kabars'));
+    }
+
+    public function showKabar($slug)
+    {
+        $berita = \App\Models\Berita::all()->first(function ($item) use ($slug) {
+            return \Illuminate\Support\Str::slug($item->judul) === $slug;
+        });
+
+        if (!$berita) {
+            abort(404);
+        }
+
+        return view('kabar-detail', compact('berita'));
     }
 
     public function create()
