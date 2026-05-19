@@ -15,12 +15,12 @@
                 Paket Wisata <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </a>
             <ul class="dropdown-menu absolute left-0 top-full mt-2 w-64 bg-white border-t-4 border-primary rounded-b-lg shadow-xl hidden py-2 list-none">
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Gathering & Team Building</a></li>
+                <li><a href="{{ route('gathering') }}" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Gathering & Team Building</a></li>
                 <li><a href="/rafting" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Rafting Banyuwangi</a></li>
                 <li><a href="/camping" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Camping Banyuwangi</a></li>
                 <li><a href="{{ route('outbound') }}" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Outbound Banyuwangi</a></li>
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Wargame Banyuwangi (Paintball)</a></li>
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Jeep Tour Banyuwangi</a></li>
+                <li><a href="/paintball" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Wargame Banyuwangi (Paintball)</a></li>
+                <li><a href="/jeeptour" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Jeep Tour Banyuwangi</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Villa & Menginap</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Adventure Game</a></li>
             </ul>
@@ -34,8 +34,8 @@
                 <li><a href="/rafting" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Rafting</a></li>
                 <li><a href="/camping" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Camping</a></li>
                 <li><a href="{{ route('outbound') }}" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Outbound</a></li>
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Paintball</a></li>
-                <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Jeep Adventure</a></li>
+                <li><a href="/paintball" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Paintball</a></li>
+                <li><a href="/jeeptour" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Jeep Adventure</a></li>
                 <li><a href="#" class="block px-6 py-3 hover:bg-soft-blue text-sm transition-colors text-gray-700">Panahan & Shooting Target</a></li>
             </ul>
         </li>

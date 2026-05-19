@@ -50,7 +50,7 @@
  
                         <!-- Whatsapp -->
                         <div class="space-y-2.5">
-                            <label for="no_hp" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">Whatsapp</label>
+                            <label for="no_hp" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">NOMOR HP</label>
                             <input type="text" id="no_hp" name="no_hp" placeholder="Enter your number" required 
                                 class="w-full h-[56px] px-6 rounded-xl border border-gray-200 bg-white outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
                         </div>

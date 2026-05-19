@@ -140,3 +140,7 @@ Route::get('/pembayaran-gathering', function () {
 Route::get('/status-booking-gathering', function () {
     return view('status-booking-gathering');
 })->name('status-booking-gathering');
+
+Route::get('/jeeptour', function () {
+    return view('jeeptour');
+})->name('jeeptour');
