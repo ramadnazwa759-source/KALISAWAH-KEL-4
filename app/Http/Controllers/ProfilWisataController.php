@@ -27,6 +27,22 @@ class ProfilWisataController extends Controller
         return view('kabar-detail', compact('berita'));
     }
 
+    public function camping()
+    {
+        $kategori = \App\Models\KategoriPaket::where('nama_kategori', 'like', '%camping%')->first();
+        
+        if ($kategori) {
+            $pakets = \App\Models\PaketWisata::where('id_kategori', $kategori->id_kategori ?? $kategori->id)
+                ->orWhere('kategori_paket_id', $kategori->id)
+                ->with('fasilitas')
+                ->get();
+        } else {
+            $pakets = collect();
+        }
+
+        return view('camping', compact('pakets'));
+    }
+
     public function create()
     {
         return view('profil.create');

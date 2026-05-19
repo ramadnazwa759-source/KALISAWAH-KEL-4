@@ -34,5 +34,15 @@ class PaketWisata extends Model
         return $this->belongsToMany(Fasilitas::class, 'paket_fasilitas', 'id_paket', 'id_fasilitas')
                     ->withPivot('jumlah', 'keterangan');
     }
+
+    public function getNamaAttribute()
+    {
+        return $this->nama_paket;
+    }
+
+    public function getGambarAttribute()
+    {
+        return $this->attributes['gambar'] ?? null;
+    }
 }
 
