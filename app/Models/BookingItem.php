@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BookingFasilitas extends Model
+class BookingItem extends Model
 {
-    protected $table = 'booking_fasilitas';
+    protected $table = 'booking_items';
 
     protected $fillable = [
         'booking_id',
-        'fasilitas_id',
+        'paket_wisata_id',
         'qty',
         'harga',
         'subtotal'
@@ -21,8 +21,8 @@ class BookingFasilitas extends Model
         return $this->belongsTo(Booking::class);
     }
 
-    public function fasilitas()
+    public function paket()
     {
-        return $this->belongsTo(Fasilitas::class);
+        return $this->belongsTo(PaketWisata::class, 'paket_wisata_id');
     }
 }

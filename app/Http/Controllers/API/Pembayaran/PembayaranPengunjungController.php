@@ -4,103 +4,164 @@ namespace App\Http\Controllers\API\Pembayaran;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Pembayaran;
-use App\Models\Booking;
+
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+
+use App\Models\Booking;
+use App\Models\Pembayaran;
 
 class PembayaranPengunjungController extends Controller
 {
-    public function uploadDP(Request $request, $id)
+    // ======================================================
+    // UPLOAD PEMBAYARAN PENGUNJUNG
+    // ======================================================
+
+    public function store(Request $request)
     {
         $request->validate([
 
-            'bukti_pembayaran_dp' =>
-                'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'kode_booking' =>
+                'required|exists:booking,kode_booking',
+
+            'metode_pembayaran' =>
+                'required',
+
+            'jenis_pembayaran' =>
+                'required|in:dp,lunas',
+
+            'bukti_pembayaran' =>
+                'required|image|max:2048'
         ]);
 
-        $booking = Booking::findOrFail($id);
+        DB::beginTransaction();
 
-        if (!$request->file('bukti_pembayaran_dp')->isValid()) {
+        try {
+
+            // ==============================================
+            // CARI BOOKING
+            // ==============================================
+
+            $booking = Booking::where(
+                'kode_booking',
+                $request->kode_booking
+            )->first();
+
+            // ==============================================
+            // CEK STATUS BOOKING
+            // ==============================================
+
+            if (
+                $booking->status_booking
+                == 'dibatalkan'
+            ) {
+
+                return response()->json([
+
+                    'message' =>
+                        'Booking sudah dibatalkan'
+
+                ], 400);
+            }
+
+            // ==============================================
+            // UPLOAD FILE
+            // ==============================================
+
+            $file = $request->file(
+                'bukti_pembayaran'
+            );
+
+            $path = $file->store(
+                'pembayaran',
+                'public'
+            );
+
+            // ==============================================
+            // HITUNG NOMINAL
+            // ==============================================
+
+            if (
+                $request->jenis_pembayaran
+                == 'dp'
+            ) {
+
+                $nominal =
+
+                    $booking->total_harga_final
+                    * 0.5;
+
+            } else {
+
+                $nominal =
+                    $booking->total_harga_final;
+            }
+
+            // ==============================================
+            // SIMPAN PEMBAYARAN
+            // ==============================================
+
+            $pembayaran = Pembayaran::create([
+
+                'booking_id' =>
+                    $booking->id,
+
+                'metode_pembayaran' =>
+                    $request->metode_pembayaran,
+
+                'jenis_pembayaran' =>
+                    $request->jenis_pembayaran,
+
+                'nominal' =>
+                    $nominal,
+
+                'bukti_pembayaran' =>
+                    $path,
+
+                'status_pembayaran' =>
+                    'menunggu_verifikasi'
+            ]);
+
+            // ==============================================
+            // UPDATE STATUS BOOKING
+            // ==============================================
+
+            $booking->update([
+
+                'status_booking' =>
+                    'menunggu_verifikasi'
+            ]);
+
+            DB::commit();
 
             return response()->json([
-                'message' => 'File tidak valid'
-            ], 400);
-        }
 
-        $path = $request
-            ->file('bukti_pembayaran_dp')
-            ->store('bukti-pembayaran/dp', 'public');
+                'message' =>
+                    'Pembayaran berhasil dikirim',
 
-        $pembayaran = Pembayaran::create([
+                'data' => [
 
-            'id_booking' => $booking->id,
+                    'kode_booking' =>
+                        $booking->kode_booking,
 
-            'metode' => 'transfer',
+                    'nominal' =>
+                        $nominal,
 
-            'bukti_pembayaran_dp' => $path,
+                    'status_pembayaran' =>
+                        'menunggu_verifikasi'
+                ]
+            ]);
 
-            'tanggal_dp' => now(),
+        } catch (\Exception $e) {
 
-            // otomatis dari booking
-            'total_harga_awal' => $booking->total_harga,
-
-            'id_diskon' => null,
-
-            // sementara sama dulu
-            'total_harga_akhir' => $booking->total_harga,
-
-            'bukti_pelunasan' => null,
-
-            'status' => 'menunggu_verifikasi',
-
-            'tanggal_pelunasan' => null,
-        ]);
-
-        return response()->json([
-            'message' => 'Bukti pembayaran berhasil diupload',
-            'data' => $pembayaran
-        ]);
-    }
-
-    public function uploadUlangPelunasan(Request $request, $id)
-    {
-        $request->validate([
-
-            'bukti_pelunasan' =>
-                'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-        ]);
-
-        $pembayaran = Pembayaran::findOrFail($id);
-
-        if (!$request->file('bukti_pelunasan')->isValid()) {
+            DB::rollback();
 
             return response()->json([
-                'message' => 'File tidak valid'
-            ], 400);
+
+                'message' =>
+                    $e->getMessage()
+
+            ], 500);
         }
-
-        if ($pembayaran->bukti_pelunasan) {
-
-            Storage::disk('public')
-                ->delete($pembayaran->bukti_pelunasan);
-        }
-
-        $path = $request
-            ->file('bukti_pelunasan')
-            ->store('bukti-pembayaran/pelunasan', 'public');
-
-        $pembayaran->update([
-
-            'bukti_pelunasan' => $path,
-
-            'tanggal_pelunasan' => now(),
-
-            'status' => 'menunggu_verifikasi_pelunasan'
-        ]);
-
-        return response()->json([
-            'message' => 'Bukti pelunasan berhasil diupload',
-            'data' => $pembayaran
-        ]);
     }
 }

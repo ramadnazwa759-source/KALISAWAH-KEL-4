@@ -12,12 +12,12 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('booking_id')
-                  ->constrained('booking')
-                  ->cascadeOnDelete();
+                ->constrained('booking')
+                ->cascadeOnDelete();
 
             $table->foreignId('fasilitas_id')
-                  ->constrained('fasilitas')
-                  ->cascadeOnDelete();
+                ->constrained('fasilitas')
+                ->cascadeOnDelete();
 
             $table->integer('qty');
 

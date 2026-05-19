@@ -12,35 +12,33 @@ class Booking extends Model
         'kode_booking',
         'nama_pemesan',
         'no_hp',
-        'id_paket',
         'tanggal_kunjungan',
         'jam',
-        'jumlah_orang',
-        'jumlah_tenda',
+        'jumlah_pengunjung',
+        'jumlah_tiket_tambahan',
+        'harga_tiket_tambahan',
+        'subtotal_tiket_tambahan',
         'catatan',
-        'status_booking'
+        'total_harga',
+        'status_booking',
+        'status_pembayaran',
+        'tanggal_reschedule',
+        'alasan_reschedule',
+        'jumlah_reschedule'
     ];
 
-    // RELASI KE PAKET WISATA
-    public function paket()
+    public function items()
     {
-        return $this->belongsTo(PaketWisata::class, 'id_paket', 'id');
+        return $this->hasMany(BookingItem::class);
     }
 
-    // RELASI KE PEMBAYARAN
-    public function pembayaran()
-    {
-        return $this->hasOne(Pembayaran::class, 'id_booking', 'id');
-    }
-
-    // RELASI KE FASILITAS (MANY TO MANY)
     public function fasilitas()
     {
-        return $this->belongsToMany(
-            Fasilitas::class,
-            'booking_fasilitas',
-            'id_booking',
-            'id_fasilitas'
-        )->withPivot('jumlah');
+        return $this->hasMany(BookingFasilitas::class);
+    }
+
+    public function pembayaran()
+    {
+        return $this->hasMany(Pembayaran::class);
     }
 }
