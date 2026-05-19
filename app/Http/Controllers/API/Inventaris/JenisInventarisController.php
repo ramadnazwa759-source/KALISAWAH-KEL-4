@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Inventaris;
 
 use App\Http\Controllers\Controller;
 use App\Models\JenisInventaris;
+use App\Models\SubkategoriInventaris;
 use Illuminate\Http\Request;
 
 class JenisInventarisController extends Controller
@@ -13,15 +14,18 @@ class JenisInventarisController extends Controller
      */
     public function index()
     {
-        $jenisInventaris = JenisInventaris::with([
-            'subkategori.kategori'
-        ])->latest()->get();
+        $jenisInventaris = JenisInventaris::with([ 'subkategori.kategori'])->latest()->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data jenis inventaris berhasil diambil',
-            'data' => $jenisInventaris
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data jenis inventaris berhasil diambil',
+        //     'data' => $jenisInventaris
+        // ], 200);
+
+        // AMBIL DATA SUBKATEGORI UNTUK DROPDOWN MODAL
+        $subkategori = SubkategoriInventaris::all();
+
+        return view('admin.operasional.JenisInventaris.index', compact('jenisInventaris', 'subkategori'));
     }
 
     /**
@@ -53,11 +57,13 @@ class JenisInventarisController extends Controller
                 $validated['spesifikasi'] ?? null
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Jenis inventaris berhasil ditambahkan',
-            'data' => $jenisInventaris
-        ], 201);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Jenis inventaris berhasil ditambahkan',
+        //     'data' => $jenisInventaris
+        // ], 201);
+
+        return redirect()->route('admin.jenis-inventaris.index')->with('success', 'Jenis inventaris berhasil ditambahkan');
     }
 
     /**
@@ -120,11 +126,13 @@ class JenisInventarisController extends Controller
                 $validated['spesifikasi'] ?? null
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Jenis inventaris berhasil diupdate',
-            'data' => $jenisInventaris
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Jenis inventaris berhasil diupdate',
+        //     'data' => $jenisInventaris
+        // ], 200);
+
+        return redirect()->route('admin.jenis-inventaris.index')->with('success', 'Jenis inventaris berhasil diupdate');
     }
 
     /**
@@ -143,9 +151,11 @@ class JenisInventarisController extends Controller
 
         $jenisInventaris->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Jenis inventaris berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Jenis inventaris berhasil dihapus'
+        // ], 200);
+
+        return redirect()->route('admin.jenis-inventaris.index')->with('success', 'Jenis inventaris berhasil dihapus');
     }
 }

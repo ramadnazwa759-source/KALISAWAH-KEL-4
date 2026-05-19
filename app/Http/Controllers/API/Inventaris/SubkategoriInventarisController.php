@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Inventaris;
 
 use App\Http\Controllers\Controller;
 use App\Models\SubkategoriInventaris;
+use App\Models\KategoriInventaris;
 use Illuminate\Http\Request;
 
 class SubkategoriInventarisController extends Controller
@@ -17,11 +18,16 @@ class SubkategoriInventarisController extends Controller
             ->latest()
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data subkategori berhasil diambil',
-            'data' => $subkategori
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data subkategori berhasil diambil',
+        //     'data' => $subkategori
+        // ], 200);
+        // TAMBAHKAN SATU BARIS INI DI SINI:
+        // Kita buat fisik variabel $kategori berisi semua data Kategori Inventaris
+        $kategori = KategoriInventaris::all();
+
+        return view('admin.operasional.Subkategori.index', compact('subkategori', 'kategori'));
     }
 
     /**
@@ -47,11 +53,13 @@ class SubkategoriInventarisController extends Controller
                 trim($validated['nama_subkategori'])
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Subkategori berhasil ditambahkan',
-            'data' => $subkategori
-        ], 201);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Subkategori berhasil ditambahkan',
+        //     'data' => $subkategori
+        // ], 201);
+
+        return redirect()->route('admin.subkategori-inventaris.index')->with('success', 'Subkategori berhasil ditambahkan');
     }
 
     /**
@@ -107,11 +115,12 @@ class SubkategoriInventarisController extends Controller
                 trim($validated['nama_subkategori'])
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Subkategori berhasil diupdate',
-            'data' => $subkategori
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Subkategori berhasil diupdate',
+        //     'data' => $subkategori
+        // ], 200);
+        return redirect()->route('admin.subkategori-inventaris.index')->with('success', 'Subkategori berhasil diupdate');
     }
 
     /**
@@ -130,9 +139,10 @@ class SubkategoriInventarisController extends Controller
 
         $subkategori->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Subkategori berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        // //     'success' => true,
+        // //     'message' => 'Subkategori berhasil dihapus'
+        // ], 200);
+        return redirect()->route('admin.subkategori-inventaris.index')->with('success', 'Subkategori berhasil dihapus');
     }
 }

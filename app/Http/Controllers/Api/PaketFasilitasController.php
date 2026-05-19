@@ -53,10 +53,7 @@ class PaketFasilitasController extends Controller
 
         $paketFasilitas->update($request->all());
 
-        return response()->json([
-            'message' => 'Paket fasilitas berhasil diupdate',
-            'data'    => $paketFasilitas
-        ], 200);
+        return response()->json(['message' => 'Paket fasilitas berhasil diupdate','data'    => $paketFasilitas], 200);
     }
 
     // DELETE /api/paket-fasilitas/{id}

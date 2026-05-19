@@ -15,11 +15,13 @@ class LokasiPenyimpananController extends Controller
     {
         $lokasi = LokasiPenyimpanan::latest()->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data lokasi penyimpanan berhasil diambil',
-            'data' => $lokasi
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data lokasi penyimpanan berhasil diambil',
+        //     'data' => $lokasi
+        // ], 200);
+
+        return view('admin.operasional.LokasiPenyimpanan.index', compact('lokasi'));
     }
 
     /**
@@ -39,11 +41,13 @@ class LokasiPenyimpananController extends Controller
                 trim($validated['nama_lokasi'])
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lokasi penyimpanan berhasil ditambahkan',
-            'data' => $lokasi
-        ], 201);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Lokasi penyimpanan berhasil ditambahkan',
+        //     'data' => $lokasi
+        // ], 201);
+
+        return redirect()->route('admin.lokasi-penyimpanan.index')->with('success', 'Lokasi penyimpanan berhasil ditambahkan');
     }
 
     /**
@@ -92,11 +96,13 @@ class LokasiPenyimpananController extends Controller
                 trim($validated['nama_lokasi'])
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lokasi penyimpanan berhasil diupdate',
-            'data' => $lokasi
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Lokasi penyimpanan berhasil diupdate',
+        //     'data' => $lokasi
+        // ], 200);
+
+        return redirect()->route('admin.lokasi-penyimpanan.index')->with('success', 'Lokasi penyimpanan berhasil diupdate');
     }
 
     /**
@@ -115,9 +121,11 @@ class LokasiPenyimpananController extends Controller
 
         $lokasi->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lokasi penyimpanan berhasil dihapus'
-        ], 200);
-    }
+    //     // return response()->json([
+    //         'success' => true,
+    //         'message' => 'Lokasi penyimpanan berhasil dihapus'
+    //     ], 200);
+    // }
+        return redirect()->route('admin.lokasi-penyimpanan.index')->with('success', 'Lokasi penyimpanan berhasil dihapus');
+}
 }

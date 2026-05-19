@@ -48,10 +48,11 @@ class PaketWisataController extends Controller
             'durasi' => 'required|string',
             'status' => 'required|string',
         ]);
-        
+
         $paket = PaketWisata::create($request->all());
 
         return redirect()->route('admin.paket-wisata.index')->with('success', 'Paket berhasil ditambah');
+
     }
 
     // PUT
@@ -65,7 +66,7 @@ class PaketWisataController extends Controller
 
         $paket->update($request->all());
 
-        return response()->json($paket, 200);
+        return redirect()->route('admin.paket-wisata.index')->with('success', 'Paket berhasil diedit');
     }
 
     // DELETE
