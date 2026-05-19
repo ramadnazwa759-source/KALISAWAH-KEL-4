@@ -57,6 +57,7 @@ Route::get('/', function () {
 });
 
 Route::get('/home', [ProfilWisataController::class, 'index'])->name('home');
+Route::get('/kabar/{slug}', [ProfilWisataController::class, 'showKabar'])->name('kabar.detail');
 
 // HALAMAN PAKET
 // camping

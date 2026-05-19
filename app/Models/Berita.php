@@ -15,4 +15,9 @@ class Berita extends Model
         'foto',
         'tanggal'
     ];
+
+    public function getSlugAttribute()
+    {
+        return \Illuminate\Support\Str::slug($this->judul);
+    }
 }
