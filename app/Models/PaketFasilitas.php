@@ -2,30 +2,37 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PaketFasilitas extends Model
 {
+    use HasFactory;
+
     protected $table = 'paket_fasilitas';
 
-      public $timestamps = false; // 
-
     protected $fillable = [
-        'id_paket',
-        'id_fasilitas',
+        'paket_wisata_id',
+        'fasilitas_id',
         'jumlah',
         'keterangan'
     ];
 
-    // Relasi ke PaketWisata
-    public function paket()
+    // relasi ke paket wisata
+    public function paketWisata()
     {
-        return $this->belongsTo(PaketWisata::class, 'id_paket');
+        return $this->belongsTo(
+            PaketWisata::class,
+            'paket_wisata_id'
+        );
     }
 
-    // Relasi ke Fasilitas
+    // relasi ke fasilitas
     public function fasilitas()
     {
-        return $this->belongsTo(Fasilitas::class, 'id_fasilitas');
+        return $this->belongsTo(
+            Fasilitas::class,
+            'fasilitas_id'
+        );
     }
 }

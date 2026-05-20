@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\Kelola_landingpage\paket;
 
 use App\Http\Controllers\Controller; // controller dasar Laravel
 use Illuminate\Http\Request; // menangkap request dari Postman / client

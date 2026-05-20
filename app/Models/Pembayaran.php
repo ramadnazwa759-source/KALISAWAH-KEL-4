@@ -7,28 +7,34 @@ use Illuminate\Database\Eloquent\Model;
 class Pembayaran extends Model
 {
     protected $table = 'pembayaran';
-    protected $primaryKey = 'id_pembayaran';
 
     protected $fillable = [
-        'id_booking',
-        'metode',
-        'bukti_pembayaran_dp',
-        'tanggal_dp',
-        'total_harga_awal',
-        'id_diskon',
-        'total_harga_akhir',
-        'bukti_pelunasan',
-        'status',
-        'tanggal_pelunasan'
+
+        'booking_id',
+
+        'tipe_pembayaran',
+
+        'metode_pembayaran',
+
+        'nominal',
+
+        'bukti_pembayaran',
+
+        'tanggal_pembayaran',
+
+        'status_verifikasi',
+
+        'catatan'
     ];
 
+    // =========================================
+    // RELASI KE BOOKING
+    // =========================================
     public function booking()
     {
-        return $this->belongsTo(Booking::class, 'id_booking', 'id_booking');
-    }
-
-    public function diskon()
-    {
-        return $this->belongsTo(Diskon::class, 'id_diskon', 'id_diskon');
+        return $this->belongsTo(
+            Booking::class,
+            'booking_id'
+        );
     }
 }

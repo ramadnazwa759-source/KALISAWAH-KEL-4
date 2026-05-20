@@ -4,15 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BookingFasilitas extends Model
+class BookingItem extends Model
 {
-    protected $table = 'booking_fasilitas';
+    protected $table = 'booking_items';
 
     protected $fillable = [
 
         'booking_id',
 
-        'fasilitas_id',
+        'paket_wisata_id',
 
         'qty',
 
@@ -30,12 +30,12 @@ class BookingFasilitas extends Model
         );
     }
 
-    // RELASI KE FASILITAS
-    public function fasilitas()
+    // RELASI KE PAKET WISATA
+    public function paketWisata()
     {
         return $this->belongsTo(
-            Fasilitas::class,
-            'fasilitas_id'
+            PaketWisata::class,
+            'paket_wisata_id'
         );
     }
 }

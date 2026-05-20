@@ -53,6 +53,4 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
     Route::resource('lokasi-penyimpanan', LokasiPenyimpananController::class);
     Route::resource('inventaris-perunit', InventarisPerUnitController::class);
 
-
-
 });

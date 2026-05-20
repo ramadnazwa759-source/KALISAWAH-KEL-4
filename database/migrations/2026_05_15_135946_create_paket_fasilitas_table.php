@@ -11,11 +11,20 @@ return new class extends Migration
         Schema::create('paket_fasilitas', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('id_paket')->constrained('paket_wisata')->cascadeOnDelete();
-            $table->foreignId('id_fasilitas')->constrained('fasilitas')->cascadeOnDelete();
+            $table->foreignId('paket_wisata_id')
+                ->constrained('paket_wisata')
+                ->cascadeOnDelete();
+
+            $table->foreignId('fasilitas_id')
+                ->constrained('fasilitas')
+                ->cascadeOnDelete();
+
             $table->integer('jumlah');
+
             $table->text('keterangan')->nullable();
-        });
+
+            $table->timestamps();
+});
     }
 
     public function down(): void

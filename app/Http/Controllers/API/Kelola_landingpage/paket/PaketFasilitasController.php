@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\Kelola_landingpage\paket;
 
 use App\Http\Controllers\Controller;
 use App\Models\PaketFasilitas;
@@ -18,11 +18,11 @@ class PaketFasilitasController extends Controller
     // POST /api/paket-fasilitas
     public function store(Request $request)
     {
-        $request->validate([
-            'id_paket'     => 'required|integer|exists:paket_wisata,id',
-            'id_fasilitas' => 'required|integer|exists:fasilitas,id',
-            'jumlah'       => 'required|integer|min:1',
-            'keterangan'   => 'nullable|string',
+      $request->validate([
+            'paket_wisata_id' => 'required|integer|exists:paket_wisata,id',
+            'fasilitas_id' => 'required|integer|exists:fasilitas,id',
+            'jumlah' => 'required|integer|min:1',
+            'keterangan' => 'nullable|string',
         ]);
 
         $data = PaketFasilitas::create($request->all());
