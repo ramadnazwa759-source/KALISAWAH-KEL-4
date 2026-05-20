@@ -1,11 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\KategoriPaketController;
-use App\Http\Controllers\Api\PaketWisataController;
-use App\Http\Controllers\Api\ProfilWisataController;
-use App\Http\Controllers\Api\FasilitasController;
-use App\Http\Controllers\Api\PaketFasilitasController;
+use App\Http\Controllers\API\KategoriPaketController;
+use App\Http\Controllers\API\PaketWisataController;
+use App\Http\Controllers\API\ProfilWisataController;
+use App\Http\Controllers\API\FasilitasController;
+use App\Http\Controllers\API\PaketFasilitasController;
+use App\Http\Controllers\API\KategoriPengeluaranController;
+use App\Http\Controllers\API\PengeluaranOperasionalController;
+use App\Http\Controllers\API\BookingFasilitasController;
+use App\Http\Controllers\API\BeritaController;
 
 // CRUD Kategori Paket
 Route::apiResource('kategori-paket', KategoriPaketController::class);
@@ -21,3 +25,15 @@ Route::apiResource('fasilitas', FasilitasController::class);
 
 // CRUD Paket Fasilitas 
 Route::apiResource('paket-fasilitas', PaketFasilitasController::class);
+
+//CRUD kategori pengeluaran
+Route::apiResource('kategori-pengeluaran', KategoriPengeluaranController::class);
+
+//CRUD pengeluaran operasional
+Route::apiResource('pengeluaran-operasional', PengeluaranOperasionalController::class);
+
+//CRUD booking fasilitas
+Route::apiResource('booking-fasilitas', BookingFasilitasController::class);
+
+//CRUD berita
+Route::apiResource('berita', BeritaController::class);

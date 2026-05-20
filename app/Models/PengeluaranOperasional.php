@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class PengeluaranOperasional extends Model
 {
     protected $table = 'pengeluaran_operasional';
-    protected $primaryKey = 'id_pengeluaran';
 
     protected $fillable = [
         'id_kategori',
@@ -17,6 +16,8 @@ class PengeluaranOperasional extends Model
         'bukti_pengeluaran',
         'dicatat_oleh'
     ];
+
+    public $timestamps = false;
 
     public function kategori()
     {
