@@ -260,8 +260,11 @@
             <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
         </div>
         <div class="submenu">
-            <a href="/admin/inventaris" class="menu-item" style="padding-left:50px;">Inventaris</a>
-            <a href="{{ route('admin.jenisInventaris.index') }}" class="menu-item" style="padding-left:50px;">Jenis Inventaris</a>
+            <a href="{{ route('admin.kategori-inventaris.index') }}" class="menu-item" style="padding-left:50px;">Kategori Inventaris</a>
+            <a href="{{ route('admin.subkategori-inventaris.index') }}" class="menu-item" style="padding-left:50px;">Subkategori Inventaris</a>
+            <a href="{{ route('admin.jenis-inventaris.index') }}" class="menu-item" style="padding-left:50px;">Jenis Inventaris</a>
+            <a href="{{ route('admin.lokasi-penyimpanan.index') }}" class="menu-item" style="padding-left:50px;">Lokasi Penyimpanan</a>
+            <a href="{{ route('admin.inventaris-perunit.index') }}" class="menu-item" style="padding-left:50px;">Data Inventaris</a>
             <a href="/admin/pengeluaran" class="menu-item" style="padding-left:50px;">Pengeluaran</a>
             <a href="/admin/kategori-pengeluaran" class="menu-item" style="padding-left:50px;">Kategori Pengeluaran</a>
         </div>

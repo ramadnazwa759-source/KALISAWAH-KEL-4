@@ -4,11 +4,15 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\API\Inventaris\JenisInventarisController;
 use App\Http\Controllers\API\KategoriPaketController;
 use App\Http\Controllers\API\PaketWisataController;
 use App\Http\Controllers\ProfilWisataController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\API\Inventaris\KategoriInventarisController;
+use App\Http\Controllers\API\Inventaris\SubKategoriInventarisController;
+use App\Http\Controllers\API\Inventaris\JenisInventarisController;
+use App\Http\Controllers\API\Inventaris\LokasiPenyimpananController;
+use App\Http\Controllers\API\Inventaris\InventarisPerUnitController;
 
 // ADMIN
 Route::get('/admin/login', function () {
@@ -39,14 +43,20 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
         return redirect('/admin/login');
     })->name('logout'); // Menjadi admin.logout
 
-    // Inventaris
-    Route::resource('jenisInventaris', JenisInventarisController::class);
-
     // Kategori Paket
     Route::resource('kategori-paket', KategoriPaketController::class);
 
     // Paket Wisata
     Route::resource('paket-wisata', PaketWisataController::class);
+
+    // Inventaris
+    Route::resource('kategori-inventaris', KategoriInventarisController::class);
+    Route::resource('subkategori-inventaris', SubKategoriInventarisController::class);
+    Route::resource('jenis-inventaris', JenisInventarisController::class);
+    Route::resource('lokasi-penyimpanan', LokasiPenyimpananController::class);
+    Route::resource('inventaris-perunit', InventarisPerUnitController::class);
+
+
 
 });
 

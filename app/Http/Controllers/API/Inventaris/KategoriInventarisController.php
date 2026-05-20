@@ -15,11 +15,14 @@ class KategoriInventarisController extends Controller
     {
         $kategori = KategoriInventaris::latest()->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data kategori inventaris berhasil diambil',
-            'data' => $kategori
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data kategori inventaris berhasil diambil',
+        //     'data' => $kategori
+        // ], 200);
+
+        return view('admin.operasional.KategoriInventaris.index', compact('kategori'));
+
     }
 
     /**
@@ -35,11 +38,12 @@ class KategoriInventarisController extends Controller
             'nama_kategori' => trim($validated['nama_kategori'])
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kategori inventaris berhasil ditambahkan',
-            'data' => $kategori
-        ], 201);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Kategori inventaris berhasil ditambahkan',
+        //     'data' => $kategori
+        // ], 201);
+        return redirect()->back()->with('success', 'Kategori inventaris berhasil ditambahkan');
     }
 
     /**
@@ -84,11 +88,12 @@ class KategoriInventarisController extends Controller
             'nama_kategori' => trim($validated['nama_kategori'])
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kategori inventaris berhasil diupdate',
-            'data' => $kategori
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Kategori inventaris berhasil diupdate',
+        //     'data' => $kategori
+        // ], 200);
+        return redirect()->back()->with('success', 'Kategori inventaris berhasil diupdate');
     }
 
     /**
@@ -107,9 +112,11 @@ class KategoriInventarisController extends Controller
 
         $kategori->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kategori inventaris berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Kategori inventaris berhasil dihapus'
+        // ], 200);
+
+        return redirect()->back()->with('success', 'Kategori inventaris berhasil dihapus');
     }
 }

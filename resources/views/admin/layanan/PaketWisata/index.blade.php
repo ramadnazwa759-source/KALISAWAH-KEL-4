@@ -6,15 +6,12 @@
 <div class="container-fluid py-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-gray-800">Paket Wisata</h2>
-        </div>
+        <h2 class="fw-bold text-gray-800">Paket Wisata</h2>
         <button class="btn btn-primary px-4 py-2 rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
             <i class="fas fa-plus me-2"></i> Tambah Paket Baru
         </button>
     </div>
 
-    <!-- Alert Success -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
@@ -22,7 +19,6 @@
         </div>
     @endif
 
-    <!-- Card Table -->
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4">
             <div class="table-responsive">
@@ -32,6 +28,7 @@
                             <th class="py-3">No.</th>
                             <th class="py-3">Nama Paket</th>
                             <th class="py-3">Kategori</th>
+                            <th class="py-3">Durasi</th>
                             <th class="py-3">Harga</th>
                             <th class="py-3">Kapasitas</th>
                             <th class="py-3">Status</th>
@@ -44,39 +41,34 @@
                             <td>{{ $pakets->firstItem() + $index }}</td>
                             <td>
                                 <span class="fw-bold text-dark">{{ $item->nama_paket }}</span>
-                                <div class="text-muted small">{{ $item->durasi }}</div>
                             </td>
                             <td>
                                 <span class="badge bg-soft-info text-info rounded-pill px-3">
                                     {{ $item->kategori->nama_kategori ?? 'Umum' }}
                                 </span>
                             </td>
+                            <td>
+                                <span class="text-muted">{{ $item->durasi }}</span>
+                            </td>
                             <td class="fw-bold text-primary">
                                 Rp {{ number_format($item->harga, 0, ',', '.') }}
                             </td>
                             <td>{{ $item->kapasitas }} Orang</td>
                             <td>
-                                @if($item->status == 'Aktif')
-                                    <span class="badge bg-success rounded-pill px-3">Aktif</span>
-                                @else
-                                    <span class="badge bg-secondary rounded-pill px-3">Non-aktif</span>
-                                @endif
+                                <span class="badge {{ $item->status == 'Aktif' ? 'bg-success' : 'bg-secondary' }} rounded-pill px-3">
+                                    {{ $item->status }}
+                                </span>
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-warning btn-sm text-white rounded-3"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modalEdit{{ $item->id }}">
+                                    <button class="btn btn-warning btn-sm text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $item->id }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm rounded-3"
-                                            onclick="confirmDelete('{{ $item->id }}')">
+                                    <button class="btn btn-danger btn-sm rounded-3" onclick="confirmDelete('{{ $item->id }}', '{{ $item->nama_paket }}')">
                                         <i class="fas fa-trash"></i>
                                     </button>
 
-                                    <form id="delete-form-{{ $item->id }}"
-                                          action="{{ route('admin.paket-wisata.destroy', $item->id) }}"
-                                          method="POST" style="display: none;">
+                                    <form id="delete-form-{{ $item->id }}" action="{{ route('admin.paket-wisata.destroy', $item->id) }}" method="POST" style="display: none;">
                                         @csrf
                                         @method('DELETE')
                                     </form>
@@ -84,16 +76,74 @@
                             </td>
                         </tr>
 
-                        <!-- MODAL EDIT
+                        <!-- MODAL EDIT -->
+                        <div class="modal fade" id="modalEdit{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content border-0 shadow rounded-4">
+                                    <div class="modal-header border-0 pt-4 px-4">
+                                        <h5 class="modal-title fw-bold">Edit Paket: {{ $item->nama_paket }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{{ route('admin.paket-wisata.update', $item->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-body px-4">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold small">Kategori Paket</label>
+                                                    <select name="kategori_paket_id" class="form-select rounded-3" required>
+                                                        @foreach($categories as $cat)
+                                                            <option value="{{ $cat->id }}" {{ $item->kategori_paket_id == $cat->id ? 'selected' : '' }}>
+                                                                {{ $cat->nama_kategori }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold small">Nama Paket</label>
+                                                    <input type="text" name="nama_paket" class="form-control rounded-3" value="{{ $item->nama_paket }}" required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-bold small">Harga (Rp)</label>
+                                                    <input type="number" name="harga" class="form-control rounded-3" value="{{ $item->harga }}" required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-bold small">Kapasitas (Orang)</label>
+                                                    <input type="number" name="kapasitas" class="form-control rounded-3" value="{{ $item->kapasitas }}" required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-bold small">Durasi</label>
+                                                    <input type="text" name="durasi" class="form-control rounded-3" value="{{ $item->durasi }}" placeholder="Contoh: 3 Hari 2 Malam" required>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label fw-bold small">Status</label>
+                                                    <select name="status" class="form-select rounded-3">
+                                                        <option value="Aktif" {{ $item->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                                        <option value="Non-aktif" {{ $item->status == 'Non-aktif' ? 'selected' : '' }}>Non-aktif</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label fw-bold small">Deskripsi Paket</label>
+                                                    <textarea name="deskripsi" class="form-control rounded-3" rows="3" required>{{ $item->deskripsi }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 pb-4 px-4">
+                                            <button type="button" class="btn btn-light px-4 rounded-3" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-primary px-4 rounded-3">Update Paket</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Belum ada paket wisata tersedia.</td>
+                            <td colspan="8" class="text-center py-4 text-muted">Belum ada paket wisata tersedia.</td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
             <div class="mt-4">
                 {{ $pakets->links() }}
             </div>
@@ -136,7 +186,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Durasi</label>
-                            <input type="text" name="durasi" class="form-control rounded-3" placeholder="Contoh: 2 Jam" required>
+                            <input type="text" name="durasi" class="form-control rounded-3" placeholder="Contoh: 2 Jam / 1 Hari" required>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label fw-bold small">Status</label>
@@ -161,25 +211,35 @@
 </div>
 @endsection
 
+<!-- SCRIPT POP-UP KONFIRMASI HAPUS -->
 @push('scripts')
+<!-- Load SweetAlert2 Library -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    function confirmDelete(id) {
+    function confirmDelete(id, namaPaket) {
         Swal.fire({
             title: 'Hapus Paket Wisata?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
+            text: `Apakah Anda yakin ingin menghapus "${namaPaket}"? Data yang dihapus tidak dapat dikembalikan.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Hapus!',
+            confirmButtonColor: '#d33', // Warna tombol hapus (Merah)
+            cancelButtonColor: '#6c757d', // Warna tombol batal (Abu-abu)
+            confirmButtonText: '<i class="fas fa-trash me-2"></i>Ya, Hapus!',
             cancelButtonText: 'Batal',
-            reverseButtons: true
+            reverseButtons: true, // Biar tombol Batal di kiri, Hapus di kanan sesuai standar umum
+            customClass: {
+                popup: 'rounded-4 border-0 shadow-sm',
+                confirmButton: 'btn btn-danger px-4 py-2 rounded-3',
+                cancelButton: 'btn btn-light px-4 py-2 rounded-3'
+            },
+            buttonsStyling: false // Mematikan style bawaan SweetAlert agar class Bootstrap kita bekerja optimal
         }).then((result) => {
             if (result.isConfirmed) {
+                // Jika user klik "Ya, Hapus!", submit form rahasia berdasarkan ID paket
                 document.getElementById('delete-form-' + id).submit();
             }
-        })
+        });
     }
 </script>
 @endpush

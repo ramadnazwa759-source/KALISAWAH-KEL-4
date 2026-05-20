@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\Inventaris;
 
 use App\Http\Controllers\Controller;
 use App\Models\InventarisPerUnit;
+use App\Models\JenisInventaris;
+use App\Models\LokasiPenyimpanan;
 use Illuminate\Http\Request;
 
 class InventarisPerUnitController extends Controller
@@ -18,11 +20,16 @@ class InventarisPerUnitController extends Controller
             'lokasi'
         ])->latest()->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data inventaris berhasil diambil',
-            'data' => $inventaris
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data inventaris berhasil diambil',
+        //     'data' => $inventaris
+        // ], 200);
+
+        $jenisInventaris = JenisInventaris::all();
+        $lokasi = LokasiPenyimpanan::all();
+
+        return view('admin.operasional.InventarisPerunit.index', compact('inventaris', 'jenisInventaris', 'lokasi'));
     }
 
     /**
@@ -78,11 +85,12 @@ class InventarisPerUnitController extends Controller
                 $validated['kondisi_unit']
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Inventaris berhasil ditambahkan',
-            'data' => $inventaris
-        ], 201);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Inventaris berhasil ditambahkan',
+        //     'data' => $inventaris
+        // ], 201);
+        return redirect()->back()->with('success', 'Inventaris berhasil ditambahkan');
     }
 
     /**
@@ -170,11 +178,12 @@ class InventarisPerUnitController extends Controller
                 $validated['kondisi_unit']
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Inventaris berhasil diupdate',
-            'data' => $inventaris
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Inventaris berhasil diupdate',
+        //     'data' => $inventaris
+        // ], 200);
+        return redirect()->back()->with('success', 'Inventaris berhasil diupdate');
     }
 
     /**
@@ -193,9 +202,10 @@ class InventarisPerUnitController extends Controller
 
         $inventaris->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Inventaris berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Inventaris berhasil dihapus'
+        // ], 200);
+        return redirect()->back()->with('success', 'Inventaris berhasil dihapus');
     }
 }
