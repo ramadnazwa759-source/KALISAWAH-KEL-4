@@ -25,7 +25,6 @@ use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
 use App\Http\Controllers\API\Booking_pengunjung\BookingController;
 
-use App\Http\Controllers\API\Kelola_booking\BookingFasilitasController;
 
 
 
@@ -84,10 +83,6 @@ use App\Http\Controllers\API\Kelola_booking\BookingFasilitasController;
         Route::apiResource('bookings', AdminBookingController::class);
         Route::post('/bookings/{id}/fasilitas',[AdminBookingController::class, 'tambahFasilitas']);
         Route::apiResource('pembayaran', PembayaranAdminController::class);
-
-        Route::get('bookings-fasilitas', [BookingFasilitasController::class, 'fasilitas']);
-        Route::get('bookings-items', [BookingItemController::class, 'items']);
-
 
         // pengelolaan fasilitas
         Route::apiResource('kategori-fasilitas', KategoriFasilitasController::class);
