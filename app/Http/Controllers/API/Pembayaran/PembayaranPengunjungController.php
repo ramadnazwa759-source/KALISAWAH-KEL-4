@@ -18,10 +18,10 @@ class PembayaranPengunjungController extends Controller
                 'required|exists:booking,id',
 
             'metode_pembayaran' =>
-                'required|string',
+                'required|in:transfer,cash',
 
-            'jenis_pembayaran' =>
-                'required|in:dp,lunas',
+            'tipe_pembayaran' =>
+                'required|in:dp,pelunasan',
 
             'nominal' =>
                 'required|numeric|min:1',
@@ -30,13 +30,24 @@ class PembayaranPengunjungController extends Controller
                 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $booking = Booking::find($request->booking_id);
+        $booking = Booking::find(
+            $request->booking_id
+        );
 
-        // upload bukti
-        $path = $request->file('bukti_pembayaran')
-                        ->store('pembayaran', 'public');
+        // ==========================================
+        // UPLOAD BUKTI
+        // ==========================================
+        $path = $request->file(
+                    'bukti_pembayaran'
+                )
+                ->store(
+                    'pembayaran',
+                    'public'
+                );
 
-        // simpan pembayaran
+        // ==========================================
+        // SIMPAN PEMBAYARAN
+        // ==========================================
         $pembayaran = Pembayaran::create([
 
             'booking_id' =>
@@ -45,8 +56,8 @@ class PembayaranPengunjungController extends Controller
             'metode_pembayaran' =>
                 $request->metode_pembayaran,
 
-            'jenis_pembayaran' =>
-                $request->jenis_pembayaran,
+            'tipe_pembayaran' =>
+                $request->tipe_pembayaran,
 
             'nominal' =>
                 $request->nominal,
@@ -55,17 +66,19 @@ class PembayaranPengunjungController extends Controller
                 $path,
 
             'status_verifikasi' =>
-                'menunggu',
+                'pending',
 
-            'tanggal_bayar' =>
+            'tanggal_pembayaran' =>
                 now()
         ]);
 
-        // update status booking
+        // ==========================================
+        // UPDATE STATUS BOOKING
+        // ==========================================
         $booking->update([
 
-            'status_pembayaran' =>
-                'menunggu_verifikasi'
+            'status_booking' =>
+                'pending'
         ]);
 
         return response()->json([

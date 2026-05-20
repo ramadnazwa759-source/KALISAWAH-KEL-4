@@ -12,18 +12,24 @@ class Pembayaran extends Model
 
         'booking_id',
 
+        'tipe_pembayaran',
+
         'metode_pembayaran',
 
-        'jenis_pembayaran',
-
-        'jumlah_bayar',
+        'nominal',
 
         'bukti_pembayaran',
 
-        'status_verifikasi'
+        'tanggal_pembayaran',
+
+        'status_verifikasi',
+
+        'catatan'
     ];
 
+    // =========================================
     // RELASI KE BOOKING
+    // =========================================
     public function booking()
     {
         return $this->belongsTo(
