@@ -3,10 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\AuthController;
-use App\Http\Controllers\API\KategoriPaketController;
-use App\Http\Controllers\API\PaketWisataController;
 
-use App\Http\Controllers\API\PaketFasilitasController;
+use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
+use App\Http\Controllers\API\Kelola_landingpage\paket\PaketWisataController;
+use App\Http\Controllers\API\Kelola_landingpage\paket\PaketFasilitasController;
+
 use App\Http\Controllers\API\ProfilWisataController;
 
 use App\Http\Controllers\API\Inventaris\KategoriInventarisController;
@@ -17,11 +18,14 @@ use App\Http\Controllers\API\Inventaris\InventarisPerUnitController;
 
 use App\Http\Controllers\API\Kelola_fasilitas\KategoriFasilitasController;
 use App\Http\Controllers\API\Kelola_fasilitas\FasilitasController;
+
 use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
 use App\Http\Controllers\API\Pembayaran\PembayaranPengunjungController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
 use App\Http\Controllers\API\Booking_pengunjung\BookingController;
+
+use App\Http\Controllers\API\Kelola_booking\BookingFasilitasController;
 
 
 
@@ -48,6 +52,11 @@ use App\Http\Controllers\API\Booking_pengunjung\BookingController;
         'track'
     ]);
 
+    Route::get('/tracking-booking/{id}', [
+        TrackingBookingController::class,
+        'detail'
+    ]);
+
 
 
     // ROUTE PROTECTED //
@@ -66,22 +75,18 @@ use App\Http\Controllers\API\Booking_pengunjung\BookingController;
         // pengelolaan paket wisata
         Route::apiResource('kategori-paket', KategoriPaketController::class);
         Route::apiResource('paket-wisata', PaketWisataController::class);
+        Route::apiResource('paket-fasilitas', PaketFasilitasController::class);
         
         // pengelolaan landing page (masih ngambang)
         Route::apiResource('profil-wisata', ProfilWisataController::class);
 
         // proses dan pengelolaan booking
-            Route::apiResource(
-            'bookings',
-            AdminBookingController::class
-        )->only([
-            'index',
-            'show',
-            'update',
-            'destroy'
-        ]);
+        Route::apiResource('bookings', AdminBookingController::class);
         Route::post('/bookings/{id}/fasilitas',[AdminBookingController::class, 'tambahFasilitas']);
         Route::apiResource('pembayaran', PembayaranAdminController::class);
+
+        Route::get('bookings-fasilitas', [BookingFasilitasController::class, 'fasilitas']);
+        Route::get('bookings-items', [BookingItemController::class, 'items']);
 
 
         // pengelolaan fasilitas

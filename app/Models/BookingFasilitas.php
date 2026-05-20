@@ -9,20 +9,33 @@ class BookingFasilitas extends Model
     protected $table = 'booking_fasilitas';
 
     protected $fillable = [
+
         'booking_id',
+
         'fasilitas_id',
+
         'qty',
+
         'harga',
+
         'subtotal'
     ];
 
+    // RELASI KE BOOKING
     public function booking()
     {
-        return $this->belongsTo(Booking::class);
+        return $this->belongsTo(
+            Booking::class,
+            'booking_id'
+        );
     }
 
+    // RELASI KE FASILITAS
     public function fasilitas()
     {
-        return $this->belongsTo(Fasilitas::class);
+        return $this->belongsTo(
+            Fasilitas::class,
+            'fasilitas_id'
+        );
     }
 }

@@ -5,163 +5,76 @@ namespace App\Http\Controllers\API\Pembayaran;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-
-use App\Models\Booking;
 use App\Models\Pembayaran;
+use App\Models\Booking;
 
 class PembayaranPengunjungController extends Controller
 {
-    // ======================================================
-    // UPLOAD PEMBAYARAN PENGUNJUNG
-    // ======================================================
-
     public function store(Request $request)
     {
         $request->validate([
 
-            'kode_booking' =>
-                'required|exists:booking,kode_booking',
+            'booking_id' =>
+                'required|exists:booking,id',
 
             'metode_pembayaran' =>
-                'required',
+                'required|string',
 
             'jenis_pembayaran' =>
                 'required|in:dp,lunas',
 
+            'nominal' =>
+                'required|numeric|min:1',
+
             'bukti_pembayaran' =>
-                'required|image|max:2048'
+                'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        DB::beginTransaction();
+        $booking = Booking::find($request->booking_id);
 
-        try {
+        // upload bukti
+        $path = $request->file('bukti_pembayaran')
+                        ->store('pembayaran', 'public');
 
-            // ==============================================
-            // CARI BOOKING
-            // ==============================================
+        // simpan pembayaran
+        $pembayaran = Pembayaran::create([
 
-            $booking = Booking::where(
-                'kode_booking',
-                $request->kode_booking
-            )->first();
+            'booking_id' =>
+                $booking->id,
 
-            // ==============================================
-            // CEK STATUS BOOKING
-            // ==============================================
+            'metode_pembayaran' =>
+                $request->metode_pembayaran,
 
-            if (
-                $booking->status_booking
-                == 'dibatalkan'
-            ) {
+            'jenis_pembayaran' =>
+                $request->jenis_pembayaran,
 
-                return response()->json([
+            'nominal' =>
+                $request->nominal,
 
-                    'message' =>
-                        'Booking sudah dibatalkan'
+            'bukti_pembayaran' =>
+                $path,
 
-                ], 400);
-            }
+            'status_verifikasi' =>
+                'menunggu',
 
-            // ==============================================
-            // UPLOAD FILE
-            // ==============================================
+            'tanggal_bayar' =>
+                now()
+        ]);
 
-            $file = $request->file(
-                'bukti_pembayaran'
-            );
+        // update status booking
+        $booking->update([
 
-            $path = $file->store(
-                'pembayaran',
-                'public'
-            );
+            'status_pembayaran' =>
+                'menunggu_verifikasi'
+        ]);
 
-            // ==============================================
-            // HITUNG NOMINAL
-            // ==============================================
+        return response()->json([
 
-            if (
-                $request->jenis_pembayaran
-                == 'dp'
-            ) {
+            'message' =>
+                'Bukti pembayaran berhasil dikirim',
 
-                $nominal =
-
-                    $booking->total_harga_final
-                    * 0.5;
-
-            } else {
-
-                $nominal =
-                    $booking->total_harga_final;
-            }
-
-            // ==============================================
-            // SIMPAN PEMBAYARAN
-            // ==============================================
-
-            $pembayaran = Pembayaran::create([
-
-                'booking_id' =>
-                    $booking->id,
-
-                'metode_pembayaran' =>
-                    $request->metode_pembayaran,
-
-                'jenis_pembayaran' =>
-                    $request->jenis_pembayaran,
-
-                'nominal' =>
-                    $nominal,
-
-                'bukti_pembayaran' =>
-                    $path,
-
-                'status_pembayaran' =>
-                    'menunggu_verifikasi'
-            ]);
-
-            // ==============================================
-            // UPDATE STATUS BOOKING
-            // ==============================================
-
-            $booking->update([
-
-                'status_booking' =>
-                    'menunggu_verifikasi'
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-
-                'message' =>
-                    'Pembayaran berhasil dikirim',
-
-                'data' => [
-
-                    'kode_booking' =>
-                        $booking->kode_booking,
-
-                    'nominal' =>
-                        $nominal,
-
-                    'status_pembayaran' =>
-                        'menunggu_verifikasi'
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-
-            DB::rollback();
-
-            return response()->json([
-
-                'message' =>
-                    $e->getMessage()
-
-            ], 500);
-        }
+            'data' =>
+                $pembayaran
+        ], 201);
     }
 }

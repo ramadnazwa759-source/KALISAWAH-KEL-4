@@ -5,9 +5,6 @@ namespace App\Http\Controllers\API\Booking_pengunjung;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-
 use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\BookingFasilitas;
@@ -15,14 +12,18 @@ use App\Models\BookingFasilitas;
 use App\Models\PaketWisata;
 use App\Models\Fasilitas;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+
 class BookingController extends Controller
 {
     public function store(Request $request)
     {
         $request->validate([
 
-            'nama_pemesan' => 'required',
-            'no_hp' => 'required',
+            'nama_pemesan' => 'required|string|max:255',
+
+            'no_hp' => 'required|string|max:20',
 
             'tanggal_kunjungan' => 'required|date',
 
@@ -30,14 +31,16 @@ class BookingController extends Controller
 
             'jumlah_pengunjung' => 'required|integer|min:1',
 
+            'catatan' => 'nullable|string',
+
+            // paket wisata
             'paket' => 'required|array|min:1',
 
-            'paket.*.id_paket' =>
-                'required|exists:paket_wisata,id',
+            'paket.*.id_paket' => 'required|exists:paket_wisata,id',
 
-            'paket.*.qty' =>
-                'required|integer|min:1',
+            'paket.*.qty' => 'required|integer|min:1',
 
+            // fasilitas tambahan
             'fasilitas' => 'nullable|array',
 
             'fasilitas.*.id_fasilitas' =>
@@ -45,8 +48,6 @@ class BookingController extends Controller
 
             'fasilitas.*.qty' =>
                 'required|integer|min:1',
-
-            'catatan' => 'nullable'
         ]);
 
         DB::beginTransaction();
@@ -54,59 +55,67 @@ class BookingController extends Controller
         try {
 
             // =========================
-            // GENERATE KODE BOOKING
+            // TOTAL HARGA
             // =========================
 
-            $kodeBooking =
-                'KLS-' . strtoupper(Str::random(8));
-
-            // =========================
-            // TOTAL PAKET
-            // =========================
-
-            $totalPaket = 0;
-
-            $totalKapasitas = 0;
-
-            foreach ($request->paket as $item) {
-
-                $paket =
-                    PaketWisata::findOrFail(
-                        $item['id_paket']
-                    );
-
-                $subtotal =
-                    $paket->harga * $item['qty'];
-
-                $totalPaket += $subtotal;
-
-                $totalKapasitas +=
-                    $paket->kapasitas *
-                    $item['qty'];
-            }
-
-            // =========================
-            // HITUNG TIKET TAMBAHAN
-            // =========================
+            $totalHarga = 0;
 
             $jumlahTiketTambahan = 0;
 
-            $hargaTiketTambahan = 25000;
-
             $subtotalTiketTambahan = 0;
 
-            if (
-                $request->jumlah_pengunjung >
-                $totalKapasitas
-            ) {
+            // =========================
+            // HITUNG PAKET
+            // =========================
 
-                $jumlahTiketTambahan =
-                    $request->jumlah_pengunjung -
-                    $totalKapasitas;
+            foreach ($request->paket as $item) {
 
-                $subtotalTiketTambahan =
-                    $jumlahTiketTambahan *
-                    $hargaTiketTambahan;
+                $paket = PaketWisata::find($item['id_paket']);
+
+                $subtotalPaket =
+                    $paket->harga * $item['qty'];
+
+                $totalHarga += $subtotalPaket;
+
+                // =========================
+                // CEK KAPASITAS
+                // =========================
+
+                $totalKapasitas =
+                    $paket->kapasitas * $item['qty'];
+
+                // jika pengunjung melebihi kapasitas
+                if ($request->jumlah_pengunjung > $totalKapasitas) {
+
+                    $jumlahTiketTambahan =
+                        $request->jumlah_pengunjung
+                        - $totalKapasitas;
+
+                    $subtotalTiketTambahan =
+                        $jumlahTiketTambahan * 25000;
+
+                    $totalHarga +=
+                        $subtotalTiketTambahan;
+                }
+            }
+
+            // =========================
+            // HITUNG FASILITAS TAMBAHAN
+            // =========================
+
+            if ($request->fasilitas) {
+
+                foreach ($request->fasilitas as $item) {
+
+                    $fasilitas =
+                        Fasilitas::find($item['id_fasilitas']);
+
+                    $subtotalFasilitas =
+                        $fasilitas->harga * $item['qty'];
+
+                    $totalHarga +=
+                        $subtotalFasilitas;
+                }
             }
 
             // =========================
@@ -115,7 +124,8 @@ class BookingController extends Controller
 
             $booking = Booking::create([
 
-                'kode_booking' => $kodeBooking,
+                'kode_booking' =>
+                    'KLS-' . strtoupper(Str::random(8)),
 
                 'nama_pemesan' =>
                     $request->nama_pemesan,
@@ -136,7 +146,7 @@ class BookingController extends Controller
                     $jumlahTiketTambahan,
 
                 'harga_tiket_tambahan' =>
-                    $hargaTiketTambahan,
+                    25000,
 
                 'subtotal_tiket_tambahan' =>
                     $subtotalTiketTambahan,
@@ -144,29 +154,29 @@ class BookingController extends Controller
                 'catatan' =>
                     $request->catatan,
 
+                'total_harga' =>
+                    $totalHarga,
+
+                'diskon_manual' =>
+                    0,
+
+                'total_harga_final' =>
+                    $totalHarga,
+
                 'status_booking' =>
                     'pending',
 
                 'status_pembayaran' =>
                     'belum_bayar',
-
-                'expired_at' =>
-                    now()->addHour()
             ]);
 
             // =========================
-            // SIMPAN BOOKING ITEMS
+            // SIMPAN BOOKING ITEM
             // =========================
 
             foreach ($request->paket as $item) {
 
-                $paket =
-                    PaketWisata::findOrFail(
-                        $item['id_paket']
-                    );
-
-                $subtotal =
-                    $paket->harga * $item['qty'];
+                $paket = PaketWisata::find($item['id_paket']);
 
                 BookingItem::create([
 
@@ -183,54 +193,20 @@ class BookingController extends Controller
                         $paket->harga,
 
                     'subtotal' =>
-                        $subtotal
+                        $paket->harga * $item['qty'],
                 ]);
             }
 
             // =========================
-            // FASILITAS TAMBAHAN
+            // SIMPAN BOOKING FASILITAS
             // =========================
-
-            $totalFasilitas = 0;
 
             if ($request->fasilitas) {
 
-                foreach (
-                    $request->fasilitas
-                    as $item
-                ) {
+                foreach ($request->fasilitas as $item) {
 
                     $fasilitas =
-                        Fasilitas::findOrFail(
-                            $item['id_fasilitas']
-                        );
-
-                    // =====================
-                    // CEK STOK
-                    // =====================
-
-                    if (
-                        $fasilitas->stok <
-                        $item['qty']
-                    ) {
-
-                        return response()->json([
-                            'message' =>
-                                'Stok fasilitas tidak cukup'
-                        ], 400);
-                    }
-
-                    $subtotal =
-                        $fasilitas->harga *
-                        $item['qty'];
-
-                    $totalFasilitas +=
-                        $subtotal;
-
-                    // =====================
-                    // SIMPAN BOOKING
-                    // FASILITAS
-                    // =====================
+                        Fasilitas::find($item['id_fasilitas']);
 
                     BookingFasilitas::create([
 
@@ -247,47 +223,11 @@ class BookingController extends Controller
                             $fasilitas->harga,
 
                         'subtotal' =>
-                            $subtotal
+                            $fasilitas->harga
+                            * $item['qty'],
                     ]);
-
-                    // =====================
-                    // KURANGI STOK
-                    // =====================
-
-                    $fasilitas->decrement(
-                        'stok',
-                        $item['qty']
-                    );
                 }
             }
-
-            // =========================
-            // HITUNG TOTAL FINAL
-            // =========================
-
-            $totalHarga =
-
-                $totalPaket +
-
-                $subtotalTiketTambahan +
-
-                $totalFasilitas;
-
-            // =========================
-            // UPDATE TOTAL BOOKING
-            // =========================
-
-            $booking->update([
-
-                'total_harga' =>
-                    $totalHarga,
-
-                'diskon_manual' =>
-                    0,
-
-                'total_harga_final' =>
-                    $totalHarga
-            ]);
 
             DB::commit();
 
@@ -305,9 +245,15 @@ class BookingController extends Controller
                 'status_booking' =>
                     $booking->status_booking,
 
+                'status_pembayaran' =>
+                    $booking->status_pembayaran,
+
                 'total_harga' =>
-                    $booking->total_harga_final
-            ]);
+                    $booking->total_harga_final,
+
+                'jumlah_tiket_tambahan' =>
+                    $booking->jumlah_tiket_tambahan,
+            ], 201);
 
         } catch (\Exception $e) {
 
@@ -315,8 +261,9 @@ class BookingController extends Controller
 
             return response()->json([
 
-                'message' =>
-                    $e->getMessage()
+                'message' => 'Booking gagal',
+
+                'error' => $e->getMessage()
 
             ], 500);
         }
