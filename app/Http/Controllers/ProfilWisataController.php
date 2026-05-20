@@ -32,7 +32,7 @@ class ProfilWisataController extends Controller
         $kategori = \App\Models\KategoriPaket::where('nama_kategori', 'like', '%camping%')->first();
 
         if ($kategori) {
-            $pakets = \App\Models\PaketWisata::where('kategori_paket_id', $kategori->kategori_paket_id ?? $kategori->id)
+            $pakets = \App\Models\PaketWisata::where('kategori_id', $kategori->kategori_id ?? $kategori->id)
                 ->orWhere('kategori_paket_id', $kategori->id)
                 ->with('fasilitas')
                 ->get();
