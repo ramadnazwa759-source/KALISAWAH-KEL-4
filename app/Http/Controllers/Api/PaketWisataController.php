@@ -26,7 +26,7 @@ class PaketWisataController extends Controller
     public function show($id)
     {
         // Menambahkan with('kategori') agar nama kategori muncul di tabel
-        $paket = PaketWisata::with('kategoriPaket')->find($id);
+        $paket = PaketWisata::with('kategori')->find($id);
 
 
         if (!$paket) {
