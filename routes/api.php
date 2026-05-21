@@ -10,6 +10,8 @@ use App\Http\Controllers\API\KategoriPengeluaranController;
 use App\Http\Controllers\API\PengeluaranOperasionalController;
 use App\Http\Controllers\API\BookingFasilitasController;
 use App\Http\Controllers\API\BeritaController;
+use App\Http\Controllers\API\ClientLogosController;
+use App\Http\Controllers\API\LandingSettingsController;
 
 // CRUD Kategori Paket
 Route::apiResource('kategori-paket', KategoriPaketController::class);
@@ -37,3 +39,10 @@ Route::apiResource('booking-fasilitas', BookingFasilitasController::class);
 
 //CRUD berita
 Route::apiResource('berita', BeritaController::class);
+
+//CRUD client logos
+Route::apiResource('client-logos', ClientLogosController::class);
+
+//CRUD landing page settings
+Route::apiResource('landing-settings', LandingSettingsController::class);
+
