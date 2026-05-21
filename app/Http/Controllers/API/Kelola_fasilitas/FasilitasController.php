@@ -14,7 +14,10 @@ class FasilitasController extends Controller
     {
         $data = Fasilitas::with('kategori')->get();
 
-        return response()->json($data, 200);
+        // return response()->json($data, 200);
+
+        return view('admin.kelola_fasilitas.fasilitas', compact('data'));
+
     }
 
     // tampil detail fasilitas
@@ -90,10 +93,12 @@ class FasilitasController extends Controller
             'status' => $request->status
         ]);
 
-        return response()->json([
-            'message' => 'Fasilitas berhasil ditambahkan',
-            'data' => $data 
-        ], 201);
+        // return response()->json([
+        //     'message' => 'Fasilitas berhasil ditambahkan',
+        //     'data' => $data
+        // ], 201);
+
+        return redirect()->back()->with('success', 'Fasilitas berhasil ditambahkan');
     }
 
     // update fasilitas
@@ -167,10 +172,12 @@ class FasilitasController extends Controller
             'status' => $request->status
         ]);
 
-        return response()->json([
-            'message' => 'Fasilitas berhasil diupdate',
-            'data' => $data
-        ], 200);
+        //  return response()->json([
+        //     'message' => 'Fasilitas berhasil diupdate',
+        //     'data' => $data
+        // ], 200);
+
+        return redirect()->back()->with('success', 'Fasilitas berhasil diupdate');
     }
 
     // hapus fasilitas
@@ -208,6 +215,8 @@ class FasilitasController extends Controller
             )
             ->get();
 
-        return response()->json($data, 200);
+        // return response()->json($data, 200);
+
+        return redirect()->back()->with('success', 'Fasilitas berhasil dihapus');
     }
 }

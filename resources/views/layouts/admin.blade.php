@@ -222,11 +222,7 @@
         </div>
     </div>
 
-
-    <!-- GROUP 2: MANAJEMEN OPERASIONAL -->
-    <div class="sidebar-label" style="margin-top: 10px;">Manajemen Operasional</div>
-
-    <!-- PAKET -->
+       <!-- PAKET -->
     <div class="menu-group">
         <div class="menu-item parent-toggle">
             <i class="fa-solid fa-box"></i> Layanan Wisata
@@ -236,7 +232,23 @@
             <a href="{{ route('admin.paket-wisata.index') }}" class="menu-item" style="padding-left:50px;">Paket Wisata</a>
             <a href="{{ route('admin.kategori-paket.index') }}" class="menu-item" style="padding-left:50px;">Kategori Paket</a>
             <a href="#" class="menu-item" style="padding-left:50px;">Fasilitas Paket</a>
-            <a href="#" class="menu-item" style="padding-left:50px;">Diskon</a>
+        </div>
+    </div>
+
+
+    <!-- GROUP 2: MANAJEMEN OPERASIONAL -->
+    <div class="sidebar-label" style="margin-top: 10px;">Manajemen Operasional</div>
+
+
+    <!-- FASILITAS -->
+    <div class="menu-group">
+        <div class="menu-item parent-toggle">
+            <i class="fa-solid fa-box"></i> Fasilitas Wisata
+            <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
+        </div>
+        <div class="submenu">
+            <a href="{{ route('admin.kategori-fasilitas.index') }}" class="menu-item" style="padding-left:50px;">Kategori Fasilitas</a>
+            <a href="{{ route('admin.fasilitas.index') }}" class="menu-item" style="padding-left:50px;">Fasilitas</a>
         </div>
     </div>
 
@@ -248,8 +260,6 @@
         </div>
         <div class="submenu">
             <a href="/admin/booking" class="menu-item" style="padding-left:50px;">Booking</a>
-            <a href="/admin/fasilitas-booking" class="menu-item" style="padding-left:50px;">Fasilitas Booking</a>
-            <a href="/admin/pembayaran" class="menu-item" style="padding-left:50px;">Pembayaran</a>
         </div>
     </div>
 

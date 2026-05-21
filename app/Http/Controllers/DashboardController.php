@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $bookingHariIni = $bookingHariIni ?? 0;
 
         $totalPengunjung = Booking::sum(
-            'jumlah_orang'      // sesuaikan nama kolom
+            'jumlah_pengunjung'      // sesuaikan nama kolom
         );
 
         return view('admin.dashboard', compact(

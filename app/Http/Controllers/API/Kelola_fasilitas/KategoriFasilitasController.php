@@ -13,7 +13,9 @@ class KategoriFasilitasController extends Controller
     {
         $data = KategoriFasilitas::all();
 
-        return response()->json($data, 200);
+        // return response()->json($data, 200);
+
+        return view('admin.kelola_fasilitas.kategori', compact('data'));
     }
 
     // tampil detail kategori
@@ -41,7 +43,9 @@ class KategoriFasilitasController extends Controller
             'nama_kategori' => $request->nama_kategori
         ]);
 
-        return response()->json($data, 201);
+        // return response()->json($data, 201);
+
+        return redirect()->route('admin.kategori-fasilitas.index')->with('success', 'Kategori berhasil ditambahkan');
     }
 
     // update kategori
@@ -63,7 +67,9 @@ class KategoriFasilitasController extends Controller
             'nama_kategori' => $request->nama_kategori
         ]);
 
-        return response()->json($data, 200);
+        // return response()->json($data, 200);
+
+        return redirect()->route('admin.kategori-fasilitas.index')->with('success', 'Kategori berhasil diperbarui');
     }
 
     // hapus kategori
@@ -79,8 +85,10 @@ class KategoriFasilitasController extends Controller
 
         $data->delete();
 
-        return response()->json([
-            'message' => 'Berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Berhasil dihapus'
+        // ], 200);
+
+        return redirect()->route('admin.kategori-fasilitas.index')->with('success', 'Kategori berhasil dihapus');
     }
 }

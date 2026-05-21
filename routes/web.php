@@ -4,13 +4,16 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\API\KategoriPaketController;
-use App\Http\Controllers\API\PaketWisataController;
+use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
+use App\Http\Controllers\API\Kelola_landingpage\paket\PaketwisataController;
 use App\Http\Controllers\API\Inventaris\KategoriInventarisController;
 use App\Http\Controllers\API\Inventaris\SubKategoriInventarisController;
 use App\Http\Controllers\API\Inventaris\JenisInventarisController;
 use App\Http\Controllers\API\Inventaris\LokasiPenyimpananController;
 use App\Http\Controllers\API\Inventaris\InventarisPerUnitController;
+use App\Http\Controllers\API\Kelola_Fasilitas\KategoriFasilitasController;
+use App\Http\Controllers\API\Kelola_Fasilitas\FasilitasController;
+
 
 Route::get('/admin/login', function () {
     return view('auth.login');
@@ -53,4 +56,7 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
     Route::resource('lokasi-penyimpanan', LokasiPenyimpananController::class);
     Route::resource('inventaris-perunit', InventarisPerUnitController::class);
 
+    // Kelola fasilitas
+    Route::resource('kategori-fasilitas', KategoriFasilitasController::class);
+    Route::resource('fasilitas', FasilitasController::class);
 });
