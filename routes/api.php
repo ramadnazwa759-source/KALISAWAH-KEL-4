@@ -4,11 +4,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\AuthController;
 
+use App\Http\Controllers\API\ProfilWisataController;
+use App\Http\Controllers\API\Kelola_pengeluaran\KategoriPengeluaranController;
+use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController;
+use App\Http\Controllers\API\Kelola_landingpage\berita\BeritaController;
+use App\Http\Controllers\API\Kelola_landingpage\experience\ClientLogosController;
+use App\Http\Controllers\API\Kelola_landingpage\hero_section\LandingSettingsController;
+
+
 use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketWisataController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketFasilitasController;
-
-use App\Http\Controllers\API\ProfilWisataController;
 
 use App\Http\Controllers\API\Inventaris\KategoriInventarisController;
 use App\Http\Controllers\API\Inventaris\SubkategoriInventarisController;
@@ -24,9 +30,6 @@ use App\Http\Controllers\API\Pembayaran\PembayaranPengunjungController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
 use App\Http\Controllers\API\Booking_pengunjung\BookingController;
-
-
-
 
     Route::get('/test', function () {
         return "API WORKING";
@@ -78,6 +81,9 @@ use App\Http\Controllers\API\Booking_pengunjung\BookingController;
         
         // pengelolaan landing page (masih ngambang)
         Route::apiResource('profil-wisata', ProfilWisataController::class);
+        Route::apiResource('berita', BeritaController::class);
+        Route::apiResource('client-logos', ClientLogosController::class);
+        Route::apiResource('landing-settings', LandingSettingsController::class);
 
         // proses dan pengelolaan booking
         Route::apiResource('bookings', AdminBookingController::class);
@@ -96,4 +102,10 @@ use App\Http\Controllers\API\Booking_pengunjung\BookingController;
         Route::apiResource('jenis-inventaris', JenisInventarisController::class);
         Route::apiResource('inventaris-unit', InventarisPerUnitController::class);
 
+        // pengelolaan pengeluaran
+        Route::apiResource('kategori-pengeluaran', KategoriPengeluaranController::class);
+        Route::apiResource('pengeluaran-operasional', PengeluaranOperasionalController::class);
+
 });
+
+

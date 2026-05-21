@@ -2,58 +2,92 @@
 
 namespace App\Http\Controllers\API\Kelola_pengeluaran;
 
-use App\Models\PengeluaranOperasional;
-use App\Models\KategoriPengeluaran;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\PengeluaranOperasional;
 
 class PengeluaranOperasionalController extends Controller
 {
     public function index()
     {
-        $data = PengeluaranOperasional::with('kategori')->get();
-        return view('pengeluaran.index', compact('data'));
+        return response()->json(
+            PengeluaranOperasional::with('kategori')->get(),
+            200
+        );
     }
 
-    public function create()
+    private function validateData(Request $request)
     {
-        $kategori = KategoriPengeluaran::all();
-        return view('pengeluaran.create', compact('kategori'));
+        return $request->validate([
+            'id_kategori'         => 'required|exists:kategori_pengeluaran,id',
+            'keterangan'          => 'required|string',
+            'jumlah_uang'         => 'required|numeric|min:1',
+            'tanggal_pengeluaran' => 'required|date',
+            'bukti_pengeluaran'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'dicatat_oleh'        => 'required|string|max:100',
+        ]);
     }
 
     public function store(Request $request)
     {
-        PengeluaranOperasional::create([
-            'id_kategori' => $request->id_kategori,
-            'nama_pengeluaran' => $request->nama_pengeluaran,
-            'jumlah' => $request->jumlah,
-            'tanggal' => $request->tanggal
-        ]);
+        $data = $this->validateData($request);
 
-        return redirect('/pengeluaran');
+        if ($request->hasFile('bukti_pengeluaran')) {
+            $file = $request->file('bukti_pengeluaran');
+            // simpan ke storage/app/bukti_pengeluaran
+            $path = $file->store('bukti_pengeluaran');
+            $data['bukti_pengeluaran'] = $path;
+        }
+
+        $result = PengeluaranOperasional::create($data);
+
+        return response()->json($result, 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $data = PengeluaranOperasional::findOrFail($id);
-        $kategori = KategoriPengeluaran::all();
-        return view('pengeluaran.edit', compact('data','kategori'));
+        $data = PengeluaranOperasional::with('kategori')->find($id);
+
+        if (!$data) {
+            return response()->json(['error' => 'Tidak ditemukan'], 404);
+        }
+
+        return response()->json($data, 200);
     }
 
     public function update(Request $request, $id)
     {
-        PengeluaranOperasional::findOrFail($id)->update([
-            'id_kategori' => $request->id_kategori,
-            'nama_pengeluaran' => $request->nama_pengeluaran,
-            'jumlah' => $request->jumlah,
-            'tanggal' => $request->tanggal
-        ]);
+        $item = PengeluaranOperasional::find($id);
 
-        return redirect('/pengeluaran');
+        if (!$item) {
+            return response()->json(['error' => 'Tidak ditemukan'], 404);
+        }
+
+        $data = $this->validateData($request);
+
+        if ($request->hasFile('bukti_pengeluaran')) {
+            $file = $request->file('bukti_pengeluaran');
+            $path = $file->store('bukti_pengeluaran');
+            $data['bukti_pengeluaran'] = $path;
+        }
+
+        $item->update($data);
+
+        return response()->json($item, 200);
     }
 
     public function destroy($id)
     {
-        PengeluaranOperasional::destroy($id);
-        return redirect()->back();
+        $data = PengeluaranOperasional::find($id);
+
+        if (!$data) {
+            return response()->json(['error' => 'Tidak ditemukan'], 404);
+        }
+
+        $data->delete();
+
+        return response()->json([
+            'message' => 'Data berhasil dihapus'
+        ], 200);
     }
 }

@@ -11,15 +11,15 @@ class PaketWisataController extends Controller
     // GET /api/paket-wisata
     public function index()
     {
-        $data = PaketWisata::all(); // <-- TANPA with()
+        $data = PaketWisata::all(); 
 
         return response()->json($data, 200);
     }
 
-    // GET /api/paket-wisata/{id}
+   
     public function show($id)
     {
-        $paket = PaketWisata::find($id); // <-- TANPA with()
+        $paket = PaketWisata::find($id);
 
         if (!$paket) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
