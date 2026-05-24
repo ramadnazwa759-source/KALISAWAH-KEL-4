@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Status Booking Outbound - Kalisawah Adventure')
+@section('title', 'Status Booking Jeep Tour - Kalisawah Adventure')
 
 @section('content')
     <!-- STATUS & UPLOAD SECTION -->
@@ -47,13 +47,16 @@
                 </div>
 
                 <!-- BOTTOM BUTTONS -->
-                <div class="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <a href="{{ route('outbound') }}" class="w-full md:flex-1 h-[50px] rounded-xl border-2 border-blue-500 bg-white text-blue-600 font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] uppercase tracking-widest">
-                        KEMBALI
+                <div class="mt-8 flex flex-col md:flex-row items-center justify-center gap-4 pt-8">
+                    <a href="{{ route('jeeptour') }}" 
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 hover:-translate-y-1 transition-all duration-300 active:scale-[0.97] shadow-sm uppercase tracking-widest">
+                        Kembali
                     </a>
                     
-                    <button type="button" onclick="konfirmasiStatus()" style="background-color: #FFC236;" class="w-full md:flex-1 h-[50px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] uppercase tracking-widest gap-2">
-                        <span>KONFIRMASI</span>
+                    <button type="button" onclick="konfirmasiStatus()" 
+                        style="background-color: #FFC236;" 
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] hover:-translate-y-1 transition-all duration-300 active:scale-[0.97] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-2">
+                        <span>Konfirmasi</span>
                         <i class="fa-solid fa-chevron-right text-sm"></i>
                     </button>
                 </div>
@@ -93,26 +96,8 @@
         });
 
         function konfirmasiStatus() {
-            document.getElementById('loadingOverlayStatus').classList.remove('hidden');
-            document.getElementById('loadingOverlayStatus').classList.add('flex');
-            
-            setTimeout(() => {
-                document.getElementById('loadingOverlayStatus').classList.add('hidden');
-                document.getElementById('loadingOverlayStatus').classList.remove('flex');
-                
-                const popup = document.getElementById('successPopup');
-                popup.classList.remove('opacity-0', '-translate-y-10', 'scale-95');
-                popup.classList.add('opacity-100', 'translate-y-0', 'scale-100');
-                
-                setTimeout(() => {
-                    popup.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
-                    popup.classList.add('opacity-0', '-translate-y-10', 'scale-95');
-                    
-                    setTimeout(() => {
-                        window.location.href = "{{ route('home') }}";
-                    }, 500);
-                }, 3000);
-            }, 1500);
+            alert('Konfirmasi berhasil! Terima kasih telah melakukan pemesanan.');
+            window.location.href = "{{ route('home') }}";
         }
     </script>
 @endsection

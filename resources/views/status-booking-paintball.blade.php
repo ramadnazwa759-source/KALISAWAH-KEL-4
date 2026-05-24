@@ -75,10 +75,8 @@
                     </div>
                 </div>
 
-                <hr class="border-gray-100">
-
                 <!-- C. FOOTER BUTTONS -->
-                <div class="flex flex-row flex-nowrap items-center justify-center gap-4 pt-16 pb-20">
+                <div class="mt-10 flex flex-row flex-nowrap items-center justify-center gap-4 pt-6 pb-12">
                     <a href="{{ route('home') }}" 
                         class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 active:scale-95 shadow-sm uppercase tracking-widest cursor-pointer">
                         Kembali
@@ -122,6 +120,7 @@
 
         function finishBooking() {
             alert('Konfrimasi berhasil! Terimakasih telah melakukan pemesanan');
+            localStorage.removeItem('booking_data');
             window.location.href = "{{ route('home') }}";
         }
     </script>

@@ -29,7 +29,7 @@ Route::post('/admin/login', function (Request $request) {
     return back()->with('error', 'Email atau password salah');
 });
 
-// ... (Bagian login tetap sama)
+// (Bagian login tetap sama)
 
 Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
 
@@ -57,7 +57,6 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
     Route::resource('inventaris-perunit', InventarisPerUnitController::class);
 
 
-
 });
 
 
@@ -67,7 +66,23 @@ Route::get('/', function () {
 });
 
 Route::get('/home', [ProfilWisataController::class, 'index'])->name('home');
+
+// FITUR CERITA SERU (Dynamic)
+Route::get('/kabar', [ProfilWisataController::class, 'kabarIndex'])->name('kabar.index');
 Route::get('/kabar/{slug}', [ProfilWisataController::class, 'showKabar'])->name('kabar.detail');
+
+// TESTIMONI
+Route::get('/testimoni', function () {
+    return view('testimoni.detail-review');
+})->name('testimoni.index');
+
+Route::get('/buat-review', function () {
+    return view('testimoni.review');
+})->name('testimoni.create');
+
+Route::get('/panduan-booking', function () {
+    return view('panduan-booking');
+})->name('panduan.booking');
 
 // HALAMAN PAKET
 // camping
@@ -136,6 +151,24 @@ Route::get('/paintball', function () {
     return view('paintball');
 });
 
+// adventure game
+Route::get('/adventure-game', [ProfilWisataController::class, 'adventureGame'])->name('adventure-game');
+
+Route::get('/booking-adventure-game', [ProfilWisataController::class, 'bookingAdventureGame'])->name('booking-adventure-game');
+
+Route::get('/detail-booking-adventure-game', function () {
+    return view('detail-booking-adventure-game');
+})->name('detail-booking-adventure-game');
+
+Route::get('/pembayaran-adventure-game', function () {
+    return view('pembayaran-adventure-game');
+})->name('pembayaran.adventure');
+
+Route::get('/status-booking-adventure-game', function () {
+    return view('status-booking-adventure-game');
+})->name('status.booking.adventure');
+
+
 Route::get('/booking-paintball', function () {
     return view('booking-paintball');
 });
@@ -150,7 +183,7 @@ Route::get('/pembayaran-paintball', function () {
 
 Route::get('/status-booking-paintball', function () {
     return view('status-booking-paintball');
-});
+})->name('status.booking.paintball');
 
 // halaman pembayaran
 Route::get('/pembayaran/camping', function () {
@@ -202,4 +235,18 @@ Route::get('/jeeptour', function () {
     return view('jeeptour');
 })->name('jeeptour');
 
+Route::get('/booking-jeeptour', function () {
+    return view('booking-jeeptour');
+})->name('booking.jeeptour');
 
+Route::get('/detail-booking-jeeptour', function () {
+    return view('detail-booking-jeeptour');
+})->name('detail.booking.jeeptour');
+
+Route::get('/pembayaran-jeeptour', function () {
+    return view('pembayaran-jeeptour');
+})->name('pembayaran.jeeptour');
+
+Route::get('/status-booking-jeeptour', function () {
+    return view('status-booking-jeeptour');
+})->name('status.booking.jeeptour');

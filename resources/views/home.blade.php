@@ -19,7 +19,7 @@
                                 Rasakan pengalaman tak terlupakan di Kali Sawah Adventure, menyatu dengan alam yang asri.
                             </p>
                             <div class="flex flex-wrap gap-4">
-                                <a href="#" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
+                                <a href="{{ route('panduan.booking') }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
                             </div>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                                 Nikmati malam bertabur bintang di area camping eksklusif Kalisawah Adventure.
                             </p>
                             <div class="flex flex-wrap gap-4">
-                                <a href="#" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
+                                <a href="{{ route('panduan.booking') }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
                             </div>
                         </div>
                     </div>
@@ -101,7 +101,7 @@
     </section>
 
     <!-- SECTION 3: KENALAN DENGAN KALISAWAH -->
-    <section class="py-24 px-6 md:px-20 bg-soft-blue mt-12 overflow-hidden">
+    <section id="tentang-kalisawah" class="py-24 px-6 md:px-20 bg-soft-blue mt-12 overflow-hidden scroll-mt-20">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
             <!-- Left: Image -->
             <div class="w-full lg:w-1/2 relative">
@@ -160,7 +160,7 @@
                     <div class="w-full md:w-[26%]">
                         <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Nomor HP</label>
                         <div class="relative group">
-                            <input type="text" name="phone" id="search-phone" placeholder="Contoh: 0812..." 
+                            <input type="text" name="phone" id="search-phone" placeholder="Contoh: 0812..." required
                                 class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
                         </div>
                     </div>
@@ -169,7 +169,7 @@
                     <div class="w-full md:w-[26%]">
                         <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Tanggal Booking</label>
                         <div class="relative group">
-                            <input type="date" name="date" id="search-date" 
+                            <input type="date" name="date" id="search-date" required
                                 class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy cursor-pointer">
                         </div>
                     </div>
@@ -178,7 +178,7 @@
                     <div class="w-full md:w-[32%]">
                         <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Nama Pemesan</label>
                         <div class="relative group">
-                            <input type="text" name="name" id="search-name" placeholder="Nama lengkap Anda" 
+                            <input type="text" name="name" id="search-name" placeholder="Nama lengkap Anda" required
                                 class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
                         </div>
                     </div>
@@ -197,13 +197,13 @@
 
     <script>
         document.getElementById('search-booking-form').addEventListener('submit', function(e) {
-            const phone = document.getElementById('search-phone').value;
-            const date = document.getElementById('search-date').value;
-            const name = document.getElementById('search-name').value;
+            const phone = document.getElementById('search-phone').value.trim();
+            const date = document.getElementById('search-date').value.trim();
+            const name = document.getElementById('search-name').value.trim();
 
-            if (!phone && !date && !name) {
+            if (!phone || !date || !name) {
                 e.preventDefault();
-                alert('Silakan isi minimal satu kolom untuk mencari data booking Anda.');
+                alert('Lengkapi nama, tanggal booking, dan nomor HP terlebih dahulu.');
             }
         });
     </script>
@@ -211,7 +211,7 @@
 
 
     <!-- SECTION 4: PILIH PAKET SERU KAMU -->
-    <section class="py-24 px-6 md:px-20 max-w-7xl mx-auto">
+    <section id="paket-seru" class="py-24 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-5xl font-bold text-dark-navy">Pilih Paket <span class="text-secondary">Seru Kamu</span></h2>
             <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
@@ -285,41 +285,26 @@
     </section>
 
     <!-- SECTION 6: CERITA SERU DI KALISAWAH (Blog) -->
-    <section class="py-24 px-6 md:px-20 max-w-7xl mx-auto">
+    <section id="cerita-seru" class="py-24 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20">
         <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
                 <h2 class="text-3xl md:text-5xl font-bold text-dark-navy mb-4">Cerita Seru di <span class="text-secondary">Kalisawah</span></h2>
                 <p class="text-gray-500 font-medium italic">Dokumentasi kegiatan seru dari berbagai perusahaan, sekolah, dan komunitas</p>
             </div>
-            <a href="#" class="bg-soft-blue text-primary px-6 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2">
+            <a href="{{ route('kabar.index') }}" class="bg-soft-blue text-primary px-6 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 shadow-sm">
                 Lihat Semua Cerita <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             @forelse($kabars as $kabar)
-            <article class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all flex flex-col h-full">
-                <div class="relative h-64">
-                    <span class="absolute top-4 left-4 z-10 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">Kabar Wisata</span>
-                    <img src="{{ $kabar->foto ? asset('storage/' . $kabar->foto) : 'https://picsum.photos/id/1031/800/600' }}" alt="{{ $kabar->judul }}" class="w-full h-full object-cover">
-                </div>
-                <div class="p-8 flex flex-col flex-grow">
-                    <div class="flex items-center gap-3 text-gray-400 text-xs font-semibold mb-4">
-                        <span class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-calendar"></i> 
-                            {{ $kabar->tanggal ? \Carbon\Carbon::parse($kabar->tanggal)->translatedFormat('d F Y') : \Carbon\Carbon::parse($kabar->created_at)->translatedFormat('d F Y') }}
-                        </span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot"></i> Glenmore, Banyuwangi</span>
-                    </div>
-                    <h3 class="text-primary text-xl font-bold mb-4 leading-tight">{{ $kabar->judul }}</h3>
-                    <p class="text-gray-500 text-sm mb-8 line-clamp-3 leading-relaxed">
-                        {{ Str::limit(strip_tags($kabar->isi_berita), 120) }}
-                    </p>
-                    <div class="mt-auto">
-                        <a href="{{ route('kabar.detail', $kabar->slug) }}" class="text-primary font-bold flex items-center gap-2 hover:gap-4 transition-all">Baca Cerita <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </div>
-            </article>
+            <x-news-card 
+                :image="$kabar->foto ? asset('storage/' . $kabar->foto) : 'https://picsum.photos/seed/' . $kabar->id . '/800/600'"
+                :date="\Carbon\Carbon::parse($kabar->tanggal)->translatedFormat('d F Y')"
+                :title="$kabar->judul"
+                :description="Str::limit(strip_tags($kabar->isi_berita), 120)"
+                :slug="Str::slug($kabar->judul)"
+            />
             @empty
             <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-dashed border-gray-200">
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-soft-blue text-primary text-2xl mb-4">
@@ -333,44 +318,39 @@
     </section>
 
     <!-- SECTION 7: KATA MEREKA (Testimoni) -->
-    <section class="py-24 px-6 md:px-20 bg-soft-blue">
+    <section class="py-24 px-6 md:px-20 bg-soft-blue relative">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-5xl font-bold text-dark-navy mb-4">Kata <span class="text-secondary">Mereka</span></h2>
-                <p class="text-gray-500 font-medium">Pendapat mereka setelah kegiatan seru bersama Kalisawah</p>
+            <div class="flex justify-between items-start mb-16">
+                <div class="text-left">
+                    <h2 class="text-3xl md:text-5xl font-bold text-dark-navy mb-4">Kata <span class="text-secondary">Mereka</span></h2>
+                    <p class="text-gray-500 font-medium">Pendapat mereka setelah kegiatan seru bersama Kalisawah</p>
+                </div>
+                <a href="{{ route('testimoni.create') }}" class="w-12 h-12 md:w-14 md:h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-hover-primary hover:rotate-90 transition-all duration-500 group" title="Tulis Review">
+                    <i class="fa-solid fa-plus text-xl md:text-2xl"></i>
+                </a>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
                 @php
                     $testis = [
-                        ['Taufik Hidayat', 'Pertamina', 'Sangat seru, profesional, dan fasilitas lengkap. Raftingnya benar-benar menantang namun tetap aman bagi pemula.'],
-                        ['Annisa Putri', 'Universitas Jember', 'Outboundnya sangat menyenangkan dan penuh tantangan! Tim instruktur ramah dan sangat membantu selama kegiatan.'],
-                        ['Andi Prabowo', 'Bank Mandiri', 'Acara team building yang menyenangkan dan terorganisir. Kami mendapatkan banyak pelajaran tentang kerja sama tim.'],
-                        ['Siti Rahmawati', 'SMPN 1 Jangkar', 'Belajar sambil bermain di Kalisawah sangat seru! Anak-anak sangat antusias mengikuti setiap sesi kegiatannya.'],
+                        ['Taufik Hidayat', 'Pertamina', 'Sangat seru, profesional, dan fasilitas lengkap. Raftingnya benar-benar menantang namun tetap aman bagi pemula.', 'https://i.pravatar.cc/150?u=1'],
+                        ['Annisa Putri', 'Universitas Jember', 'Outboundnya sangat menyenangkan dan penuh tantangan! Tim instruktur ramah dan sangat membantu.', 'https://i.pravatar.cc/150?u=2'],
+                        ['Andi Prabowo', 'Bank Mandiri', 'Acara team building yang menyenangkan dan terorganisir. Kami mendapatkan banyak pelajaran tentang kerja sama.', 'https://i.pravatar.cc/150?u=3'],
+                        ['Siti Rahmawati', 'SMPN 1 Glenmore', 'Belajar sambil bermain di Kalisawah sangat seru! Anak-anak sangat antusias mengikuti kegiatan.', 'https://i.pravatar.cc/150?u=4'],
                     ];
                 @endphp
-                @foreach($testis as $index => $t)
-                <div class="bg-white p-8 rounded-3xl shadow-lg relative pt-12">
-                    <div class="absolute -top-6 left-8 w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                        <img src="https://i.pravatar.cc/150?u={{$index}}" alt="User" class="w-full h-full object-cover">
-                    </div>
-                    <div class="text-secondary text-4xl font-serif absolute top-4 right-8 opacity-20">"</div>
-                    <div class="flex gap-1 mb-4">
-                        @for($i=0; $i<5; $i++)
-                            <i class="fa-solid fa-star text-secondary text-xs"></i>
-                        @endfor
-                    </div>
-                    <p class="text-gray-500 text-sm italic mb-6 leading-relaxed">"{{ $t[2] }}"</p>
-                    <div>
-                        <h4 class="font-bold text-dark-navy">{{ $t[0] }}</h4>
-                        <p class="text-secondary text-xs font-bold uppercase tracking-wider">{{ $t[1] }}</p>
-                    </div>
-                </div>
+                @foreach($testis as $t)
+                <x-testimoni-card 
+                    :name="$t[0]"
+                    :instansi="$t[1]"
+                    :review="$t[2]"
+                    :image="$t[3]"
+                />
                 @endforeach
             </div>
 
             <div class="text-center">
-                <a href="#" class="bg-primary text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:bg-hover-primary transition-all">Lihat Semua Testimoni</a>
+                <a href="{{ route('testimoni.index') }}" class="bg-primary text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:bg-hover-primary transition-all">Lihat Semua Testimoni</a>
             </div>
         </div>
     </section>
