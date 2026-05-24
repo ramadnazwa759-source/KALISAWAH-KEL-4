@@ -117,7 +117,7 @@
             </div>
 
             <!-- FOOTER BUTTONS -->
-            <div class="mt-24 pt-12 border-t-2 border-gray-200 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8">
+            <div class="mt-24 pt-12 border-t-2 border-gray-200 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 mb-16 md:mb-20 pb-10">
                 <a href="{{ route('booking.create') }}" 
                     class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] shadow-sm uppercase tracking-widest">
                     Kembali
