@@ -52,7 +52,7 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>
                                 <span class="fw-bold text-dark">
-                                    {{ $item->paketWisata->nama_paket ?? 'Paket tidak ditemukan/dihapus' }}
+                                    {{ $item->paketWisata->nama_paket ?? 'Paket tidak ditemukan' }}
                                 </span>
                             </td>
                             <td>
@@ -96,7 +96,7 @@
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label fw-bold">Pilih Paket Wisata</label>
-                                                    <select name="paket_wisata_id" class="form-select rounded-3" required>
+                                                    <select name="id_paket" class="form-select rounded-3" required>
                                                         @foreach(\App\Models\PaketWisata::all() as $pw)
                                                             <option value="{{ $pw->id }}" {{ $item->paket_wisata_id == $pw->id ? 'selected' : '' }}>
                                                                 {{ $pw->nama_paket }}
@@ -107,9 +107,9 @@
                                                 <div class="col-md-6">
                                                     <label class="form-label fw-bold">Pilih Item Fasilitas</label>
                                                     <select name="fasilitas_id" class="form-select rounded-3" required>
-                                                        @foreach(\App\Models\Fasilitas::all() as $fasil)
+                                                        @foreach(\App\Models\Fasilitas::where('tipe_fasilitas', 'paket')->get() as $fasil)
                                                             <option value="{{ $fasil->id }}" {{ $item->fasilitas_id == $fasil->id ? 'selected' : '' }}>
-                                                                {{ $fasil->nama_fasilitas }} (Tipe: {{ ucfirst($fasil->tipe_fasilitas) }})
+                                                                {{ $fasil->nama_fasilitas }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -119,8 +119,8 @@
                                                     <input type="number" name="jumlah" class="form-control rounded-3" value="{{ $item->jumlah }}" min="1" required>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <label class="form-label fw-bold">Keterangan Tambahan</label>
-                                                    <input type="text" name="keterangan" class="form-control rounded-3" value="{{ $item->keterangan }}" placeholder="Misal: Termasuk bensin, kondisional, dll.">
+                                                    <label class="form-label fw-bold">Keterangan</label>
+                                                    <input type="text" name="keterangan" class="form-control rounded-3" value="{{ $item->keterangan }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -134,7 +134,7 @@
                         </div>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">Belum ada fasilitas yang dihubungkan ke paket wisata manapun.</td>
+                            <td colspan="6" class="text-center py-4 text-muted">Belum ada data.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -157,7 +157,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Pilih Paket Wisata</label>
-                            <select name="paket_wisata_id" class="form-select rounded-3" required>
+                            <select name="id_paket" class="form-select rounded-3" required>
                                 <option value="">-- Pilih Paket Wisata --</option>
                                 @foreach(\App\Models\PaketWisata::all() as $pw)
                                     <option value="{{ $pw->id }}">{{ $pw->nama_paket }}</option>
@@ -168,18 +168,18 @@
                             <label class="form-label fw-bold">Pilih Item Fasilitas</label>
                             <select name="fasilitas_id" class="form-select rounded-3" required>
                                 <option value="">-- Pilih Fasilitas --</option>
-                                @foreach(\App\Models\Fasilitas::all() as $fasil)
-                                    <option value="{{ $fasil->id }}">{{ $fasil->nama_fasilitas }} (Tipe: {{ ucfirst($fasil->tipe_fasilitas) }})</option>
+                                @foreach(\App\Models\Fasilitas::where('tipe_fasilitas', 'paket')->get() as $fasil)
+                                    <option value="{{ $fasil->id }}">{{ $fasil->nama_fasilitas }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold">Jumlah Kuantitas</label>
-                            <input type="number" name="jumlah" class="form-control rounded-3" min="1" placeholder="Masukkan jumlah" required>
+                            <label class="form-label fw-bold">Jumlah</label>
+                            <input type="number" name="jumlah" class="form-control rounded-3" min="1" required>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label fw-bold">Keterangan Tambahan</label>
-                            <input type="text" name="keterangan" class="form-control rounded-3" placeholder="Contoh: Diberikan saat check-in lokasi">
+                            <label class="form-label fw-bold">Keterangan</label>
+                            <input type="text" name="keterangan" class="form-control rounded-3">
                         </div>
                     </div>
                 </div>
@@ -198,15 +198,13 @@
 <script>
     function confirmDelete(id) {
         Swal.fire({
-            title: 'Putuskan Hubungan?',
-            text: "Fasilitas ini akan dihapus dari daftar kelengkapan paket wisata tersebut!",
+            title: 'Hapus data?',
+            text: "Data akan dihapus permanen!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
+            confirmButtonText: 'Ya, Hapus!'
         }).then((result) => {
             if (result.isConfirmed) {
                 document.getElementById('delete-form-' + id).submit();
