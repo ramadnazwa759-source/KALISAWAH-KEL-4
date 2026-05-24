@@ -10,18 +10,15 @@ use App\Models\Booking;
 
 class PembayaranPengunjungController extends Controller
 {
-    public function store(Request $request)
-    {
+    // ======================================================
+    // UPLOAD BUKTI PEMBAYARAN
+    // ======================================================
+    public function uploadBukti(
+        Request $request,
+        $bookingId
+    ) {
+
         $request->validate([
-
-            'booking_id' =>
-                'required|exists:booking,id',
-
-            'metode_pembayaran' =>
-                'required|in:transfer,cash',
-
-            'tipe_pembayaran' =>
-                'required|in:dp,pelunasan',
 
             'nominal' =>
                 'required|numeric|min:1',
@@ -30,34 +27,49 @@ class PembayaranPengunjungController extends Controller
                 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $booking = Booking::find(
-            $request->booking_id
-        );
+        // ==========================================
+        // CEK BOOKING
+        // ==========================================
+        $booking = Booking::find($bookingId);
+
+        if (!$booking) {
+
+            return response()->json([
+                'message' =>
+                    'Booking tidak ditemukan'
+            ], 404);
+        }
+
+        // ==========================================
+        // CEK PEMBAYARAN
+        // ==========================================
+        $pembayaran = Pembayaran::where(
+            'booking_id',
+            $booking->id
+        )->first();
+
+        if (!$pembayaran) {
+
+            return response()->json([
+                'message' =>
+                    'Data pembayaran tidak ditemukan'
+            ], 404);
+        }
 
         // ==========================================
         // UPLOAD BUKTI
         // ==========================================
-        $path = $request->file(
-                    'bukti_pembayaran'
-                )
-                ->store(
-                    'pembayaran',
-                    'public'
-                );
+        $path = $request
+            ->file('bukti_pembayaran')
+            ->store(
+                'pembayaran',
+                'public'
+            );
 
         // ==========================================
-        // SIMPAN PEMBAYARAN
+        // UPDATE PEMBAYARAN
         // ==========================================
-        $pembayaran = Pembayaran::create([
-
-            'booking_id' =>
-                $booking->id,
-
-            'metode_pembayaran' =>
-                $request->metode_pembayaran,
-
-            'tipe_pembayaran' =>
-                $request->tipe_pembayaran,
+        $pembayaran->update([
 
             'nominal' =>
                 $request->nominal,
@@ -65,11 +77,11 @@ class PembayaranPengunjungController extends Controller
             'bukti_pembayaran' =>
                 $path,
 
-            'status_verifikasi' =>
-                'pending',
-
             'tanggal_pembayaran' =>
-                now()
+                now(),
+
+            'status_verifikasi' =>
+                'pending'
         ]);
 
         // ==========================================
@@ -84,10 +96,10 @@ class PembayaranPengunjungController extends Controller
         return response()->json([
 
             'message' =>
-                'Bukti pembayaran berhasil dikirim',
+                'Bukti pembayaran berhasil diupload',
 
             'data' =>
                 $pembayaran
-        ], 201);
+        ], 200);
     }
 }

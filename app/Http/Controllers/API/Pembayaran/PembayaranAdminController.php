@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\Pembayaran;
 use App\Models\Booking;
 
+use Illuminate\Support\Facades\DB;
+
 class PembayaranAdminController extends Controller
 {
     // ======================================================
@@ -15,15 +17,10 @@ class PembayaranAdminController extends Controller
     // ======================================================
     public function index()
     {
-        // return response()->json(
-        //     Pembayaran::with('booking')->latest()->get(),
-        //     200
-        // );
-
-        if (request()->wantsJson()) {
-        return Pembayaran::with('booking')->latest()->get();
-    }
-        return view('admin.kelola_pembayaran.pembayaran');
+        return response()->json(
+            Pembayaran::with('booking')->latest()->get(),
+            200
+        );
     }
 
     // ======================================================
@@ -34,6 +31,7 @@ class PembayaranAdminController extends Controller
         $data = Pembayaran::with('booking')->find($id);
 
         if (!$data) {
+
             return response()->json([
                 'message' => 'Data tidak ditemukan'
             ], 404);
@@ -43,114 +41,284 @@ class PembayaranAdminController extends Controller
     }
 
     // ======================================================
-    // UPDATE / VERIFIKASI PEMBAYARAN
+    // VERIFIKASI PEMBAYARAN PENGUNJUNG
     // ======================================================
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status_verifikasi' => 'required|in:valid,ditolak',
-            'catatan' => 'nullable|string'
+
+            'status_verifikasi' =>
+                'required|in:valid,ditolak',
+
+            'catatan' =>
+                'nullable|string'
         ]);
 
-        $pembayaran = Pembayaran::find($id);
+        DB::beginTransaction();
 
-        if (!$pembayaran) {
-            return response()->json([
-                'message' => 'Pembayaran tidak ditemukan'
-            ], 404);
-        }
+        try {
 
-        // update pembayaran
-        $pembayaran->update([
-            'status_verifikasi' => $request->status_verifikasi,
-            'catatan' => $request->catatan
-        ]);
+            $pembayaran = Pembayaran::find($id);
 
-        $booking = Booking::find($pembayaran->booking_id);
+            if (!$pembayaran) {
 
-        if (!$booking) {
-            return response()->json([
-                'message' => 'Booking tidak ditemukan'
-            ], 404);
-        }
+                return response()->json([
+                    'message' => 'Pembayaran tidak ditemukan'
+                ], 404);
+            }
 
-        // ======================================================
-        // JIKA VALID
-        // ======================================================
-        if ($request->status_verifikasi === 'valid') {
+            // =====================================
+            // UPDATE STATUS VERIFIKASI
+            // =====================================
+            $pembayaran->update([
 
-            $booking->update([
-                'status_booking' => 'dikonfirmasi',
-                'status_pembayaran' => 'dp'
+                'status_verifikasi' =>
+                    $request->status_verifikasi,
+
+                'catatan' =>
+                    $request->catatan
             ]);
+
+            $booking = Booking::find(
+                $pembayaran->booking_id
+            );
+
+            if (!$booking) {
+
+                return response()->json([
+                    'message' => 'Booking tidak ditemukan'
+                ], 404);
+            }
+
+            // =====================================
+            // JIKA PEMBAYARAN VALID
+            // =====================================
+            if (
+                $request->status_verifikasi
+                == 'valid'
+            ) {
+
+                // total pembayaran valid
+                $totalPembayaran =
+                    Pembayaran::where(
+                        'booking_id',
+                        $booking->id
+                    )
+                    ->where(
+                        'status_verifikasi',
+                        'valid'
+                    )
+                    ->sum('nominal');
+
+                // =================================
+                // JIKA SUDAH LUNAS
+                // =================================
+                if (
+                    $totalPembayaran >=
+                    $booking->total_harga_final
+                ) {
+
+                    $booking->update([
+
+                        'status_booking' =>
+                            'dikonfirmasi',
+
+                        'status_pembayaran' =>
+                            'lunas'
+                    ]);
+                }
+
+                // =================================
+                // JIKA MASIH DP
+                // =================================
+                else {
+
+                    $booking->update([
+
+                        'status_booking' =>
+                            'dikonfirmasi',
+
+                        'status_pembayaran' =>
+                            'dp'
+                    ]);
+                }
+            }
+
+            // =====================================
+            // JIKA DITOLAK
+            // =====================================
+            else {
+
+                $booking->update([
+
+                    'status_booking' =>
+                        'pending',
+
+                    'status_pembayaran' =>
+                        'belum_bayar'
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+
+                'message' =>
+                    'Verifikasi pembayaran berhasil',
+
+                'data' =>
+                    $pembayaran->load('booking')
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        // ======================================================
-        // JIKA DITOLAK
-        // ======================================================
-        else {
-
-            $booking->update([
-                'status_booking' => 'pending',
-                'status_pembayaran' => 'belum_bayar'
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'Verifikasi berhasil',
-            'data' => $pembayaran->load('booking')
-        ], 200);
     }
 
     // ======================================================
-    // TAMBAH PEMBAYARAN (ADMIN CASH / LUNAS)
+    // TAMBAH PEMBAYARAN OLEH ADMIN
     // ======================================================
     public function store(Request $request)
     {
         $request->validate([
-            'booking_id' => 'required|exists:booking,id',
-            'tipe_pembayaran' => 'required|in:dp,pelunasan',
-            'metode_pembayaran' => 'required|in:transfer,cash',
-            'nominal' => 'required|numeric|min:1',
-            'catatan' => 'nullable|string'
+
+            'booking_id' =>
+                'required|exists:booking,id',
+
+            'tipe_pembayaran' =>
+                'required|in:dp,pelunasan',
+
+            'metode_pembayaran' =>
+                'required|in:transfer,cash,qris',
+
+            'nominal' =>
+                'required|numeric|min:1',
+
+            'bukti_pembayaran' =>
+                'required|image|mimes:jpg,jpeg,png|max:2048',
+
+            'catatan' =>
+                'nullable|string'
         ]);
 
-        $booking = Booking::find($request->booking_id);
+        DB::beginTransaction();
 
-        $pembayaran = Pembayaran::create([
-            'booking_id' => $booking->id,
-            'tipe_pembayaran' => $request->tipe_pembayaran,
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'nominal' => $request->nominal,
-            'status_verifikasi' => 'valid',
-            'tanggal_pembayaran' => now(),
-            'catatan' => $request->catatan
-        ]);
+        try {
 
-        // hitung total valid pembayaran
-        $total = Pembayaran::where('booking_id', $booking->id)
-            ->where('status_verifikasi', 'valid')
-            ->sum('nominal');
+            $booking = Booking::findOrFail(
+                $request->booking_id
+            );
 
-        // update booking otomatis
-        if ($total >= $booking->total_harga_final) {
+            // =====================================
+            // UPLOAD BUKTI PEMBAYARAN
+            // =====================================
+            $path = $request->file(
+                        'bukti_pembayaran'
+                    )
+                    ->store(
+                        'pembayaran',
+                        'public'
+                    );
 
-            $booking->update([
-                'status_booking' => 'dikonfirmasi',
-                'status_pembayaran' => 'lunas'
+            // =====================================
+            // SIMPAN PEMBAYARAN
+            // =====================================
+            $pembayaran = Pembayaran::create([
+
+                'booking_id' =>
+                    $booking->id,
+
+                'tipe_pembayaran' =>
+                    $request->tipe_pembayaran,
+
+                'metode_pembayaran' =>
+                    $request->metode_pembayaran,
+
+                'nominal' =>
+                    $request->nominal,
+
+                'bukti_pembayaran' =>
+                    $path,
+
+                // admin otomatis valid
+                'status_verifikasi' =>
+                    'valid',
+
+                'tanggal_pembayaran' =>
+                    now(),
+
+                'catatan' =>
+                    $request->catatan
             ]);
-        } else {
 
-            $booking->update([
-                'status_booking' => 'dikonfirmasi',
-                'status_pembayaran' => 'dp'
-            ]);
+            // =====================================
+            // HITUNG TOTAL PEMBAYARAN VALID
+            // =====================================
+            $totalPembayaran =
+                Pembayaran::where(
+                    'booking_id',
+                    $booking->id
+                )
+                ->where(
+                    'status_verifikasi',
+                    'valid'
+                )
+                ->sum('nominal');
+
+            // =====================================
+            // UPDATE STATUS BOOKING
+            // =====================================
+            if (
+                $totalPembayaran >=
+                $booking->total_harga_final
+            ) {
+
+                $booking->update([
+
+                    'status_booking' =>
+                        'dikonfirmasi',
+
+                    'status_pembayaran' =>
+                        'lunas'
+                ]);
+            }
+
+            else {
+
+                $booking->update([
+
+                    'status_booking' =>
+                        'dikonfirmasi',
+
+                    'status_pembayaran' =>
+                        'dp'
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+
+                'message' =>
+                    'Pembayaran admin berhasil ditambahkan',
+
+                'data' =>
+                    $pembayaran
+            ], 201);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'Pembayaran admin berhasil ditambahkan',
-            'data' => $pembayaran
-        ], 201);
     }
 
     // ======================================================
@@ -161,6 +329,7 @@ class PembayaranAdminController extends Controller
         $data = Pembayaran::find($id);
 
         if (!$data) {
+
             return response()->json([
                 'message' => 'Data tidak ditemukan'
             ], 404);

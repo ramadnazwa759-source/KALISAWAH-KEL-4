@@ -67,7 +67,7 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
     // Kelola Booking
     // 1. Amankan rute URL 'admin/booking-admin/create' agar masuk ke method store()
     Route::get('fasilitas-booking',[FasilitasController::class, 'fasilitasBooking']);
-    Route::get('booking-admin/create', [AdminBookingController::class, 'store'])->name('booking-admin.create');
+    Route::get('booking-admin/create', function() { return redirect()->route('admin.booking-admin.store');});
     Route::resource('booking-admin', AdminBookingController::class)->except(['create']);
 
     // Pembayaran
