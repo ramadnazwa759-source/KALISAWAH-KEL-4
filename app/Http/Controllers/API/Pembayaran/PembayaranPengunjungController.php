@@ -8,72 +8,97 @@ use Illuminate\Http\Request;
 use App\Models\Pembayaran;
 use App\Models\Booking;
 
+use Illuminate\Support\Facades\Storage;
+
 class PembayaranPengunjungController extends Controller
 {
-    public function store(Request $request)
-    {
+    // ======================================================
+    // UPLOAD / UPDATE BUKTI PEMBAYARAN
+    // ======================================================
+    public function uploadBukti(
+        Request $request,
+        $bookingId
+    ) {
+
         $request->validate([
-
-            'booking_id' =>
-                'required|exists:booking,id',
-
-            'metode_pembayaran' =>
-                'required|in:transfer,cash',
-
-            'tipe_pembayaran' =>
-                'required|in:dp,pelunasan',
-
-            'nominal' =>
-                'required|numeric|min:1',
 
             'bukti_pembayaran' =>
                 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $booking = Booking::find(
-            $request->booking_id
-        );
+        // ==========================================
+        // CEK BOOKING
+        // ==========================================
+        $booking = Booking::find($bookingId);
+
+        if (!$booking) {
+
+            return response()->json([
+                'message' =>
+                    'Booking tidak ditemukan'
+            ], 404);
+        }
 
         // ==========================================
-        // UPLOAD BUKTI
+        // CEK DATA PEMBAYARAN
         // ==========================================
-        $path = $request->file(
-                    'bukti_pembayaran'
-                )
-                ->store(
-                    'pembayaran',
-                    'public'
-                );
+        $pembayaran = Pembayaran::where(
+            'booking_id',
+            $booking->id
+        )->first();
+
+        if (!$pembayaran) {
+
+            return response()->json([
+                'message' =>
+                    'Data pembayaran tidak ditemukan'
+            ], 404);
+        }
 
         // ==========================================
-        // SIMPAN PEMBAYARAN
+        // HAPUS FILE LAMA JIKA ADA
         // ==========================================
-        $pembayaran = Pembayaran::create([
+        if ($pembayaran->bukti_pembayaran) {
 
-            'booking_id' =>
-                $booking->id,
+            Storage::disk('public')->delete(
+                $pembayaran->bukti_pembayaran
+            );
+        }
 
-            'metode_pembayaran' =>
-                $request->metode_pembayaran,
+        // ==========================================
+        // UPLOAD FILE BARU
+        // ==========================================
+        $path = $request
+            ->file('bukti_pembayaran')
+            ->store(
+                'pembayaran',
+                'public'
+            );
 
-            'tipe_pembayaran' =>
-                $request->tipe_pembayaran,
-
-            'nominal' =>
-                $request->nominal,
+        // ==========================================
+        // UPDATE PEMBAYARAN
+        // NOMINAL DIISI ADMIN SAAT VERIFIKASI
+        // ==========================================
+        $pembayaran->update([
 
             'bukti_pembayaran' =>
                 $path,
 
+            'tanggal_pembayaran' =>
+                now(),
+
+            // upload ulang -> pending lagi
             'status_verifikasi' =>
                 'pending',
 
-            'tanggal_pembayaran' =>
-                now()
+            // reset catatan admin
+            'catatan' =>
+                null
         ]);
 
         // ==========================================
-        // UPDATE STATUS BOOKING
+        // STATUS BOOKING
+        // MENUNGGU VERIFIKASI ADMIN
         // ==========================================
         $booking->update([
 
@@ -84,10 +109,10 @@ class PembayaranPengunjungController extends Controller
         return response()->json([
 
             'message' =>
-                'Bukti pembayaran berhasil dikirim',
+                'Bukti pembayaran berhasil diupload',
 
             'data' =>
                 $pembayaran
-        ], 201);
+        ], 200);
     }
 }

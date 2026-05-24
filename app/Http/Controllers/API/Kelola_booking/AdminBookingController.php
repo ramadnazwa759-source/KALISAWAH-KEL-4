@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\BookingFasilitas;
+use App\Models\Pembayaran;
 
 use App\Models\PaketWisata;
 use App\Models\Fasilitas;
@@ -43,6 +44,7 @@ class AdminBookingController extends Controller
         ])->find($id);
 
         if (!$booking) {
+
             return response()->json([
                 'message' => 'Booking tidak ditemukan'
             ], 404);
@@ -58,20 +60,27 @@ class AdminBookingController extends Controller
     {
         $request->validate([
 
-            'nama_pemesan' => 'required|string|max:255',
+            'nama_pemesan' =>
+                'required|string|max:255',
 
-            'no_hp' => 'required|string|max:20',
+            'no_hp' =>
+                'required|string|max:20',
 
-            'tanggal_kunjungan' => 'required|date',
+            'tanggal_kunjungan' =>
+                'required|date',
 
-            'jam' => 'required',
+            'jam' =>
+                'required',
 
-            'jumlah_pengunjung' => 'required|integer|min:1',
+            'jumlah_pengunjung' =>
+                'required|integer|min:1',
 
-            'catatan' => 'nullable|string',
+            'catatan' =>
+                'nullable|string',
 
             // paket wisata
-            'paket' => 'required|array|min:1',
+            'paket' =>
+                'required|array|min:1',
 
             'paket.*.paket_wisata_id' =>
                 'required|exists:paket_wisata,id',
@@ -80,7 +89,8 @@ class AdminBookingController extends Controller
                 'required|integer|min:1',
 
             // fasilitas tambahan
-            'fasilitas' => 'nullable|array',
+            'fasilitas' =>
+                'nullable|array',
 
             'fasilitas.*.fasilitas_id' =>
                 'required|exists:fasilitas,id',
@@ -90,7 +100,20 @@ class AdminBookingController extends Controller
 
             // diskon
             'diskon_manual' =>
-                'nullable|numeric|min:0'
+                'nullable|numeric|min:0',
+
+            // pembayaran admin
+            'metode_pembayaran' =>
+                'nullable|in:cash,transfer',
+
+            'tipe_pembayaran' =>
+                'nullable|in:dp,pelunasan',
+
+            'nominal_bayar' =>
+                'nullable|numeric|min:0',
+
+            'bukti_pembayaran' =>
+                'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
         DB::beginTransaction();
@@ -126,7 +149,8 @@ class AdminBookingController extends Controller
                 );
 
                 $totalKapasitas +=
-                    $paket->kapasitas * $item['qty'];
+                    $paket->kapasitas *
+                    $item['qty'];
             }
 
             // =====================================
@@ -155,9 +179,11 @@ class AdminBookingController extends Controller
                 );
 
                 $subtotal =
-                    $paket->harga * $item['qty'];
+                    $paket->harga *
+                    $item['qty'];
 
-                $subtotalPaket += $subtotal;
+                $subtotalPaket +=
+                    $subtotal;
             }
 
             // =====================================
@@ -219,12 +245,43 @@ class AdminBookingController extends Controller
                 $request->diskon_manual ?? 0;
 
             // =====================================
-            // TOTAL AKHIR + SAFEGUARD
+            // TOTAL FINAL
             // =====================================
             $totalHargaFinal = max(
                 0,
                 $totalHarga - $diskonManual
             );
+
+            // =====================================
+            // DEFAULT STATUS
+            // =====================================
+            $statusBooking = 'pending';
+
+            $statusPembayaran = 'belum_bayar';
+
+            // =====================================
+            // JIKA ADA PEMBAYARAN
+            // =====================================
+            if ($request->nominal_bayar > 0) {
+
+                $statusBooking =
+                    'dikonfirmasi';
+
+                if (
+                    $request->nominal_bayar >=
+                    $totalHargaFinal
+                ) {
+
+                    $statusPembayaran =
+                        'lunas';
+                }
+
+                else {
+
+                    $statusPembayaran =
+                        'dp';
+                }
+            }
 
             // =====================================
             // SIMPAN BOOKING
@@ -271,10 +328,10 @@ class AdminBookingController extends Controller
                     $totalHargaFinal,
 
                 'status_booking' =>
-                    'pending',
+                    $statusBooking,
 
                 'status_pembayaran' =>
-                    'belum_bayar'
+                    $statusPembayaran
             ]);
 
             // =====================================
@@ -354,6 +411,56 @@ class AdminBookingController extends Controller
                             $item['qty']
                     ]);
                 }
+            }
+
+            // =====================================
+            // SIMPAN PEMBAYARAN ADMIN
+            // =====================================
+            if ($request->nominal_bayar > 0) {
+
+                $path = null;
+
+                // =============================
+                // UPLOAD BUKTI
+                // =============================
+                if (
+                    $request->hasFile(
+                        'bukti_pembayaran'
+                    )
+                ) {
+
+                    $path = $request
+                        ->file('bukti_pembayaran')
+                        ->store(
+                            'pembayaran',
+                            'public'
+                        );
+                }
+
+                Pembayaran::create([
+
+                    'booking_id' =>
+                        $booking->id,
+
+                    'tipe_pembayaran' =>
+                        $request->tipe_pembayaran,
+
+                    'metode_pembayaran' =>
+                        $request->metode_pembayaran,
+
+                    'nominal' =>
+                        $request->nominal_bayar,
+
+                    'bukti_pembayaran' =>
+                        $path,
+
+                    // ADMIN AUTO VALID
+                    'status_verifikasi' =>
+                        'valid',
+
+                    'tanggal_pembayaran' =>
+                        now()
+                ]);
             }
 
             DB::commit();

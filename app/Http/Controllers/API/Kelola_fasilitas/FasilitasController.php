@@ -210,4 +210,25 @@ class FasilitasController extends Controller
 
         return response()->json($data, 200);
     }
+
+    public function fasilitasBooking()
+{
+    $data = Fasilitas::where(
+            'tipe_fasilitas',
+            'sewa'
+        )
+        ->where(
+            'status',
+            'aktif'
+        )
+        ->where(
+            'stok',
+            '>',
+            0
+        )
+        ->latest()
+        ->get();
+
+    return response()->json($data, 200);
+}
 }
