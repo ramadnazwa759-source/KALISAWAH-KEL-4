@@ -6,13 +6,16 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketwisataController;
+use App\Http\Controllers\API\Kelola_landingpage\paket\PaketFasilitasController;
 use App\Http\Controllers\API\Inventaris\KategoriInventarisController;
 use App\Http\Controllers\API\Inventaris\SubKategoriInventarisController;
 use App\Http\Controllers\API\Inventaris\JenisInventarisController;
 use App\Http\Controllers\API\Inventaris\LokasiPenyimpananController;
 use App\Http\Controllers\API\Inventaris\InventarisPerUnitController;
-use App\Http\Controllers\API\Kelola_Fasilitas\KategoriFasilitasController;
-use App\Http\Controllers\API\Kelola_Fasilitas\FasilitasController;
+use App\Http\Controllers\API\Kelola_fasilitas\KategoriFasilitasController;
+use App\Http\Controllers\API\Kelola_fasilitas\FasilitasController;
+use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
+use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 
 
 Route::get('/admin/login', function () {
@@ -48,6 +51,7 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
 
     // Paket Wisata
     Route::resource('paket-wisata', PaketWisataController::class);
+    Route::resource('paket-fasilitas', PaketFasilitasController::class);
 
     // Inventaris
     Route::resource('kategori-inventaris', KategoriInventarisController::class);
@@ -59,4 +63,13 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
     // Kelola fasilitas
     Route::resource('kategori-fasilitas', KategoriFasilitasController::class);
     Route::resource('fasilitas', FasilitasController::class);
+
+    // Kelola Booking
+    // 1. Amankan rute URL 'admin/booking-admin/create' agar masuk ke method store()
+    Route::get('fasilitas-booking',[FasilitasController::class, 'fasilitasBooking']);
+    Route::get('booking-admin/create', [AdminBookingController::class, 'store'])->name('booking-admin.create');
+    Route::resource('booking-admin', AdminBookingController::class)->except(['create']);
+
+    // Pembayaran
+    Route::resource('pembayaran', PembayaranAdminController::class);
 });

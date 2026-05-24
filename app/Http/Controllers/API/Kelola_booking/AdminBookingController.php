@@ -28,7 +28,8 @@ class AdminBookingController extends Controller
             'pembayaran'
         ])->latest()->get();
 
-        return response()->json($data, 200);
+        // return response()->json($data, 200);
+        return view('admin.kelola_booking.index', compact('data'));
     }
 
     // =========================================
@@ -43,12 +44,14 @@ class AdminBookingController extends Controller
         ])->find($id);
 
         if (!$booking) {
-            return response()->json([
-                'message' => 'Booking tidak ditemukan'
-            ], 404);
+            // return response()->json([
+            //     'message' => 'Booking tidak ditemukan'
+            // ], 404);
+            return redirect()->route('admin.booking-admin.index')->with('error', 'Booking tidak ditemukan');
         }
 
-        return response()->json($booking, 200);
+        // return response()->json($booking, 200);
+        return view('admin.kelola_booking.show', compact('booking'));
     }
 
     // =========================================
@@ -56,6 +59,20 @@ class AdminBookingController extends Controller
     // =========================================
     public function store(Request $request)
     {
+        // JIKA ADMIN KLIK "+ TAMBAH" (REQUEST BERUPA GET)
+        // ---------------------------------------------------------------
+        if ($request->isMethod('get')) {
+            $paketWisata = PaketWisata::all();
+            // $fasilitas = Fasilitas::all();
+            // wawa yang nambah
+            $fasilitas = Fasilitas::where('tipe_fasilitas', 'sewa')
+                          ->where('status', 'aktif')
+                          ->where('stok', '>', 0)
+                          ->get();
+
+            return view('admin.kelola_booking.create', compact('paketWisata', 'fasilitas'));
+        }
+
         $request->validate([
 
             'nama_pemesan' => 'required|string|max:255',
@@ -358,40 +375,47 @@ class AdminBookingController extends Controller
 
             DB::commit();
 
-            return response()->json([
+            // return response()->json([
 
-                'message' =>
-                    'Booking berhasil dibuat',
+            //     'message' =>
+            //         'Booking berhasil dibuat',
 
-                'booking_id' =>
-                    $booking->id,
+            //     'booking_id' =>
+            //         $booking->id,
 
-                'kode_booking' =>
-                    $booking->kode_booking,
+            //     'kode_booking' =>
+            //         $booking->kode_booking,
 
-                'total_harga' =>
-                    $booking->total_harga,
+            //     'total_harga' =>
+            //         $booking->total_harga,
 
-                'diskon_manual' =>
-                    $booking->diskon_manual,
+            //     'diskon_manual' =>
+            //         $booking->diskon_manual,
 
-                'total_harga_final' =>
-                    $booking->total_harga_final,
+            //     'total_harga_final' =>
+            //         $booking->total_harga_final,
 
-                'status_booking' =>
-                    $booking->status_booking,
+            //     'status_booking' =>
+            //         $booking->status_booking,
 
-                'status_pembayaran' =>
-                    $booking->status_pembayaran
-            ], 201);
+            //     'status_pembayaran' =>
+            //         $booking->status_pembayaran
+            // ], 201);
+
+            return redirect()
+                ->route('admin.booking-admin.index')
+                ->with('success', 'Booking berhasil dibuat');
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            // return response()->json([
+            //     'message' => $e->getMessage()
+            // ], 500);
+
+
+
         }
     }
 
@@ -406,9 +430,10 @@ class AdminBookingController extends Controller
 
         if (!$booking) {
 
-            return response()->json([
-                'message' => 'Booking tidak ditemukan'
-            ], 404);
+            // return response()->json([
+            //     'message' => 'Booking tidak ditemukan'
+            // ], 404);
+            return redirect()->route('admin.booking-admin.edit', $id)->with('error', 'Booking tidak ditemukan');
         }
 
         $request->validate([
@@ -513,21 +538,25 @@ class AdminBookingController extends Controller
 
             DB::commit();
 
-            return response()->json([
+            // return response()->json([
 
-                'message' =>
-                    'Booking berhasil diupdate',
+            //     'message' =>
+            //         'Booking berhasil diupdate',
 
-                'data' => $booking
-            ], 200);
+            //     'data' => $booking
+            // ], 200);
+
+            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil diupdate');
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            // return response()->json([
+            //     'message' => $e->getMessage()
+            // ], 500);
+
+            return redirect()->route('admin.booking-admin.index')->with('error', 'Terjadi kesalahan saat mengupdate booking: ' . $e->getMessage());
         }
     }
 
@@ -542,9 +571,10 @@ class AdminBookingController extends Controller
 
         if (!$booking) {
 
-            return response()->json([
-                'message' => 'Booking tidak ditemukan'
-            ], 404);
+            // return response()->json([
+            //     'message' => 'Booking tidak ditemukan'
+            // ], 404);
+            return redirect()->route('admin.booking-admin.index')->with('error', 'Booking tidak ditemukan');
         }
 
         DB::beginTransaction();
@@ -594,17 +624,20 @@ class AdminBookingController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'message' => 'Booking berhasil dihapus'
-            ], 200);
+            // return response()->json([
+            //     'message' => 'Booking berhasil dihapus'
+            // ], 200);
+            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil dihapus');
+
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            // return response()->json([
+            //     'message' => $e->getMessage()
+            // ], 500);
+            return redirect()->route('admin.booking-admin.index')->with('error', 'Terjadi kesalahan saat menghapus booking: ' . $e->getMessage());
         }
     }
 }

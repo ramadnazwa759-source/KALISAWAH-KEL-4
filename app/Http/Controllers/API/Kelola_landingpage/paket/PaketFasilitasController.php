@@ -12,7 +12,9 @@ class PaketFasilitasController extends Controller
     // GET /api/paket-fasilitas
     public function index()
     {
-        return response()->json(PaketFasilitas::all(), 200);
+        // return response()->json(PaketFasilitas::all(), 200);
+
+        return view('admin.layanan.paket_fasilitas.index');
     }
 
     // POST /api/paket-fasilitas
@@ -27,10 +29,13 @@ class PaketFasilitasController extends Controller
 
         $data = PaketFasilitas::create($request->all());
 
-        return response()->json([
-            'message' => 'Paket fasilitas berhasil ditambahkan',
-            'data'    => $data
-        ], 201);
+        // return response()->json([
+        //     'message' => 'Paket fasilitas berhasil ditambahkan',
+        //     'data'    => $data
+        // ], 201);
+
+        return redirect()->route('admin.paket-fasilitas.index')->with('success', 'Paket fasilitas berhasil ditambahkan!');
+
     }
 
     // GET /api/paket-fasilitas/{id}
@@ -53,7 +58,8 @@ class PaketFasilitasController extends Controller
 
         $paketFasilitas->update($request->all());
 
-        return response()->json(['message' => 'Paket fasilitas berhasil diupdate','data'    => $paketFasilitas], 200);
+        // return response()->json(['message' => 'Paket fasilitas berhasil diupdate','data'    => $paketFasilitas], 200);
+        return redirect()->route('admin.paket-fasilitas.index')->with('success', 'Paket fasilitas berhasil diupdate!');
     }
 
     // DELETE /api/paket-fasilitas/{id}
@@ -61,8 +67,9 @@ class PaketFasilitasController extends Controller
     {
         PaketFasilitas::destroy($id);
 
-        return response()->json([
-            'message' => 'Paket fasilitas berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Paket fasilitas berhasil dihapus'
+        // ], 200);
+        return redirect()->route('admin.paket-fasilitas.index')->with('success', 'Paket fasilitas berhasil dihapus!');
     }
 }

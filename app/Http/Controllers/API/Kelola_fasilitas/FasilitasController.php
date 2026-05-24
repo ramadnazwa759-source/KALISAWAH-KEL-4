@@ -59,9 +59,11 @@ class FasilitasController extends Controller
 
             // harga wajib
             if ($request->harga === null) {
-                return response()->json([
-                    'message' => 'Harga wajib diisi untuk fasilitas sewa'
-                ], 422);
+                // return response()->json([
+                //     'message' => 'Harga wajib diisi untuk fasilitas sewa'
+                // ], 422);
+
+                return redirect()->back()->with('error', 'Harga wajib diisi untuk fasilitas sewa');
             }
 
             // stok wajib
@@ -107,9 +109,11 @@ class FasilitasController extends Controller
         $data = Fasilitas::find($id);
 
         if (!$data) {
-            return response()->json([
-                'message' => 'Data tidak ditemukan'
-            ], 404);
+            // return response()->json([
+            //     'message' => 'Data tidak ditemukan'
+            // ], 404);
+
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
         }
 
         $request->validate([
@@ -134,15 +138,19 @@ class FasilitasController extends Controller
         if ($request->tipe_fasilitas == 'sewa') {
 
             if ($request->harga === null) {
-                return response()->json([
-                    'message' => 'Harga wajib diisi untuk fasilitas sewa'
-                ], 422);
+                // return response()->json([
+                //     'message' => 'Harga wajib diisi untuk fasilitas sewa'
+                // ], 422);
+
+                return redirect()->back()->with('error', 'Harga wajib diisi untuk fasilitas sewa')->withInput();
             }
 
             if ($request->stok === null) {
-                return response()->json([
-                    'message' => 'Stok wajib diisi untuk fasilitas sewa'
-                ], 422);
+                // return response()->json([
+                //     'message' => 'Stok wajib diisi untuk fasilitas sewa'
+                // ], 422);
+
+                return redirect()->back()->with('error', 'Stok wajib diisi untuk fasilitas sewa')->withInput();
             }
         }
 
@@ -186,9 +194,11 @@ class FasilitasController extends Controller
         $data = Fasilitas::find($id);
 
         if (!$data) {
-            return response()->json([
-                'message' => 'Data tidak ditemukan'
-            ], 404);
+            // return response()->json([
+            //     'message' => 'Data tidak ditemukan'
+            // ], 404);
+
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
         }
 
         // hapus gambar
@@ -200,9 +210,11 @@ class FasilitasController extends Controller
 
         $data->delete();
 
-        return response()->json([
-            'message' => 'Fasilitas berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Fasilitas berhasil dihapus'
+        // ], 200);
+
+        return redirect()->back()->with('success', 'Fasilitas berhasil dihapus');
     }
 
         public function indexPublic()
@@ -219,4 +231,5 @@ class FasilitasController extends Controller
 
         return redirect()->back()->with('success', 'Fasilitas berhasil dihapus');
     }
+
 }
