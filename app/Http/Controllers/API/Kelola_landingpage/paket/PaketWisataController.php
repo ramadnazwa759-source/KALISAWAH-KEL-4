@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\Kelola_landingpage\paket;
 
 use App\Http\Controllers\Controller;
 use App\Models\PaketWisata;

@@ -4,150 +4,172 @@ namespace App\Http\Controllers\API\Pembayaran;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
 use App\Models\Pembayaran;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Booking;
 
 class PembayaranAdminController extends Controller
 {
+    // ======================================================
+    // LIST PEMBAYARAN
+    // ======================================================
     public function index()
     {
-        $data = Pembayaran::with('booking')->get();
+        // return response()->json(
+        //     Pembayaran::with('booking')->latest()->get(),
+        //     200
+        // );
 
-        return response()->json($data);
+        if (request()->wantsJson()) {
+        return Pembayaran::with('booking')->latest()->get();
+    }
+        return view('admin.kelola_pembayaran.pembayaran');
     }
 
+    // ======================================================
+    // DETAIL PEMBAYARAN
+    // ======================================================
     public function show($id)
     {
-        $pembayaran = Pembayaran::with('booking')
-            ->findOrFail($id);
+        $data = Pembayaran::with('booking')->find($id);
 
-        return response()->json($pembayaran);
+        if (!$data) {
+            return response()->json([
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json($data, 200);
     }
 
-    public function updatePembayaran(Request $request, $id)
+    // ======================================================
+    // UPDATE / VERIFIKASI PEMBAYARAN
+    // ======================================================
+    public function update(Request $request, $id)
     {
         $request->validate([
-
-            'bukti_pembayaran_dp' =>
-                'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-
-            'bukti_pelunasan' =>
-                'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-
-            'id_diskon' =>
-                'nullable|exists:diskon,id_diskon',
-
-            'total_harga_akhir' =>
-                'nullable|numeric|min:0',
-
-            'status' =>
-                'required|in:menunggu_verifikasi,diterima,ditolak,lunas',
+            'status_verifikasi' => 'required|in:valid,ditolak',
+            'catatan' => 'nullable|string'
         ]);
 
-        $pembayaran = Pembayaran::findOrFail($id);
+        $pembayaran = Pembayaran::find($id);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Upload ulang bukti DP
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->hasFile('bukti_pembayaran_dp')) {
-
-            if (!$request->file('bukti_pembayaran_dp')->isValid()) {
-
-                return response()->json([
-                    'message' => 'File DP tidak valid'
-                ], 400);
-            }
-
-            if ($pembayaran->bukti_pembayaran_dp) {
-
-                Storage::disk('public')
-                    ->delete($pembayaran->bukti_pembayaran_dp);
-            }
-
-            $pathDP = $request
-                ->file('bukti_pembayaran_dp')
-                ->store('bukti-pembayaran/dp', 'public');
-
-            $pembayaran->bukti_pembayaran_dp = $pathDP;
+        if (!$pembayaran) {
+            return response()->json([
+                'message' => 'Pembayaran tidak ditemukan'
+            ], 404);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Upload bukti pelunasan
-        |--------------------------------------------------------------------------
-        */
+        // update pembayaran
+        $pembayaran->update([
+            'status_verifikasi' => $request->status_verifikasi,
+            'catatan' => $request->catatan
+        ]);
 
-        if ($request->hasFile('bukti_pelunasan')) {
+        $booking = Booking::find($pembayaran->booking_id);
 
-            if (!$request->file('bukti_pelunasan')->isValid()) {
-
-                return response()->json([
-                    'message' => 'File pelunasan tidak valid'
-                ], 400);
-            }
-
-            if ($pembayaran->bukti_pelunasan) {
-
-                Storage::disk('public')
-                    ->delete($pembayaran->bukti_pelunasan);
-            }
-
-            $pathPelunasan = $request
-                ->file('bukti_pelunasan')
-                ->store('bukti-pembayaran/pelunasan', 'public');
-
-            $pembayaran->bukti_pelunasan = $pathPelunasan;
-
-            $pembayaran->tanggal_pelunasan = now();
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Booking tidak ditemukan'
+            ], 404);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update Data Pembayaran
-        |--------------------------------------------------------------------------
-        */
+        // ======================================================
+        // JIKA VALID
+        // ======================================================
+        if ($request->status_verifikasi === 'valid') {
 
-        $pembayaran->id_diskon =
-            $request->id_diskon;
+            $booking->update([
+                'status_booking' => 'dikonfirmasi',
+                'status_pembayaran' => 'dp'
+            ]);
+        }
 
-        $pembayaran->total_harga_akhir =
-            $request->total_harga_akhir
-            ?? $pembayaran->total_harga_akhir;
+        // ======================================================
+        // JIKA DITOLAK
+        // ======================================================
+        else {
 
-        $pembayaran->status =
-            $request->status;
-
-        $pembayaran->save();
+            $booking->update([
+                'status_booking' => 'pending',
+                'status_pembayaran' => 'belum_bayar'
+            ]);
+        }
 
         return response()->json([
-            'message' => 'Data pembayaran berhasil diperbarui',
-            'data' => $pembayaran
-        ]);
+            'message' => 'Verifikasi berhasil',
+            'data' => $pembayaran->load('booking')
+        ], 200);
     }
 
-    public function destroy($id)
+    // ======================================================
+    // TAMBAH PEMBAYARAN (ADMIN CASH / LUNAS)
+    // ======================================================
+    public function store(Request $request)
     {
-        $pembayaran = Pembayaran::findOrFail($id);
+        $request->validate([
+            'booking_id' => 'required|exists:booking,id',
+            'tipe_pembayaran' => 'required|in:dp,pelunasan',
+            'metode_pembayaran' => 'required|in:transfer,cash',
+            'nominal' => 'required|numeric|min:1',
+            'catatan' => 'nullable|string'
+        ]);
 
-        if ($pembayaran->bukti_pembayaran_dp) {
+        $booking = Booking::find($request->booking_id);
 
-            Storage::disk('public')
-                ->delete($pembayaran->bukti_pembayaran_dp);
+        $pembayaran = Pembayaran::create([
+            'booking_id' => $booking->id,
+            'tipe_pembayaran' => $request->tipe_pembayaran,
+            'metode_pembayaran' => $request->metode_pembayaran,
+            'nominal' => $request->nominal,
+            'status_verifikasi' => 'valid',
+            'tanggal_pembayaran' => now(),
+            'catatan' => $request->catatan
+        ]);
+
+        // hitung total valid pembayaran
+        $total = Pembayaran::where('booking_id', $booking->id)
+            ->where('status_verifikasi', 'valid')
+            ->sum('nominal');
+
+        // update booking otomatis
+        if ($total >= $booking->total_harga_final) {
+
+            $booking->update([
+                'status_booking' => 'dikonfirmasi',
+                'status_pembayaran' => 'lunas'
+            ]);
+        } else {
+
+            $booking->update([
+                'status_booking' => 'dikonfirmasi',
+                'status_pembayaran' => 'dp'
+            ]);
         }
-
-        if ($pembayaran->bukti_pelunasan) {
-
-            Storage::disk('public')
-                ->delete($pembayaran->bukti_pelunasan);
-        }
-
-        $pembayaran->delete();
 
         return response()->json([
-            'message' => 'Data pembayaran berhasil dihapus'
-        ]);
+            'message' => 'Pembayaran admin berhasil ditambahkan',
+            'data' => $pembayaran
+        ], 201);
+    }
+
+    // ======================================================
+    // HAPUS PEMBAYARAN
+    // ======================================================
+    public function destroy($id)
+    {
+        $data = Pembayaran::find($id);
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        $data->delete();
+
+        return response()->json([
+            'message' => 'Berhasil dihapus'
+        ], 200);
     }
 }

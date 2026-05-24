@@ -9,7 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+        <style>
         * {
             margin: 0;
             padding: 0;
@@ -222,11 +227,7 @@
         </div>
     </div>
 
-
-    <!-- GROUP 2: MANAJEMEN OPERASIONAL -->
-    <div class="sidebar-label" style="margin-top: 10px;">Manajemen Operasional</div>
-
-    <!-- PAKET -->
+       <!-- PAKET -->
     <div class="menu-group">
         <div class="menu-item parent-toggle">
             <i class="fa-solid fa-box"></i> Layanan Wisata
@@ -235,8 +236,24 @@
         <div class="submenu">
             <a href="{{ route('admin.paket-wisata.index') }}" class="menu-item" style="padding-left:50px;">Paket Wisata</a>
             <a href="{{ route('admin.kategori-paket.index') }}" class="menu-item" style="padding-left:50px;">Kategori Paket</a>
-            <a href="#" class="menu-item" style="padding-left:50px;">Fasilitas Paket</a>
-            <a href="#" class="menu-item" style="padding-left:50px;">Diskon</a>
+            <a href="{{ route('admin.paket-fasilitas.index') }}" class="menu-item" style="padding-left:50px;">Fasilitas Paket</a>
+        </div>
+    </div>
+
+
+    <!-- GROUP 2: MANAJEMEN OPERASIONAL -->
+    <div class="sidebar-label" style="margin-top: 10px;">Manajemen Operasional</div>
+
+
+    <!-- FASILITAS -->
+    <div class="menu-group">
+        <div class="menu-item parent-toggle">
+            <i class="fa-solid fa-box"></i> Fasilitas Wisata
+            <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
+        </div>
+        <div class="submenu">
+            <a href="{{ route('admin.kategori-fasilitas.index') }}" class="menu-item" style="padding-left:50px;">Kategori Fasilitas</a>
+            <a href="{{ route('admin.fasilitas.index') }}" class="menu-item" style="padding-left:50px;">Fasilitas</a>
         </div>
     </div>
 
@@ -247,9 +264,8 @@
             <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
         </div>
         <div class="submenu">
-            <a href="/admin/booking" class="menu-item" style="padding-left:50px;">Booking</a>
-            <a href="/admin/fasilitas-booking" class="menu-item" style="padding-left:50px;">Fasilitas Booking</a>
-            <a href="/admin/pembayaran" class="menu-item" style="padding-left:50px;">Pembayaran</a>
+            <a href="{{ route('admin.booking-admin.index') }}" class="menu-item" style="padding-left:50px;">Booking</a>
+            <a href="{{ route('admin.pembayaran.index') }}" class="menu-item" style="padding-left:50px;">Pembayaran</a>
         </div>
     </div>
 
@@ -270,6 +286,21 @@
         </div>
     </div>
 
+    <!-- KEUANGAN -->
+    <!-- KEUANGAN -->
+    <div class="menu-group">
+    <div class="menu-item parent-toggle">
+        <i class="fa-solid fa-wallet"></i> Keuangan
+        <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
+    </div>
+
+    <div class="submenu">
+        <a href="/admin/pemasukan"class="menu-item"style="padding-left:50px;"> Pemasukan </a>
+        <a href="/admin/pengeluaran"class="menu-item"style="padding-left:50px;"> Pengeluaran</a>
+        <a href="/admin/kategori-pengeluaran"class="menu-item"style="padding-left:50px;"> Kategori Pengeluaran</a>
+    </div>
+    </div>
+
     <div style="margin-bottom: 30px;"></div> <!-- Spacer bawah -->
 </div>
 
@@ -285,8 +316,31 @@
             <i class="fa-solid fa-chevron-down" style="font-size: 12px;"></i>
 
             <div class="dropdown-menu_pembuat" id="logoutDropdown">
-                <a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-            </div>
+
+    <form action="{{ route('admin.logout') }}" method="POST">
+        @csrf
+
+        <button type="submit" style="
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            padding: 12px 20px;
+            color: #ff4d4d;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        ">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </button>
+
+    </form>
+
+</div>
         </div>
     </div>
 
@@ -337,13 +391,13 @@ document.getElementById('currentDate').innerText =
         day: 'numeric'
     });
 
-// Logout Function
-function logout() {
-    if(confirm('Apakah Anda yakin ingin keluar?')) {
-        localStorage.removeItem("token");
-        window.location.href = "/admin/login";
-    }
-}
+// // Logout Function
+// function logout() {
+//     if(confirm('Apakah Anda yakin ingin keluar?')) {
+//         localStorage.removeItem("token");
+//         window.location.href = "/admin/login";
+//     }
+// }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
