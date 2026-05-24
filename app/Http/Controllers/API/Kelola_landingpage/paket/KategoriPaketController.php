@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\API\Kelola_landingpage\paket;
 
-use App\Http\Controllers\Controller; 
-use Illuminate\Http\Request; 
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\KategoriPaket;
 use Illuminate\Support\Facades\Storage; // untuk hapus & simpan file gambar
 
@@ -26,11 +26,6 @@ class KategoriPaketController extends Controller
     }
 
     // MENAMPILKAN 1 DATA BERDASARKAN ID
-<<<<<<< HEAD
-    // GET /api/kategori-paket/{id}
-
-=======
->>>>>>> 3f9f8a851a626e48d60ea6168ba6e10658d5dbda
     public function show($id)
     {
         // cari data berdasarkan id
@@ -55,7 +50,7 @@ class KategoriPaketController extends Controller
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $path = null; 
+        $path = null;
 
         // jika ada file gambar yang dikirim
         if ($request->hasFile('gambar')) {
