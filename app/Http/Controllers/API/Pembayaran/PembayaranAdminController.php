@@ -9,6 +9,7 @@ use App\Models\Pembayaran;
 use App\Models\Booking;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PembayaranAdminController extends Controller
 {
@@ -33,7 +34,7 @@ class PembayaranAdminController extends Controller
         if (!$data) {
 
             return response()->json([
-                'message' => 'Data tidak ditemukan'
+                'message' => 'Data pembayaran tidak ditemukan'
             ], 404);
         }
 
@@ -41,7 +42,7 @@ class PembayaranAdminController extends Controller
     }
 
     // ======================================================
-    // VERIFIKASI PEMBAYARAN PENGUNJUNG
+    // ADMIN MENENTUKAN NOMINAL VALID
     // ======================================================
     public function update(Request $request, $id)
     {
@@ -50,6 +51,9 @@ class PembayaranAdminController extends Controller
             'status_verifikasi' =>
                 'required|in:valid,ditolak',
 
+            // ADMIN INPUT NOMINAL ASLI
+            'nominal' =>
+                'required_if:status_verifikasi,valid|nullable|numeric|min:1',
             'catatan' =>
                 'nullable|string'
         ]);
@@ -67,18 +71,6 @@ class PembayaranAdminController extends Controller
                 ], 404);
             }
 
-            // =====================================
-            // UPDATE STATUS VERIFIKASI
-            // =====================================
-            $pembayaran->update([
-
-                'status_verifikasi' =>
-                    $request->status_verifikasi,
-
-                'catatan' =>
-                    $request->catatan
-            ]);
-
             $booking = Booking::find(
                 $pembayaran->booking_id
             );
@@ -91,7 +83,25 @@ class PembayaranAdminController extends Controller
             }
 
             // =====================================
-            // JIKA PEMBAYARAN VALID
+            // UPDATE PEMBAYARAN
+            // =====================================
+            $pembayaran->update([
+
+                'status_verifikasi' =>
+                    $request->status_verifikasi,
+
+                // nominal asli diisi admin
+                'nominal' =>
+                    $request->status_verifikasi == 'valid'
+                        ? $request->nominal
+                        : null,
+
+                'catatan' =>
+                    $request->catatan
+            ]);
+
+            // =====================================
+            // JIKA VALID
             // =====================================
             if (
                 $request->status_verifikasi
@@ -110,9 +120,9 @@ class PembayaranAdminController extends Controller
                     )
                     ->sum('nominal');
 
-                // =================================
-                // JIKA SUDAH LUNAS
-                // =================================
+                // ================================
+                // SUDAH LUNAS
+                // ================================
                 if (
                     $totalPembayaran >=
                     $booking->total_harga_final
@@ -128,9 +138,9 @@ class PembayaranAdminController extends Controller
                     ]);
                 }
 
-                // =================================
-                // JIKA MASIH DP
-                // =================================
+                // ================================
+                // MASIH DP
+                // ================================
                 else {
 
                     $booking->update([
@@ -181,7 +191,8 @@ class PembayaranAdminController extends Controller
     }
 
     // ======================================================
-    // TAMBAH PEMBAYARAN OLEH ADMIN
+    // TAMBAH PEMBAYARAN MANUAL OLEH ADMIN
+    // CASH / QRIS / TRANSFER DI TEMPAT
     // ======================================================
     public function store(Request $request)
     {
@@ -215,7 +226,7 @@ class PembayaranAdminController extends Controller
             );
 
             // =====================================
-            // UPLOAD BUKTI PEMBAYARAN
+            // UPLOAD FOTO BUKTI
             // =====================================
             $path = $request->file(
                         'bukti_pembayaran'
@@ -245,7 +256,7 @@ class PembayaranAdminController extends Controller
                 'bukti_pembayaran' =>
                     $path,
 
-                // admin otomatis valid
+                // otomatis valid
                 'status_verifikasi' =>
                     'valid',
 
@@ -257,7 +268,7 @@ class PembayaranAdminController extends Controller
             ]);
 
             // =====================================
-            // HITUNG TOTAL PEMBAYARAN VALID
+            // TOTAL PEMBAYARAN VALID
             // =====================================
             $totalPembayaran =
                 Pembayaran::where(
@@ -305,7 +316,7 @@ class PembayaranAdminController extends Controller
             return response()->json([
 
                 'message' =>
-                    'Pembayaran admin berhasil ditambahkan',
+                    'Pembayaran berhasil ditambahkan',
 
                 'data' =>
                     $pembayaran
@@ -331,14 +342,22 @@ class PembayaranAdminController extends Controller
         if (!$data) {
 
             return response()->json([
-                'message' => 'Data tidak ditemukan'
+                'message' => 'Data pembayaran tidak ditemukan'
             ], 404);
+        }
+
+        // hapus file bukti
+        if ($data->bukti_pembayaran) {
+
+            Storage::disk('public')->delete(
+                $data->bukti_pembayaran
+            );
         }
 
         $data->delete();
 
         return response()->json([
-            'message' => 'Berhasil dihapus'
+            'message' => 'Pembayaran berhasil dihapus'
         ], 200);
     }
 }

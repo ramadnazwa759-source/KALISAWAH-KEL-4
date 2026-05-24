@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\API\Kelola_landingpage\paket;
 
-use App\Http\Controllers\Controller; // controller dasar Laravel
-use Illuminate\Http\Request; // menangkap request dari Postman / client
-use App\Models\KategoriPaket; // model tabel kategori_paket
+use App\Http\Controllers\Controller; 
+use Illuminate\Http\Request; 
+use App\Models\KategoriPaket;
 use Illuminate\Support\Facades\Storage; // untuk hapus & simpan file gambar
 
 class KategoriPaketController extends Controller
 {
 
     // MENAMPILKAN SEMUA DATA
-    // GET /api/kategori-paket
-
     public function index()
     {
         // // ambil semua data dari tabel kategori_paket
@@ -28,8 +26,11 @@ class KategoriPaketController extends Controller
     }
 
     // MENAMPILKAN 1 DATA BERDASARKAN ID
+<<<<<<< HEAD
     // GET /api/kategori-paket/{id}
 
+=======
+>>>>>>> 3f9f8a851a626e48d60ea6168ba6e10658d5dbda
     public function show($id)
     {
         // cari data berdasarkan id
@@ -45,7 +46,6 @@ class KategoriPaketController extends Controller
     }
 
     // MENAMBAH DATA BARU + UPLOAD GAMBAR
-    // POST /api/kategori-paket
     public function store(Request $request)
     {
         // validasi input dari Postman
@@ -55,7 +55,7 @@ class KategoriPaketController extends Controller
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $path = null; // penampung path gambar
+        $path = null; 
 
         // jika ada file gambar yang dikirim
         if ($request->hasFile('gambar')) {
@@ -76,7 +76,6 @@ class KategoriPaketController extends Controller
 
 
     // UPDATE DATA + GANTI GAMBAR
-    // PUT /api/kategori-paket/{id}
     public function update(Request $request, $id)
     {
         // cari data berdasarkan id
@@ -112,8 +111,7 @@ class KategoriPaketController extends Controller
         return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil diperbarui!');
     }
 
-    // MENGHAPUS DATA + GAMBAR
-    // DELETE /api/kategori-paket/{id}
+    // MENGHAPUS DATA + GAMBARs}
     public function destroy($id)
     {
         // cari data

@@ -241,7 +241,9 @@ class PengunjungBookingController extends Controller
                 'total_harga_final' =>
                     $totalHarga,
 
-                // menunggu pembayaran diverifikasi
+                // =================================
+                // MENUNGGU VERIFIKASI PEMBAYARAN
+                // =================================
                 'status_booking' =>
                     'pending',
 
@@ -326,8 +328,7 @@ class PengunjungBookingController extends Controller
             }
 
             // =====================================
-            // SIMPAN PILIHAN PEMBAYARAN
-            // BELUM ADA BUKTI TRANSFER
+            // SIMPAN DATA PEMBAYARAN AWAL
             // =====================================
             Pembayaran::create([
 
@@ -340,16 +341,28 @@ class PengunjungBookingController extends Controller
                 'metode_pembayaran' =>
                     $request->metode_pembayaran,
 
-                // belum upload
+                // =================================
+                // NOMINAL MASIH 0
+                // NANTI DIINPUT ADMIN
+                // =================================
                 'nominal' =>
-                    null,
+                    0,
 
+                // =================================
+                // BUKTI BELUM DIUPLOAD
+                // =================================
                 'bukti_pembayaran' =>
                     null,
 
+                // =================================
+                // BELUM ADA PEMBAYARAN
+                // =================================
                 'tanggal_pembayaran' =>
                     null,
 
+                // =================================
+                // MENUNGGU VERIFIKASI ADMIN
+                // =================================
                 'status_verifikasi' =>
                     'pending',
 

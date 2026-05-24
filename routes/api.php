@@ -6,13 +6,16 @@ use Illuminate\Support\Facades\Route;
 // AUTH
 use App\Http\Controllers\API\Auth\AuthController;
 
-// PAKET WISATA
+// LANDING PAGE & PROFIL
+use App\Http\Controllers\API\ProfilWisataController;
+use App\Http\Controllers\API\Kelola_landingpage\berita\BeritaController;
+use App\Http\Controllers\API\Kelola_landingpage\experience\ClientLogosController;
+use App\Http\Controllers\API\Kelola_landingpage\hero_section\LandingSettingsController;
+
+// PAKET
 use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketWisataController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketFasilitasController;
-
-// PROFIL WISATA
-use App\Http\Controllers\API\ProfilWisataController;
 
 // FASILITAS
 use App\Http\Controllers\API\Kelola_fasilitas\KategoriFasilitasController;
@@ -34,6 +37,10 @@ use App\Http\Controllers\API\Inventaris\LokasiPenyimpananController;
 use App\Http\Controllers\API\Inventaris\JenisInventarisController;
 use App\Http\Controllers\API\Inventaris\InventarisPerUnitController;
 
+// PENGELUARAN
+use App\Http\Controllers\API\Kelola_pengeluaran\KategoriPengeluaranController;
+use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController;
+
 /*
 |--------------------------------------------------------------------------
 | API TEST
@@ -50,16 +57,16 @@ Route::get('/test', function () {
 |--------------------------------------------------------------------------
 */
 
-// login admin
+// login
 Route::post('/login', [AuthController::class, 'login']);
 
 // booking pengunjung
 Route::post('/bookings', [BookingController::class, 'store']);
 
-// pembayaran pengunjung
-Route::post('/pembayaran', [
+// upload pembayaran
+Route::post('/pembayaran/{bookingId}/upload', [
     PembayaranPengunjungController::class,
-    'store'
+    'uploadBukti'
 ]);
 
 // tracking booking
@@ -103,8 +110,11 @@ Route::middleware(['auth:sanctum', 'admin'])
     Route::apiResource('paket-wisata', PaketWisataController::class);
     Route::apiResource('paket-fasilitas', PaketFasilitasController::class);
 
-    // profil wisata
+    // landing page
     Route::apiResource('profil-wisata', ProfilWisataController::class);
+    Route::apiResource('berita', BeritaController::class);
+    Route::apiResource('client-logos', ClientLogosController::class);
+    Route::apiResource('landing-settings', LandingSettingsController::class);
 
     // booking
     Route::apiResource('bookings', AdminBookingController::class);
@@ -128,4 +138,7 @@ Route::middleware(['auth:sanctum', 'admin'])
     Route::apiResource('jenis-inventaris', JenisInventarisController::class);
     Route::apiResource('inventaris-unit', InventarisPerUnitController::class);
 
+    // pengeluaran
+    Route::apiResource('kategori-pengeluaran', KategoriPengeluaranController::class);
+    Route::apiResource('pengeluaran-operasional', PengeluaranOperasionalController::class);
 });

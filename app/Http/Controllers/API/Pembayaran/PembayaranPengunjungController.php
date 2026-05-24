@@ -8,10 +8,12 @@ use Illuminate\Http\Request;
 use App\Models\Pembayaran;
 use App\Models\Booking;
 
+use Illuminate\Support\Facades\Storage;
+
 class PembayaranPengunjungController extends Controller
 {
     // ======================================================
-    // UPLOAD BUKTI PEMBAYARAN
+    // UPLOAD / UPDATE BUKTI PEMBAYARAN
     // ======================================================
     public function uploadBukti(
         Request $request,
@@ -19,9 +21,6 @@ class PembayaranPengunjungController extends Controller
     ) {
 
         $request->validate([
-
-            'nominal' =>
-                'required|numeric|min:1',
 
             'bukti_pembayaran' =>
                 'required|image|mimes:jpg,jpeg,png|max:2048'
@@ -41,8 +40,9 @@ class PembayaranPengunjungController extends Controller
         }
 
         // ==========================================
-        // CEK PEMBAYARAN
+        // CEK DATA PEMBAYARAN
         // ==========================================
+
         $pembayaran = Pembayaran::where(
             'booking_id',
             $booking->id
@@ -57,7 +57,17 @@ class PembayaranPengunjungController extends Controller
         }
 
         // ==========================================
-        // UPLOAD BUKTI
+        // HAPUS FILE LAMA JIKA ADA
+        // ==========================================
+        if ($pembayaran->bukti_pembayaran) {
+
+            Storage::disk('public')->delete(
+                $pembayaran->bukti_pembayaran
+            );
+        }
+
+        // ==========================================
+        // UPLOAD FILE BARU
         // ==========================================
         $path = $request
             ->file('bukti_pembayaran')
@@ -68,11 +78,9 @@ class PembayaranPengunjungController extends Controller
 
         // ==========================================
         // UPDATE PEMBAYARAN
+        // NOMINAL DIISI ADMIN SAAT VERIFIKASI
         // ==========================================
         $pembayaran->update([
-
-            'nominal' =>
-                $request->nominal,
 
             'bukti_pembayaran' =>
                 $path,
@@ -80,12 +88,18 @@ class PembayaranPengunjungController extends Controller
             'tanggal_pembayaran' =>
                 now(),
 
+            // upload ulang -> pending lagi
             'status_verifikasi' =>
-                'pending'
+                'pending',
+
+            // reset catatan admin
+            'catatan' =>
+                null
         ]);
 
         // ==========================================
-        // UPDATE STATUS BOOKING
+        // STATUS BOOKING
+        // MENUNGGU VERIFIKASI ADMIN
         // ==========================================
         $booking->update([
 
