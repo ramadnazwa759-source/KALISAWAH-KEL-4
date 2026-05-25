@@ -83,6 +83,13 @@
                                         <i class="fa-solid fa-chevron-down text-sm"></i>
                                     </div>
                                 </div>
+                                <!-- DP Note -->
+                                <div id="dpNote" class="mt-2 ml-1">
+                                    <p class="text-sm text-yellow-600 font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                        Minimal DP 10% atau Rp 100.000
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -185,8 +192,16 @@
 
         function updateDisplayTotal() {
             const type = document.getElementById('paymentTypeSelect').value;
-            const amount = type === 'dp' ? finalTotal * 0.1 : finalTotal;
-            document.getElementById('display_total').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(amount);
+            // Selalu tampilkan total harga penuh
+            document.getElementById('display_total').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(finalTotal);
+            
+            // Tampilkan/Sembunyikan catatan DP
+            const dpNote = document.getElementById('dpNote');
+            if (type === 'dp') {
+                dpNote.classList.remove('hidden');
+            } else {
+                dpNote.classList.add('hidden');
+            }
         }
 
         function confirmPayment() {

@@ -4,16 +4,18 @@
 
 @section('content')
     @php
-        // HERO CONFIGURATION (Consistent with Outbound)
-        $heroImage = asset('images/outbond.jpg'); // Using the same image as Outbound for consistency if specific jeep image isn't provided
-        $heroTitle = 'ADVENTURE JEEP';
-        $heroSubtitle = 'Jelajahi Keindahan Alam dengan Jeep!';
-        $heroDescription = 'Nikmati petualangan seru melintasi jalur offroad menantang dan keindahan eksotis kaki Gunung Raung bersama Jeep Tour Kalisawah Adventure.';
+        // HERO CONFIGURATION
+        $heroImage = (isset($hero->image) && $hero->image) ? asset('storage/' . $hero->image) : asset('images/outbond.jpg');
+        $heroTitle = $hero->title ?? 'ADVENTURE JEEP';
+        $heroSubtitle = $hero->subtitle ?? 'Jelajahi Keindahan Alam dengan Jeep!';
+        $heroDescription = $hero->description ?? 'Nikmati petualangan seru melintasi jalur offroad menantang dan keindahan eksotis kaki Gunung Raung bersama Jeep Tour Kalisawah Adventure.';
+        $heroButtonText = $hero->button_text ?? 'Pesan Sekarang';
+        $heroButtonLink = $hero->button_link ?? route('booking.jeeptour');
     @endphp
 
     <!-- HERO SECTION -->
     <section class="relative h-screen min-h-[600px] w-full overflow-hidden">
-        <img src="{{ $heroImage }}" alt="Adventure Jeep Kalisawah" class="absolute inset-0 w-full h-full object-cover">
+        <img src="{{ $heroImage }}" alt="{{ $heroTitle }}" class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
         <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto mt-10 md:mt-0">
             <div class="max-w-2xl">
@@ -23,8 +25,8 @@
                     {{ $heroDescription }}
                 </p>
                 <div class="flex flex-wrap gap-4">
-                    <a href="{{ route('booking.jeeptour') }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary hover:-translate-y-1 active:scale-[0.97] transition-all transform shadow-lg">
-                        Pesan Sekarang
+                    <a href="{{ $heroButtonLink }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary hover:-translate-y-1 active:scale-[0.97] transition-all transform shadow-lg">
+                        {{ $heroButtonText }}
                     </a>
                 </div>
             </div>

@@ -3,33 +3,49 @@
 @section('title', 'Adventure Game - Kalisawah Adventure')
 
 @section('content')
+    @php
+        // HERO CONFIGURATION
+        $heroImage = (isset($hero->image) && $hero->image) ? asset('storage/' . $hero->image) : asset('images/outbond.jpg');
+        $heroTitle = $hero->title ?? 'ADVENTURE GAME';
+        $heroSubtitle = $hero->subtitle ?? 'Asah Ketepatan & Fokusmu!';
+        $heroDescription = $hero->description ?? null;
+        $heroButtonText = $hero->button_text ?? 'Lihat Paket Adventure';
+        $heroButtonLink = $hero->button_link ?? '#paket-adventure';
+    @endphp
+
     <!-- HERO SECTION -->
     <section class="relative h-screen min-h-[600px] w-full overflow-hidden">
-        <img src="{{ asset('images/outbond.jpg') }}" alt="Adventure Game Kalisawah" class="absolute inset-0 w-full h-full object-cover">
+        <img src="{{ $heroImage }}" alt="{{ $heroTitle }}" class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
         <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto mt-10 md:mt-0">
             <div class="max-w-2xl">
-                <h1 class="text-primary text-4xl md:text-6xl lg:text-7xl font-bold mb-2 uppercase">ADVENTURE GAME</h1>
-                <h2 class="font-script text-secondary text-4xl md:text-5xl lg:text-6xl mb-6">Asah Ketepatan & Fokusmu!</h2>
+                <h1 class="text-primary text-4xl md:text-6xl lg:text-7xl font-bold mb-2 uppercase">{{ $heroTitle }}</h1>
+                <h2 class="font-script text-secondary text-4xl md:text-5xl lg:text-6xl mb-6">{{ $heroSubtitle }}</h2>
                 
                 <div class="space-y-3 mb-10">
-                    <div class="flex items-center gap-3 text-white/90">
-                        <i class="fa-solid fa-circle-check text-secondary"></i>
-                        <span class="font-bold tracking-wide text-sm md:text-base uppercase">Melatih Fokus & Konsentrasi Tinggi</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-white/90">
-                        <i class="fa-solid fa-circle-check text-secondary"></i>
-                        <span class="font-bold tracking-wide text-sm md:text-base uppercase">Peralatan Aman & Standar Olahraga</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-white/90">
-                        <i class="fa-solid fa-circle-check text-secondary"></i>
-                        <span class="font-bold tracking-wide text-sm md:text-base uppercase">Instruktur yang Ramah & Berpengalaman</span>
-                    </div>
+                    @if($heroDescription)
+                        <p class="text-white/90 text-sm md:text-base font-bold tracking-wide mb-10 leading-relaxed max-w-xl">
+                            {{ $heroDescription }}
+                        </p>
+                    @else
+                        <div class="flex items-center gap-3 text-white/90">
+                            <i class="fa-solid fa-circle-check text-secondary"></i>
+                            <span class="font-bold tracking-wide text-sm md:text-base uppercase">Melatih Fokus & Konsentrasi Tinggi</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-white/90">
+                            <i class="fa-solid fa-circle-check text-secondary"></i>
+                            <span class="font-bold tracking-wide text-sm md:text-base uppercase">Peralatan Aman & Standar Olahraga</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-white/90">
+                            <i class="fa-solid fa-circle-check text-secondary"></i>
+                            <span class="font-bold tracking-wide text-sm md:text-base uppercase">Instruktur yang Ramah & Berpengalaman</span>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="flex flex-wrap gap-4">
-                    <a href="#paket-adventure" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">
-                        Lihat Paket Adventure
+                    <a href="{{ $heroButtonLink }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">
+                        {{ $heroButtonText }}
                     </a>
                 </div>
             </div>

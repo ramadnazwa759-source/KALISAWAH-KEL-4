@@ -96,25 +96,18 @@
                             <!-- JS populated -->
                         </div>
                     </div>
-
-                    <!-- Catatan / Permintaan Khusus -->
-                    <div class="space-y-2.5">
-                        <label for="catatan" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">Catatan / Permintaan Khusus</label>
-                        <textarea id="catatan" name="catatan" placeholder="Tambahkan catatan jika ada (opsional)" 
-                            class="w-full min-h-[120px] p-6 rounded-xl border border-gray-200 bg-white outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400 resize-none"></textarea>
-                    </div>
                 </div>
 
                 <!-- Navigation Buttons -->
                 <div class="mt-24 pt-12 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 border-t-2 border-gray-200">
                     <a href="{{ route('rafting') }}" 
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] shadow-sm uppercase tracking-widest">
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 hover:-translate-y-1 transition-all duration-150 active:scale-95 active:translate-y-[2px] shadow-sm uppercase tracking-widest text-center">
                         Kembali
                     </a>
                     
                     <button type="submit" id="submitBtn"
                         style="background-color: #FFC236;"
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
+                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] hover:-translate-y-1 transition-all duration-150 active:scale-95 active:translate-y-[2px] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
                         <span>Lanjut</span>
                         <i class="fa-solid fa-chevron-right text-sm"></i>
                     </button>
@@ -268,7 +261,6 @@
                 no_hp: document.getElementById('no_hp').value,
                 tanggal_kunjungan: document.getElementById('tanggal_kunjungan').value,
                 jam: document.getElementById('jam').value,
-                catatan: document.getElementById('catatan').value,
                 selected_packages: selectedPackages,
                 category: 'rafting'
             };

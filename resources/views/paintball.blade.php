@@ -3,20 +3,30 @@
 @section('title', 'Wargame Paintball - Kalisawah Adventure')
 
 @section('content')
+    @php
+        // HERO CONFIGURATION
+        $heroImage = (isset($hero->image) && $hero->image) ? asset('storage/' . $hero->image) : asset('images/wargame1.jpg');
+        $heroTitle = $hero->title ?? 'PAINT BALL';
+        $heroSubtitle = $hero->subtitle ?? 'Rasakan Sensasi Battle Seru Bersama Tim!';
+        $heroDescription = $hero->description ?? 'Permainan strategi penuh adrenalin dengan perlengkapan aman dan instruktur profesional.';
+        $heroButtonText = $hero->button_text ?? 'Lihat Paket';
+        $heroButtonLink = $hero->button_link ?? '#paket-paintball';
+    @endphp
+
     <!-- HERO SECTION -->
     <section class="relative h-screen min-h-[600px] w-full overflow-hidden">
-        <img src="{{ asset('images/wargame1.jpg') }}" onerror="this.src='https://picsum.photos/1920/1080?random=1'" alt="Hero Background" class="absolute inset-0 w-full h-full object-cover">
+        <img src="{{ $heroImage }}" onerror="this.src='https://picsum.photos/1920/1080?random=1'" alt="{{ $heroTitle }}" class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
         <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto mt-10 md:mt-0">
             <div class="max-w-2xl">
-                <h1 class="text-primary text-4xl md:text-6xl lg:text-7xl font-bold mb-2 uppercase">PAINT BALL</h1>
-                <h2 class="font-script text-secondary text-4xl md:text-5xl lg:text-6xl mb-6">Rasakan Sensasi Battle Seru Bersama Tim!</h2>
+                <h1 class="text-primary text-4xl md:text-6xl lg:text-7xl font-bold mb-2 uppercase">{{ $heroTitle }}</h1>
+                <h2 class="font-script text-secondary text-4xl md:text-5xl lg:text-6xl mb-6">{{ $heroSubtitle }}</h2>
                 <p class="text-white text-lg md:text-xl font-normal mb-10 max-w-lg leading-relaxed">
-                    Permainan strategi penuh adrenalin dengan perlengkapan aman dan instruktur profesional.
+                    {{ $heroDescription }}
                 </p>
                 <div class="flex flex-wrap gap-4">
-                    <a href="#paket-paintball" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">
-                        Lihat Paket
+                    <a href="{{ $heroButtonLink }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">
+                        {{ $heroButtonText }}
                     </a>
                 </div>
             </div>

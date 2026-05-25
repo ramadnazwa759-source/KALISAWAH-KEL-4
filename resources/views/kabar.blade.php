@@ -3,15 +3,22 @@
 @section('title', 'Cerita Seru - Kalisawah Adventure Banyuwangi')
 
 @section('content')
+    @php
+        // HERO CONFIGURATION
+        $heroImage = (isset($hero->image) && $hero->image) ? asset('storage/' . $hero->image) : 'https://picsum.photos/id/1044/1920/600';
+        $heroTitle = $hero->title ?? 'Cerita Seru di Kalisawah';
+        $heroSubtitle = $hero->subtitle ?? 'Kumpulan momen berkesan, dokumentasi kegiatan, dan kabar terbaru dari Kalisawah Adventure.';
+    @endphp
+
     <!-- Hero Section Kabar -->
     <section class="relative py-24 bg-dark-navy text-white overflow-hidden">
         <div class="absolute inset-0 opacity-20">
-            <img src="https://picsum.photos/id/1044/1920/600" alt="Background" class="w-full h-full object-cover">
+            <img src="{{ $heroImage }}" alt="{{ $heroTitle }}" class="w-full h-full object-cover">
         </div>
         <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-20 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6">Cerita Seru di <span class="text-secondary">Kalisawah</span></h1>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">{!! str_replace('Kalisawah', '<span class="text-secondary">Kalisawah</span>', $heroTitle) !!}</h1>
             <p class="text-lg md:text-xl max-w-2xl mx-auto opacity-90 leading-relaxed">
-                Kumpulan momen berkesan, dokumentasi kegiatan, dan kabar terbaru dari Kalisawah Adventure.
+                {{ $heroSubtitle }}
             </p>
         </div>
     </section>

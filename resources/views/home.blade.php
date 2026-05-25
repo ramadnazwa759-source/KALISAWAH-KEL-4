@@ -211,7 +211,7 @@
 
 
     <!-- SECTION 4: PILIH PAKET SERU KAMU -->
-    <section id="paket-seru" class="py-24 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20">
+    <section id="aktivitas" class="py-24 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-5xl font-bold text-dark-navy">Pilih Paket <span class="text-secondary">Seru Kamu</span></h2>
             <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>

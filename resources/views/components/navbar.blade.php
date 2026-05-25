@@ -25,7 +25,7 @@
             </ul>
         </li>
 
-        <li><a href="/#paket-seru" class="hover:text-hover-primary transition-colors">Aktivitas</a></li>
+        <li><a href="/#aktivitas" class="hover:text-hover-primary transition-colors">Aktivitas</a></li>
         <li><a href="{{ url('/#tentang-kalisawah') }}" class="hover:text-hover-primary transition-colors">Tentang Kalisawah</a></li>
         <li><a href="{{ route('kabar.index') }}" class="hover:text-hover-primary transition-colors">Cerita Kalisawah</a></li>
         <li><a href="#footer" class="hover:text-hover-primary transition-colors">Kontak</a></li>
@@ -59,7 +59,7 @@
         </div>
 
         <a href="{{ url('/#tentang-kalisawah') }}" class="block font-bold text-primary">Tentang Kalisawah</a>
-        <a href="/#paket-seru" class="block font-bold text-primary">Aktivitas</a>
+        <a href="/#aktivitas" class="block font-bold text-primary">Aktivitas</a>
         <a href="{{ route('kabar.index') }}" class="block font-bold text-primary">Cerita Kalisawah</a>
         <a href="#footer" class="block font-bold text-primary">Kontak</a>
     </div>
