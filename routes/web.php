@@ -3,8 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfilWisataController;
+use App\Http\Controllers\API\DashboardController;
+use App\Http\Controllers\API\ProfilWisataController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketwisataController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketFasilitasController;
@@ -17,6 +17,7 @@ use App\Http\Controllers\API\Kelola_fasilitas\KategoriFasilitasController;
 use App\Http\Controllers\API\Kelola_fasilitas\FasilitasController;
 use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
+use App\Http\Controllers\API\Booking_pengunjung\BookingController;
 
 
 // ADMIN
