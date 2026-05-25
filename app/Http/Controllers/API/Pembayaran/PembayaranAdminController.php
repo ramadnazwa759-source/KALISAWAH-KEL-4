@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Pembayaran;
 use App\Models\Booking;
+use App\Models\Pemasukan;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -43,7 +44,7 @@ class PembayaranAdminController extends Controller
 
     // ======================================================
     // VERIFIKASI PEMBAYARAN PENGUNJUNG
-    // ADMIN MENENTUKAN NOMINAL VALID
+    // ADMIN INPUT NOMINAL ASLI
     // ======================================================
     public function update(Request $request, $id)
     {
@@ -52,7 +53,6 @@ class PembayaranAdminController extends Controller
             'status_verifikasi' =>
                 'required|in:valid,ditolak',
 
-            // ADMIN INPUT NOMINAL ASLI
             'nominal' =>
                 'required_if:status_verifikasi,valid|nullable|numeric|min:1',
 
@@ -85,14 +85,14 @@ class PembayaranAdminController extends Controller
             }
 
             // =====================================
-            // UPDATE PEMBAYARAN
+            // UPDATE DATA PEMBAYARAN
             // =====================================
             $pembayaran->update([
 
                 'status_verifikasi' =>
                     $request->status_verifikasi,
 
-                // nominal asli diisi admin
+                // nominal asli diinput admin
                 'nominal' =>
                     $request->status_verifikasi == 'valid'
                         ? $request->nominal
@@ -103,14 +103,38 @@ class PembayaranAdminController extends Controller
             ]);
 
             // =====================================
-            // JIKA VALID
+            // JIKA PEMBAYARAN VALID
             // =====================================
             if (
                 $request->status_verifikasi
                 == 'valid'
             ) {
 
-                // total pembayaran valid
+                // =================================
+                // SIMPAN KE TABEL PEMASUKAN
+                // =================================
+                Pemasukan::create([
+
+                    'sumber_pemasukan' =>
+                        'Booking Wisata',
+
+                    'keterangan' =>
+                        'Pembayaran booking ' .
+                        $booking->kode_booking,
+
+                    'jumlah_uang' =>
+                        $request->nominal,
+
+                    'tanggal_pemasukan' =>
+                        now(),
+
+                    'dicatat_oleh' =>
+                        auth()->user()->name
+                ]);
+
+                // =================================
+                // HITUNG TOTAL PEMBAYARAN VALID
+                // =================================
                 $totalPembayaran =
                     Pembayaran::where(
                         'booking_id',
@@ -122,9 +146,9 @@ class PembayaranAdminController extends Controller
                     )
                     ->sum('nominal');
 
-                // ================================
-                // SUDAH LUNAS
-                // ================================
+                // =================================
+                // JIKA SUDAH LUNAS
+                // =================================
                 if (
                     $totalPembayaran >=
                     $booking->total_harga_final
@@ -140,9 +164,9 @@ class PembayaranAdminController extends Controller
                     ]);
                 }
 
-                // ================================
-                // MASIH DP
-                // ================================
+                // =================================
+                // JIKA MASIH DP
+                // =================================
                 else {
 
                     $booking->update([
@@ -157,7 +181,7 @@ class PembayaranAdminController extends Controller
             }
 
             // =====================================
-            // JIKA DITOLAK
+            // JIKA PEMBAYARAN DITOLAK
             // =====================================
             else {
 
@@ -194,7 +218,7 @@ class PembayaranAdminController extends Controller
 
     // ======================================================
     // TAMBAH PEMBAYARAN MANUAL OLEH ADMIN
-    // CASH / QRIS / TRANSFER DI TEMPAT
+    // CASH / QRIS / TRANSFER LANGSUNG
     // ======================================================
     public function store(Request $request)
     {
@@ -213,7 +237,7 @@ class PembayaranAdminController extends Controller
                 'required|numeric|min:1',
 
             'bukti_pembayaran' =>
-                'required|image|mimes:jpg,jpeg,png|max:2048',
+                'nullable|image|mimes:jpg,jpeg,png|max:2048',
 
             'catatan' =>
                 'nullable|string'
@@ -228,15 +252,20 @@ class PembayaranAdminController extends Controller
             );
 
             // =====================================
-            // UPLOAD FOTO BUKTI
+            // UPLOAD BUKTI JIKA ADA
             // =====================================
-            $path = $request->file(
-                        'bukti_pembayaran'
-                    )
-                    ->store(
-                        'pembayaran',
-                        'public'
-                    );
+            $path = null;
+
+            if ($request->hasFile('bukti_pembayaran')) {
+
+                $path = $request->file(
+                            'bukti_pembayaran'
+                        )
+                        ->store(
+                            'pembayaran',
+                            'public'
+                        );
+            }
 
             // =====================================
             // SIMPAN PEMBAYARAN
@@ -258,7 +287,6 @@ class PembayaranAdminController extends Controller
                 'bukti_pembayaran' =>
                     $path,
 
-                // otomatis valid
                 'status_verifikasi' =>
                     'valid',
 
@@ -270,7 +298,29 @@ class PembayaranAdminController extends Controller
             ]);
 
             // =====================================
-            // TOTAL PEMBAYARAN VALID
+            // SIMPAN KE PEMASUKAN
+            // =====================================
+            Pemasukan::create([
+
+                'sumber_pemasukan' =>
+                    'Booking Wisata',
+
+                'keterangan' =>
+                    'Pembayaran manual booking ' .
+                    $booking->kode_booking,
+
+                'jumlah_uang' =>
+                    $request->nominal,
+
+                'tanggal_pemasukan' =>
+                    now(),
+
+                'dicatat_oleh' =>
+                    auth()->user()->name
+            ]);
+
+            // =====================================
+            // HITUNG TOTAL PEMBAYARAN VALID
             // =====================================
             $totalPembayaran =
                 Pembayaran::where(
@@ -348,7 +398,9 @@ class PembayaranAdminController extends Controller
             ], 404);
         }
 
-        // hapus file bukti
+        // =====================================
+        // HAPUS FILE BUKTI
+        // =====================================
         if ($data->bukti_pembayaran) {
 
             Storage::disk('public')->delete(
