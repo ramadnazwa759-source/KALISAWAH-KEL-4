@@ -13,7 +13,9 @@ class BeritaController extends Controller
     // GET semua berita
     public function index()
     {
-        return response()->json(Berita::all(), 200);
+        // return response()->json(Berita::all(), 200);
+        $beritas = Berita::paginate(10);
+        return view('admin.kelola_halaman.berita', compact('beritas'));
     }
 
     // GET detail berita
@@ -48,10 +50,12 @@ class BeritaController extends Controller
             'foto'        => $path,
         ]);
 
-        return response()->json([
-            'message' => 'Berita berhasil ditambahkan',
-            'data'    => $berita
-        ], 201);
+        // return response()->json([
+        //     'message' => 'Berita berhasil ditambahkan',
+        //     'data'    => $berita
+        // ], 201);
+
+        return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil ditambahkan');
     }
 
     // PUT update berita

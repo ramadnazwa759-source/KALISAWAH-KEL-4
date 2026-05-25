@@ -4,18 +4,26 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\DashboardController;
+// Kelola Landing Page - Paket
 use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketwisataController;
 use App\Http\Controllers\API\Kelola_landingpage\paket\PaketFasilitasController;
+
+// Inventaris
 use App\Http\Controllers\API\Inventaris\KategoriInventarisController;
 use App\Http\Controllers\API\Inventaris\SubKategoriInventarisController;
 use App\Http\Controllers\API\Inventaris\JenisInventarisController;
 use App\Http\Controllers\API\Inventaris\LokasiPenyimpananController;
 use App\Http\Controllers\API\Inventaris\InventarisPerUnitController;
+
+// Kelola fasilitas
 use App\Http\Controllers\API\Kelola_fasilitas\KategoriFasilitasController;
 use App\Http\Controllers\API\Kelola_fasilitas\FasilitasController;
+
+// Kelola Booking
 use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
+
 
 
 Route::get('/admin/login', function () {
@@ -67,9 +75,10 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
     // Kelola Booking
     // 1. Amankan rute URL 'admin/booking-admin/create' agar masuk ke method store()
     Route::get('fasilitas-booking',[FasilitasController::class, 'fasilitasBooking']);
-    Route::get('booking-admin/create', function() { return redirect()->route('admin.booking-admin.store');});
-    Route::resource('booking-admin', AdminBookingController::class)->except(['create']);
+    Route::get('/booking-admin/create', function () {return view('admin.kelola_booking.create');})->name('admin.booking-admin.create');
+    Route::resource('booking-admin', AdminBookingController::class);
 
     // Pembayaran
     Route::resource('pembayaran', PembayaranAdminController::class);
+
 });

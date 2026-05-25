@@ -17,10 +17,13 @@ class LandingSettingsController extends Controller
     {
         $setting = LandingSetting::first();
 
-        return response()->json([
-            'success' => true,
-            'data' => $setting
-        ]);
+        // return response()->json([
+        //     'success' => true,
+        //     'data' => $setting
+        // ]);
+
+        return view('admin.landing.hero', compact('setting'));
+
     }
 
     /**
@@ -89,11 +92,13 @@ class LandingSettingsController extends Controller
         // simpan data
         $setting->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Landing setting berhasil ditambahkan',
-            'data' => $setting
-        ], 201);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Landing setting berhasil ditambahkan',
+        //     'data' => $setting
+        // ], 201);
+
+        return redirect()->route('admin.landing.index') ->with('success', 'Landing setting berhasil disimpan!');
     }
 
     /**
@@ -152,10 +157,12 @@ class LandingSettingsController extends Controller
         // simpan perubahan
         $setting->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Landing setting berhasil diperbarui',
-            'data' => $setting
-        ]);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Landing setting berhasil diperbarui',
+        //     'data' => $setting
+        // ]);
+
+        return redirect()->route('admin.landing.index')->with('success', 'Landing setting berhasil diperbarui!');
     }
 }

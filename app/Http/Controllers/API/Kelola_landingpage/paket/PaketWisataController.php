@@ -18,7 +18,7 @@ class PaketWisataController extends Controller
         $categories = KategoriPaket::all();
 
         // Pastikan nama di dalam compact sesuai dengan nama variabel di atas
-        return view('admin.layanan.PaketWisata.index', compact('pakets', 'categories'));
+        return view('admin.layanan.PaketWisata.index', compact('data', 'categories'));
     }
 
 

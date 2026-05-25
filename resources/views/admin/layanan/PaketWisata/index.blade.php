@@ -46,7 +46,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($pakets as $index => $item)
+                        @forelse($data as $index => $item)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td><span class="fw-bold text-dark">{{ $item->nama_paket }}</span></td>

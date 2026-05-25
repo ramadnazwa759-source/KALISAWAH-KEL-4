@@ -224,6 +224,8 @@
         </div>
         <div class="submenu">
             <a href="/admin/berita" class="menu-item" style="padding-left:50px;">Berita</a>
+            <a href="/admin/berita" class="menu-item" style="padding-left:50px;">Hero Section</a>
+            <a href="/admin/client-logo" class="menu-item" style="padding-left:50px;">Client Logo</a>
         </div>
     </div>
 

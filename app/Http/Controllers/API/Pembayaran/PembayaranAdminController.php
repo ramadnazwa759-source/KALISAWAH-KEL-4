@@ -18,10 +18,11 @@ class PembayaranAdminController extends Controller
     // ======================================================
     public function index()
     {
-        return response()->json(
-            Pembayaran::with('booking')->latest()->get(),
-            200
-        );
+        // return response()->json(
+        //     Pembayaran::with('booking')->latest()->get(),
+        //     200
+        // );
+        return view('admin.kelola_pembayaran.pembayaran', ['pembayaran' => Pembayaran::with('booking')->latest()->get()]);
     }
 
     // ======================================================
