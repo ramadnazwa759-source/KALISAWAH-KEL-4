@@ -37,12 +37,12 @@
                             <th class="ps-3">No</th>
                             <th>Kode</th>
                             <th>Pemesan</th>
-                            <th>Tanggal</th>
-                            <th>Jam</th>
-                            <th>Org</th>
+                            <th>Kunjungan</th>
+                            <th>Orang</th>
                             <th>Total</th>
+                            <th>Pembayaran</th>
                             <th>Status</th>
-                            <th class="text-center pe-3">Aksi</th>
+                            <th class="text-center pe-3">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,21 +54,30 @@
                                 <div class="fw-bold">{{ $b->nama_pemesan }}</div>
                                 <small class="text-muted">{{ $b->no_hp }}</small>
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($b->tanggal_kunjungan)->format('d M Y') }}</td>
-                            <td>{{ $b->jam }}</td>
+                            <td>
+                                <div class="fw-bold">{{ \Carbon\Carbon::parse($b->tanggal_kunjungan)->format('d M Y') }}</div>
+                                <small class="text-muted">{{ $b->jam }}</small>
+                            </td>
                             <td>{{ $b->jumlah_pengunjung }}</td>
-                            <td class="fw-bold text-success">Rp {{ number_format($b->total_harga_final,0,',','.') }}</td>
+                            <td class="fw-bold text-dark">Rp {{ number_format($b->total_harga_final,0,',','.') }}</td>
+                            <td>
+                                <div class="text-success fw-bold">Rp {{ number_format($b->nominal_bayar ?? 0, 0,',','.') }}</div>
+                                <div class="text-danger small">Kurang: Rp {{ number_format(max(0, $b->total_harga_final - ($b->nominal_bayar ?? 0)), 0,',','.') }}</div>
+                            </td>
                             <td>
                                 <span class="badge bg-warning text-dark mb-1">{{ ucfirst($b->status_booking) }}</span><br>
                                 <span class="badge bg-danger">{{ ucfirst($b->status_pembayaran) }}</span>
                             </td>
                             <td class="text-center pe-3">
-                                <button type="button" class="btn btn-sm btn-info text-white rounded-3 me-1" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
+                                <button type="button" class="btn btn-sm btn-info text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button type="button" class="btn btn-sm btn-warning text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalEditBooking{{ $b->id }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
+                                <a href="{{ url('/admin/pembayaran?booking_id='.$b->id.'&nominal_bayar='.max(0, $b->total_harga_final - ($b->nominal_bayar ?? 0)).'&nama_pemesan='.urlencode($b->nama_pemesan)) }}" class="btn btn-sm btn-success text-white rounded-3">
+                                <i class="fas fa-money-bill"></i>
+                                 </a>
                             </td>
                         </tr>
                         @endforeach
@@ -79,6 +88,7 @@
     </div>
 </div>
 
+{{-- MODAL TAMBAH BOOKING --}}
 <div class="modal fade" id="modalTambahBooking" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <form action="{{ url('/admin/booking-admin') }}" method="POST" class="w-100" enctype="multipart/form-data">
@@ -96,7 +106,7 @@
                             <div class="col-md-6"><label class="form-label small fw-semibold">No HP</label><input type="text" name="no_hp" class="form-control" required></div>
                             <div class="col-md-4"><label class="form-label small fw-semibold">Tanggal</label><input type="date" name="tanggal_kunjungan" class="form-control" required></div>
                             <div class="col-md-4"><label class="form-label small fw-semibold">Jam</label><input type="time" name="jam" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small fw-semibold">Jumlah Pengunjung</label><input type="number" name="jumlah_pengunjung" class="form-control" min="1" value="1" oninput="calculateTotal()" required></div>
+                            <div class="col-md-4"><label class="form-label small fw-semibold">Jumlah Pengunjung</label><input type="number" name="jumlah_pengunjung" class="form-control" min="1" value="0" oninput="calculateTotal()" required></div>
                         </div>
                     </div>
                     <div class="mb-4">
@@ -158,11 +168,12 @@
     </div>
 </div>
 
+{{-- MODALS SHOW & EDIT (DITAMBAHKAN SESUAI KEBUTUHAN ANDA SEBELUMNYA) --}}
 @foreach($data as $b)
 <div class="modal fade" id="modalShowBooking{{ $b->id }}" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content shadow-lg p-4">
-            <div class="modal-header border-0 pb-0">
+            <div class="modal-header border-0 pb-3">
                 <div class="d-flex align-items-center gap-3">
                     <div style="background:#EFF6FF; color:#2563EB; width: 45px; height: 45px; display:flex; align-items:center; justify-content:center; border-radius:12px;">
                         <i class="fas fa-calendar-alt"></i>
@@ -172,13 +183,13 @@
                         <p class="text-muted mb-0 small">{{ $b->kode_booking }}</p>
                     </div>
                 </div>
-                <div class="ms-auto">
+                <div class="ms-auto d-flex gap-2">
                     <span class="badge bg-success-subtle text-success badge-status">{{ ucfirst($b->status_booking) }}</span>
-                    <span class="badge bg-danger-subtle text-danger badge-status">{{ ucfirst($b->status_pembayaran) }}</span>
+                    <span class="badge bg-danger-subtle text-danger badge-status">{{ strtoupper($b->status_pembayaran) }}</span>
                 </div>
             </div>
-            <div class="modal-body py-4">
-                <div class="row g-4">
+            <div class="modal-body py-2">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="card-detail">
                             <h6 class="fw-bold text-primary mb-3"><i class="fas fa-user me-2"></i>Informasi Pemesan</h6>
@@ -191,11 +202,35 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card-detail">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-box me-2"></i>Paket Wisata</h6>
+                            @foreach(($b->bookingItem ?? []) as $dp)
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">{{ $dp->paketWisata->nama_paket ?? '-' }} (x{{ $dp->qty }})</span>
+                                <span class="fw-bold">Rp {{ number_format($dp->subtotal ?? 0, 0, ',', '.') }}</span>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-detail">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>Fasilitas Tambahan</h6>
+                            @forelse(($b->bookingFasilitas ?? []) as $df)
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">{{ $df->fasilitas->nama_fasilitas ?? '-' }} (x{{ $df->qty }})</span>
+                                <span class="fw-bold">Rp {{ number_format($df->subtotal ?? 0, 0, ',', '.') }}</span>
+                            </div>
+                            @empty
+                            <span class="text-muted small">-</span>
+                            @endforelse
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-detail">
                             <h6 class="fw-bold text-primary mb-3"><i class="fas fa-wallet me-2"></i>Ringkasan Biaya</h6>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Total Harga (Sebelum Diskon)</span><span class="fw-bold">Rp {{ number_format($b->total_harga_final + $b->diskon_manual, 0, ',', '.') }}</span></div>
-                            <div class="d-flex justify-content-between mb-2 text-danger"><span class="small">Diskon Manual</span><span class="fw-bold">- Rp {{ number_format($b->diskon_manual, 0, ',', '.') }}</span></div>
-                            <hr class="my-2">
-                            <div class="d-flex justify-content-between"><span class="fw-bold">Total Harga (Setelah Diskon)</span><span class="fw-bold text-primary fs-5">Rp {{ number_format($b->total_harga_final, 0, ',', '.') }}</span></div>
+                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Total Harga (Sebelum Diskon)</span><span class="fw-bold">Rp {{ number_format($b->total_harga_final + ($b->diskon_manual ?? 0), 0, ',', '.') }}</span></div>
+                            <div class="d-flex justify-content-between mb-2 text-danger"><span class="small">Diskon Manual</span><span class="fw-bold">- Rp {{ number_format($b->diskon_manual ?? 0, 0, ',', '.') }}</span></div>
+                            <hr class="my-2 border-dashed">
+                            <div class="d-flex justify-content-between"><span class="text-muted small">Total Harga (Setelah Diskon)</span><span class="fw-bold text-primary">Rp {{ number_format($b->total_harga_final, 0, ',', '.') }}</span></div>
                         </div>
                     </div>
                     <div class="col-12">
@@ -209,7 +244,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-light w-100 rounded-3 py-2" data-bs-dismiss="modal">Tutup</button></div>
+            <div class="modal-footer border-0 pt-3"><button type="button" class="btn btn-light w-100 rounded-3 py-2" data-bs-dismiss="modal">Tutup</button></div>
         </div>
     </div>
 </div>

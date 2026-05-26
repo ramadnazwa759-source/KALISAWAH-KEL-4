@@ -21,6 +21,7 @@
         </div>
     @endif
 
+    {{-- Data di-query langsung di sini karena controller tidak mengirim data --}}
     @php
         $data = \App\Models\PaketFasilitas::with(['paketWisata', 'fasilitas'])->latest()->get();
     @endphp
@@ -66,6 +67,7 @@
                             </td>
                         </tr>
 
+                        {{-- Modal Edit --}}
                         <div class="modal fade" id="modalEdit{{ $item->id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                 <div class="modal-content border-0 shadow rounded-4">
@@ -112,6 +114,7 @@
     </div>
 </div>
 
+{{-- Modal Tambah --}}
 <div class="modal fade" id="modalTambah" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow rounded-4">
