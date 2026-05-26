@@ -6,119 +6,174 @@ use App\Http\Controllers\Controller;
 use App\Models\Berita;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class BeritaController extends Controller
 {
-    // GET semua berita
+    /**
+     * Menampilkan semua berita
+     */
     public function index()
     {
-        return response()->json(Berita::all(), 200);
+        $berita = Berita::orderBy('tanggal', 'desc')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $berita
+        ]);
     }
 
-    // GET detail berita
+    /**
+     * Menampilkan detail berita berdasarkan ID
+     */
     public function show($id)
     {
         $berita = Berita::find($id);
 
         if (!$berita) {
-            return response()->json(['message' => 'Berita tidak ditemukan'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Berita tidak ditemukan'
+            ], 404);
         }
 
-        return response()->json($berita, 200);
+        return response()->json([
+            'success' => true,
+            'data' => $berita
+        ]);
     }
 
-    // POST tambah berita
+    /**
+     * Menambahkan berita baru
+     */
     public function store(Request $request)
     {
+        /**
+         * Validasi input
+         */
         $validated = $request->validate([
-            'judul'       => 'required|string|max:255',
-            'isi_berita'  => 'required',
-            'tanggal'     => 'required|date',
-            'foto'        => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'judul'      => 'required|string|max:255',
+            'isi_berita' => 'required|string',
+            'foto'       => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'tanggal'    => 'required|date',
         ]);
 
-        // simpan foto ke storage private
-        $path = $request->file('foto')->store('berita');
+        /**
+         * Upload foto ke private storage
+         */
+        $path = $request->file('foto')->store(
+            'private/berita',
+            'local'
+        );
 
+        /**
+         * Simpan data berita ke database
+         */
         $berita = Berita::create([
-            'judul'       => $validated['judul'],
-            'isi_berita'  => $validated['isi_berita'],
-            'tanggal'     => $validated['tanggal'],
-            'foto'        => $path,
+            'judul'      => $validated['judul'],
+            'isi_berita' => $validated['isi_berita'],
+            'foto'       => $path,
+            'tanggal'    => $validated['tanggal'],
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Berita berhasil ditambahkan',
             'data'    => $berita
         ], 201);
     }
 
-    // PUT update berita
+    /**
+     * Memperbarui data berita
+     */
     public function update(Request $request, $id)
     {
         $berita = Berita::find($id);
 
         if (!$berita) {
-            return response()->json(['message' => 'Berita tidak ditemukan'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Berita tidak ditemukan'
+            ], 404);
         }
 
+        /**
+         * Validasi data yang dikirim
+         */
         $validated = $request->validate([
-            'judul'       => 'sometimes|required|string|max:255',
-            'isi_berita'  => 'sometimes|required',
-            'tanggal'     => 'sometimes|required|date',
-            'foto'        => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
+            'judul'      => 'sometimes|required|string|max:255',
+            'isi_berita' => 'sometimes|required|string',
+            'foto'       => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'tanggal'    => 'sometimes|required|date',
         ]);
 
+        /**
+         * Jika ada foto baru yang diupload
+         */
         if ($request->hasFile('foto')) {
-            // hapus foto lama
-            if ($berita->foto && Storage::exists($berita->foto)) {
-                Storage::delete($berita->foto);
+
+            /**
+             * Hapus foto lama dari storage
+             */
+            if (
+                $berita->foto &&
+                Storage::disk('local')->exists($berita->foto)
+            ) {
+                Storage::disk('local')->delete($berita->foto);
             }
 
-            $path = $request->file('foto')->store('berita');
-            $berita->foto = $path;
+            /**
+             * Simpan foto baru ke storage
+             */
+            $validated['foto'] = $request->file('foto')->store(
+                'private/berita',
+                'local'
+            );
         }
 
+        /**
+         * Update data berita
+         */
         $berita->update($validated);
 
         return response()->json([
+            'success' => true,
             'message' => 'Berita berhasil diperbarui',
-            'data'    => $berita
-        ], 200);
+            'data'    => $berita->fresh()
+        ]);
     }
 
-    // DELETE berita
+    /**
+     * Menghapus berita
+     */
     public function destroy($id)
     {
         $berita = Berita::find($id);
 
         if (!$berita) {
-            return response()->json(['message' => 'Berita tidak ditemukan'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Berita tidak ditemukan'
+            ], 404);
         }
 
-        // hapus foto dari storage
-        if ($berita->foto && Storage::exists($berita->foto)) {
-            Storage::delete($berita->foto);
+        /**
+         * Hapus file foto dari storage
+         */
+        if (
+            $berita->foto &&
+            Storage::disk('local')->exists($berita->foto)
+        ) {
+            Storage::disk('local')->delete($berita->foto);
         }
 
+        /**
+         * Hapus data berita dari database
+         */
         $berita->delete();
 
-        return response()->json(['message' => 'Berita berhasil dihapus'], 200);
-    }
-
-    // GET tampilkan foto (private access)
-    public function getFoto($id)
-    {
-        $berita = Berita::find($id);
-
-        if (!$berita || !Storage::exists($berita->foto)) {
-            return response()->json(['message' => 'Foto tidak ditemukan'], 404);
-        }
-
-        $file = Storage::get($berita->foto);
-        $type = Storage::mimeType($berita->foto);
-
-        return response($file, 200)->header('Content-Type', $type);
+        return response()->json([
+            'success' => true,
+            'message' => 'Berita berhasil dihapus'
+        ]);
     }
 }

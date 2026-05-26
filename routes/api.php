@@ -11,7 +11,9 @@ use App\Http\Controllers\API\PengeluaranOperasionalController;
 use App\Http\Controllers\API\BookingFasilitasController;
 use App\Http\Controllers\API\BeritaController;
 use App\Http\Controllers\API\ClientLogosController;
-use App\Http\Controllers\API\LandingSettingsController;
+use App\Http\Controllers\API\LandingSettingsController ;
+use App\Http\Controllers\API\TestimoniController;
+use App\Http\Controllers\Api\DashboardController;
 
 // CRUD Kategori Paket
 Route::apiResource('kategori-paket', KategoriPaketController::class);
@@ -45,4 +47,10 @@ Route::apiResource('client-logos', ClientLogosController::class);
 
 //CRUD landing page settings
 Route::apiResource('landing-settings', LandingSettingsController::class);
+
+//CRUD testimoni
+Route::apiResource('testimoni', TestimoniController::class);
+
+// Dashboard API
+Route::get('dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
 

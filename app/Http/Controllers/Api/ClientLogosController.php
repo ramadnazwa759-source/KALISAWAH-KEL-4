@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ClientLogo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ClientLogosController extends Controller
 {
@@ -28,39 +27,26 @@ class ClientLogosController extends Controller
      */
     public function store(Request $request)
     {
-        try {
+        $validated = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'logo_image_path' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
 
-            $validated = $request->validate([
-                'company_name' => 'required|string|max:255',
-                'logo_image_path' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-            ]);
+        $path = $request->file('logo_image_path')->store(
+            'private/logos',
+            'local'
+        );
 
-            // generate nama file aman
-            $filename = Str::uuid() . '.' .
-                $request->file('logo_image_path')->getClientOriginalExtension();
+        $logo = ClientLogo::create([
+            'company_name' => $validated['company_name'],
+            'logo_image_path' => $path,
+        ]);
 
-            // simpan file ke storage/app/logos
-            $path = $request->file('logo_image_path')
-                ->storeAs('logos', $filename, 'local');
-
-            // simpan database
-            $logo = ClientLogo::create([
-                'company_name' => $request->company_name,
-                'logo_image_path' => $path,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Logo perusahaan berhasil ditambahkan',
-                'data' => $logo
-            ], 201);
-
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Logo perusahaan berhasil ditambahkan',
+            'data' => $logo
+        ], 201);
     }
 
     /**
@@ -68,72 +54,22 @@ class ClientLogosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
+        $logo = ClientLogo::find($id);
 
-            $validated = $request->validate([
-                'company_name' => 'nullable|string|max:255',
-                'logo_image_path' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            ]);
-
-            $logo = ClientLogo::findOrFail($id);
-
-            /**
-             * Update nama perusahaan
-             */
-            if ($request->filled('company_name')) {
-                $logo->company_name = $request->company_name;
-            }
-
-            /**
-             * Update logo image
-             */
-            if ($request->hasFile('logo_image_path')) {
-
-                // hapus file lama
-                if (
-                    $logo->logo_image_path &&
-                    Storage::disk('local')->exists($logo->logo_image_path)
-                ) {
-                    Storage::disk('local')->delete($logo->logo_image_path);
-                }
-
-                // generate nama file baru
-                $filename = Str::uuid() . '.' .
-                    $request->file('logo_image_path')->getClientOriginalExtension();
-
-                // simpan file baru
-                $path = $request->file('logo_image_path')
-                    ->storeAs('logos', $filename, 'local');
-
-                $logo->logo_image_path = $path;
-            }
-
-            $logo->save();
-
+        if (!$logo) {
             return response()->json([
-                'success' => true,
-                'message' => 'Logo perusahaan berhasil diperbarui',
-                'data' => $logo
-            ]);
-
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+                'success' => false,
+                'message' => 'Logo perusahaan tidak ditemukan'
+            ], 404);
         }
-    }
 
-    /**
-     * Hapus logo perusahaan
-     */
-    public function destroy($id)
-    {
-        try {
+        $validated = $request->validate([
+            'company_name' => 'sometimes|required|string|max:255',
+            'logo_image_path' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
 
-            $logo = ClientLogo::findOrFail($id);
+        if ($request->hasFile('logo_image_path')) {
 
-            // hapus file logo
             if (
                 $logo->logo_image_path &&
                 Storage::disk('local')->exists($logo->logo_image_path)
@@ -141,19 +77,49 @@ class ClientLogosController extends Controller
                 Storage::disk('local')->delete($logo->logo_image_path);
             }
 
-            // hapus data database
-            $logo->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Logo perusahaan berhasil dihapus'
-            ]);
-
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            $validated['logo_image_path'] = $request
+                ->file('logo_image_path')
+                ->store(
+                    'private/logos',
+                    'local'
+                );
         }
+
+        $logo->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logo perusahaan berhasil diperbarui',
+            'data' => $logo->fresh()
+        ]);
+    }
+
+    /**
+     * Hapus logo perusahaan
+     */
+    public function destroy($id)
+    {
+        $logo = ClientLogo::find($id);
+
+        if (!$logo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Logo perusahaan tidak ditemukan'
+            ], 404);
+        }
+
+        if (
+            $logo->logo_image_path &&
+            Storage::disk('local')->exists($logo->logo_image_path)
+        ) {
+            Storage::disk('local')->delete($logo->logo_image_path);
+        }
+
+        $logo->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logo perusahaan berhasil dihapus'
+        ]);
     }
 }
