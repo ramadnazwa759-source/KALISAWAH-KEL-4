@@ -12,14 +12,6 @@ class PaketFasilitasController extends Controller
     // GET /api/paket-fasilitas
     public function index()
     {
-        // FRONENDEND
-        // Gunakan query builder
-        $query = \App\Models\PaketWisata::query();
-
-        // Filter berdasarkan Kategori
-        if ($request->filled('kategori_id')) {
-        $query->where('kategori_paket_id', $request->kategori_id);
-        }
         // return response()->json(PaketFasilitas::all(), 200);
 
         return view('admin.layanan.paket_fasilitas.index');
