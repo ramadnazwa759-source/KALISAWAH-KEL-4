@@ -54,4 +54,24 @@ return new class extends Migration
         Schema::dropIfExists('job_batches');
         Schema::dropIfExists('failed_jobs');
     }
+    // pembayaran admin
+    // pembayaran pengunjung
+    // booking
+    // jenis inventaris
+    // inventaris per unit
+    //paket wisata
+    //kategori paket
+    //fasilitas
+    //paket fasilitas
+    //bookingfasilitas
+    //kategori pengeluaran
+    //pengeluaran operasional
+
+    //profil
+    //berita
+    //dashboard
+    //diskom
+    //galeri
+    //pemasukn 
+
 };

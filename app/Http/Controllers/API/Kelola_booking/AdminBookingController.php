@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\BookingFasilitas;
+use App\Models\Pembayaran;
 
 use App\Models\PaketWisata;
 use App\Models\Fasilitas;
@@ -29,6 +30,7 @@ class AdminBookingController extends Controller
         ])->latest()->get();
 
         // return response()->json($data, 200);
+
         return view('admin.kelola_booking.index', compact('data'));
     }
 
@@ -44,14 +46,13 @@ class AdminBookingController extends Controller
         ])->find($id);
 
         if (!$booking) {
-            // return response()->json([
-            //     'message' => 'Booking tidak ditemukan'
-            // ], 404);
-            return redirect()->route('admin.booking-admin.index')->with('error', 'Booking tidak ditemukan');
+
+            return response()->json([
+                'message' => 'Booking tidak ditemukan'
+            ], 404);
         }
 
-        // return response()->json($booking, 200);
-        return view('admin.kelola_booking.show', compact('booking'));
+        return response()->json($booking, 200);
     }
 
     // =========================================
@@ -59,36 +60,29 @@ class AdminBookingController extends Controller
     // =========================================
     public function store(Request $request)
     {
-        // JIKA ADMIN KLIK "+ TAMBAH" (REQUEST BERUPA GET)
-        // ---------------------------------------------------------------
-        if ($request->isMethod('get')) {
-            $paketWisata = PaketWisata::all();
-            // $fasilitas = Fasilitas::all();
-            // wawa yang nambah
-            $fasilitas = Fasilitas::where('tipe_fasilitas', 'sewa')
-                          ->where('status', 'aktif')
-                          ->where('stok', '>', 0)
-                          ->get();
-
-            return view('admin.kelola_booking.create', compact('paketWisata', 'fasilitas'));
-        }
-
         $request->validate([
 
-            'nama_pemesan' => 'required|string|max:255',
+            'nama_pemesan' =>
+                'required|string|max:255',
 
-            'no_hp' => 'required|string|max:20',
+            'no_hp' =>
+                'required|string|max:20',
 
-            'tanggal_kunjungan' => 'required|date',
+            'tanggal_kunjungan' =>
+                'required|date',
 
-            'jam' => 'required',
+            'jam' =>
+                'required',
 
-            'jumlah_pengunjung' => 'required|integer|min:1',
+            'jumlah_pengunjung' =>
+                'required|integer|min:1',
 
-            'catatan' => 'nullable|string',
+            'catatan' =>
+                'nullable|string',
 
             // paket wisata
-            'paket' => 'required|array|min:1',
+            'paket' =>
+                'required|array|min:1',
 
             'paket.*.paket_wisata_id' =>
                 'required|exists:paket_wisata,id',
@@ -97,7 +91,8 @@ class AdminBookingController extends Controller
                 'required|integer|min:1',
 
             // fasilitas tambahan
-            'fasilitas' => 'nullable|array',
+            'fasilitas' =>
+                'nullable|array',
 
             'fasilitas.*.fasilitas_id' =>
                 'required|exists:fasilitas,id',
@@ -107,7 +102,20 @@ class AdminBookingController extends Controller
 
             // diskon
             'diskon_manual' =>
-                'nullable|numeric|min:0'
+                'nullable|numeric|min:0',
+
+            // pembayaran admin
+            'metode_pembayaran' =>
+                'nullable|in:cash,transfer',
+
+            'tipe_pembayaran' =>
+                'nullable|in:dp,pelunasan',
+
+            'nominal_bayar' =>
+                'nullable|numeric|min:0',
+
+            'bukti_pembayaran' =>
+                'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
         DB::beginTransaction();
@@ -143,7 +151,8 @@ class AdminBookingController extends Controller
                 );
 
                 $totalKapasitas +=
-                    $paket->kapasitas * $item['qty'];
+                    $paket->kapasitas *
+                    $item['qty'];
             }
 
             // =====================================
@@ -172,9 +181,11 @@ class AdminBookingController extends Controller
                 );
 
                 $subtotal =
-                    $paket->harga * $item['qty'];
+                    $paket->harga *
+                    $item['qty'];
 
-                $subtotalPaket += $subtotal;
+                $subtotalPaket +=
+                    $subtotal;
             }
 
             // =====================================
@@ -236,12 +247,42 @@ class AdminBookingController extends Controller
                 $request->diskon_manual ?? 0;
 
             // =====================================
-            // TOTAL AKHIR + SAFEGUARD
+            // TOTAL FINAL
             // =====================================
             $totalHargaFinal = max(
                 0,
                 $totalHarga - $diskonManual
             );
+
+            // =====================================
+            // DEFAULT STATUS
+            // =====================================
+            $statusBooking = 'pending';
+            $statusPembayaran = 'belum_bayar';
+
+            // =====================================
+            // JIKA ADA PEMBAYARAN
+            // =====================================
+            if ($request->nominal_bayar > 0) {
+
+                $statusBooking =
+                    'dikonfirmasi';
+
+                if (
+                    $request->nominal_bayar >=
+                    $totalHargaFinal
+                ) {
+
+                    $statusPembayaran =
+                        'lunas';
+                }
+
+                else {
+
+                    $statusPembayaran =
+                        'dp';
+                }
+            }
 
             // =====================================
             // SIMPAN BOOKING
@@ -288,10 +329,10 @@ class AdminBookingController extends Controller
                     $totalHargaFinal,
 
                 'status_booking' =>
-                    'pending',
+                    $statusBooking,
 
                 'status_pembayaran' =>
-                    'belum_bayar'
+                    $statusPembayaran
             ]);
 
             // =====================================
@@ -373,6 +414,56 @@ class AdminBookingController extends Controller
                 }
             }
 
+            // =====================================
+            // SIMPAN PEMBAYARAN ADMIN
+            // =====================================
+            if ($request->nominal_bayar > 0) {
+
+                $path = null;
+
+                // =============================
+                // UPLOAD BUKTI
+                // =============================
+                if (
+                    $request->hasFile(
+                        'bukti_pembayaran'
+                    )
+                ) {
+
+                    $path = $request
+                        ->file('bukti_pembayaran')
+                        ->store(
+                            'pembayaran',
+                            'public'
+                        );
+                }
+
+                Pembayaran::create([
+
+                    'booking_id' =>
+                        $booking->id,
+
+                    'tipe_pembayaran' =>
+                        $request->tipe_pembayaran,
+
+                    'metode_pembayaran' =>
+                        $request->metode_pembayaran,
+
+                    'nominal' =>
+                        $request->nominal_bayar,
+
+                    'bukti_pembayaran' =>
+                        $path,
+
+                    // ADMIN AUTO VALID
+                    'status_verifikasi' =>
+                        'valid',
+
+                    'tanggal_pembayaran' =>
+                        now()
+                ]);
+            }
+
             DB::commit();
 
             // return response()->json([
@@ -402,20 +493,16 @@ class AdminBookingController extends Controller
             //         $booking->status_pembayaran
             // ], 201);
 
-            return redirect()
-                ->route('admin.booking-admin.index')
-                ->with('success', 'Booking berhasil dibuat');
+            return redirect()->route('admin.booking-admin.index')->with('success', 'Data booking berhasil ditambahkan!');
+
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            // return response()->json([
-            //     'message' => $e->getMessage()
-            // ], 500);
-
-
-
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -430,10 +517,10 @@ class AdminBookingController extends Controller
 
         if (!$booking) {
 
-            // return response()->json([
-            //     'message' => 'Booking tidak ditemukan'
-            // ], 404);
-            return redirect()->route('admin.booking-admin.edit', $id)->with('error', 'Booking tidak ditemukan');
+            return response()->json([
+                'message' => 'Booking tidak ditemukan'
+            ], 404);
+
         }
 
         $request->validate([
@@ -546,7 +633,7 @@ class AdminBookingController extends Controller
             //     'data' => $booking
             // ], 200);
 
-            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil diupdate');
+            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil diupdate!');
 
         } catch (\Exception $e) {
 
@@ -555,7 +642,6 @@ class AdminBookingController extends Controller
             // return response()->json([
             //     'message' => $e->getMessage()
             // ], 500);
-
             return redirect()->route('admin.booking-admin.index')->with('error', 'Terjadi kesalahan saat mengupdate booking: ' . $e->getMessage());
         }
     }
@@ -574,7 +660,7 @@ class AdminBookingController extends Controller
             // return response()->json([
             //     'message' => 'Booking tidak ditemukan'
             // ], 404);
-            return redirect()->route('admin.booking-admin.index')->with('error', 'Booking tidak ditemukan');
+            return redirect()->route('admin.booking-admin.index')->with('error', 'Booking tidak ditemukan!');
         }
 
         DB::beginTransaction();
@@ -624,11 +710,11 @@ class AdminBookingController extends Controller
 
             DB::commit();
 
-            // return response()->json([
+            //  return response()->json([
             //     'message' => 'Booking berhasil dihapus'
             // ], 200);
-            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil dihapus');
 
+            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil dihapus!');
 
         } catch (\Exception $e) {
 

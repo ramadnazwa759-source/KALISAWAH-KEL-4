@@ -12,22 +12,19 @@ class PaketWisataController extends Controller
     // GET /api/paket-wisata
     public function index()
     {
-        // Ambil data dari database (Gunakan paginate agar tidak error .links)
-        $pakets = PaketWisata::with('kategori')->paginate(10);
+        $data = PaketWisata::all();
 
         // Ambil data kategori untuk modal tambah
         $categories = KategoriPaket::all();
 
         // Pastikan nama di dalam compact sesuai dengan nama variabel di atas
-        return view('admin.layanan.PaketWisata.index', compact('pakets', 'categories'));
+        return view('admin.layanan.PaketWisata.index', compact('data', 'categories'));
     }
 
-    // GET /api/paket-wisata/{id}
+
     public function show($id)
     {
-        // Menambahkan with('kategori') agar nama kategori muncul di tabel
-        $paket = PaketWisata::with('kategori')->find($id);
-
+        $paket = PaketWisata::find($id);
 
         if (!$paket) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);

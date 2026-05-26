@@ -232,4 +232,24 @@ class FasilitasController extends Controller
         return redirect()->back()->with('success', 'Fasilitas berhasil dihapus');
     }
 
+    public function fasilitasBooking()
+{
+    $data = Fasilitas::where(
+            'tipe_fasilitas',
+            'sewa'
+        )
+        ->where(
+            'status',
+            'aktif'
+        )
+        ->where(
+            'stok',
+            '>',
+            0
+        )
+        ->latest()
+        ->get();
+
+    return response()->json($data, 200);
+}
 }

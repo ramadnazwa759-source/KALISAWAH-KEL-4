@@ -98,18 +98,10 @@
 
                 </div>
 
-                <!-- Navigation Buttons -->
-                <div class="mt-24 pt-12 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 border-t-2 border-gray-200">
-                    <a href="{{ url('paintball') }}" 
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 active:scale-95 shadow-sm uppercase tracking-widest cursor-pointer">
-                        Kembali
-                    </a>
-                    
-                    <button type="submit" id="submitBtn"
-                        style="background-color: #FFC236;"
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-yellow-500/30 active:scale-95 shadow-md uppercase tracking-widest gap-3 cursor-pointer">
-                        <span>Lanjut</span>
-                        <i class="fa-solid fa-chevron-right text-sm"></i>
+                <!-- SUBMIT BUTTON -->
+                <div class="pt-6 text-center">
+                    <button type="submit" class="h-[60px] w-full max-w-sm mx-auto bg-primary text-white font-bold text-lg rounded-2xl hover:bg-hover-primary transition-all shadow-lg shadow-primary/30">
+                        Booking Sekarang
                     </button>
                 </div>
 
@@ -148,115 +140,166 @@
     <!-- SCRIPTS -->
     <script>
         const PACKAGES_CONFIG = {
-            'Paket 1': { price: 110000 },
-            'Paket 2': { price: 140000 }
+            'Paket 1': { id: 8, price: 110000 }, // Sesuaikan dengan ID di database
+            'Paket 2': { id: 9, price: 140000 }  // Sesuaikan dengan ID di database
         };
 
-        let selectedPackages = [];
+        const bookingForm = document.getElementById('bookingForm');
+        const selectedPackagesContainer = document.getElementById('selected_packages_container');
+        const packageModal = document.getElementById('packageModal');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        let selectedPackages = new Map();
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
 
         function openPackageSelector() {
-            document.getElementById('packageModal').classList.remove('hidden');
-            document.getElementById('packageModal').classList.add('flex');
+            packageModal.classList.remove('hidden');
+            packageModal.classList.add('flex');
         }
 
         function closePackageSelector() {
-            document.getElementById('packageModal').classList.add('hidden');
-            document.getElementById('packageModal').classList.remove('flex');
+            packageModal.classList.add('hidden');
+            packageModal.classList.remove('flex');
         }
 
-        function addPackage(name) {
-            const existing = selectedPackages.find(p => p.name === name);
-            if (existing) {
-                existing.qty++;
-            } else {
-                selectedPackages.push({ name: name, qty: 4 });
+        function addPackage(packageName) {
+            if (!selectedPackages.has(packageName)) {
+                selectedPackages.set(packageName, { ...PACKAGES_CONFIG[packageName], qty: 4 }); // Default 4 orang
             }
             renderSelectedPackages();
             closePackageSelector();
         }
 
-        function updatePackageQty(index, delta) {
-            if (selectedPackages[index].qty <= 4 && delta < 0) return;
-            selectedPackages[index].qty += delta;
+        function removePackage(packageName) {
+            selectedPackages.delete(packageName);
             renderSelectedPackages();
         }
 
-        function renderSelectedPackages() {
-            const container = document.getElementById('selected_packages_container');
-            container.innerHTML = '';
-
-            selectedPackages.forEach((pkg, index) => {
-                const config = PACKAGES_CONFIG[pkg.name];
-                const html = `
-                    <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-200 flex items-center justify-between gap-4 shadow-sm group hover:shadow-md transition-all duration-300">
-                        <div class="flex-1">
-                            <span class="block font-bold text-dark-navy text-lg uppercase tracking-wide group-hover:text-primary transition-colors">${pkg.name}</span>
-                            <span class="block text-xs text-gray-400 font-bold mt-1">Rp ${new Intl.NumberFormat('id-ID').format(config.price)} / Orang</span>
-                        </div>
-                        <div class="flex items-center gap-3 bg-gray-50/50 p-2 rounded-2xl border border-gray-100">
-                            <button type="button" onclick="updatePackageQty(${index}, -1)" 
-                                class="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-secondary hover:text-white transition-all active:scale-90 font-bold text-xl shadow-sm ${pkg.qty <= 4 ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}"><i class="fa-solid fa-minus text-xs"></i></button>
-                            <span class="w-10 text-center font-black text-primary text-lg">${pkg.qty}</span>
-                            <button type="button" onclick="updatePackageQty(${index}, 1)" 
-                                class="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-secondary hover:text-white transition-all active:scale-90 font-bold text-xl shadow-sm"><i class="fa-solid fa-plus text-xs"></i></button>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-
-            if (selectedPackages.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 border-2 border-dashed border-gray-100 rounded-[2rem]">
-                        <p class="text-sm text-gray-400 italic font-medium mb-4">Belum ada paket dipilih</p>
-                        <button type="button" onclick="openPackageSelector()" class="text-[11px] font-black text-primary uppercase tracking-widest hover:text-secondary transition-colors flex items-center justify-center gap-2 mx-auto">
-                            <i class="fa-solid fa-plus"></i> Tambah Paket Sekarang
-                        </button>
-                    </div>
-                `;
+        function updateQuantity(packageName, change) {
+            if (selectedPackages.has(packageName)) {
+                const pkg = selectedPackages.get(packageName);
+                const newQty = pkg.qty + change;
+                if (newQty >= 4) {
+                    pkg.qty = newQty;
+                }
+                renderSelectedPackages();
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Default load paket 1
-            addPackage('Paket 1');
-        });
-
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (selectedPackages.length === 0) {
-                alert('Silakan pilih minimal 1 paket paintball.');
+        function renderSelectedPackages() {
+            if (selectedPackages.size === 0) {
+                selectedPackagesContainer.innerHTML = `
+                    <div class="text-center py-10 border-2 border-dashed border-gray-200 rounded-2xl">
+                        <p class="text-gray-400 font-medium">Belum ada paket yang dipilih.</p>
+                        <button type="button" onclick="openPackageSelector()" class="mt-4 text-sm font-bold text-primary hover:underline">
+                            + Tambah Paket
+                        </button>
+                    </div>
+                `;
                 return;
             }
 
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span>Memproses...</span>';
+            selectedPackagesContainer.innerHTML = Array.from(selectedPackages.entries()).map(([name, pkg]) => `
+                <div class="bg-gray-50/80 rounded-2xl p-6 border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h5 class="font-bold text-dark-navy">${name}</h5>
+                            <p class="text-sm text-primary font-semibold">${formatRupiah(pkg.price)} / Orang</p>
+                        </div>
+                        <button type="button" onclick="removePackage('${name}')" class="text-gray-400 hover:text-red-500 transition-colors">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-end items-center mt-4">
+                        <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-200">
+                            <button type="button" onclick="updateQuantity('${name}', -1)" class="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all font-bold ${pkg.qty <= 4 ? 'opacity-50 cursor-not-allowed' : ''}">-</button>
+                            <input type="number" value="${pkg.qty}" min="4" readonly class="w-10 bg-transparent text-center font-bold text-dark-navy text-sm outline-none">
+                            <button type="button" onclick="updateQuantity('${name}', 1)" class="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all font-bold">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('loadingOverlay').classList.add('flex');
+        bookingForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
 
-            // Kita hapus baris yang override selectedPackages[0].qty karena sekarang multi paket
-            // (Sebelumnya: selectedPackages[0].qty = jumlahPeserta;)
+            const formData = new FormData(bookingForm);
+            const data = Object.fromEntries(formData.entries());
 
-            // Collect Data
-            const formData = {
-                nama_pemesan: document.getElementById('nama_pemesan').value,
-                no_hp: document.getElementById('no_hp').value,
-                tanggal_kunjungan: document.getElementById('tanggal_kunjungan').value,
-                jam: document.getElementById('jam').value,
-                total_pengunjung: selectedPackages.reduce((acc, curr) => acc + curr.qty, 0),
-                selected_packages: selectedPackages,
-                category: 'paintball'
+            const payload = {
+                nama_pemesan: data.nama_pemesan,
+                no_hp: data.no_hp,
+                tanggal_kunjungan: data.tanggal_kunjungan,
+                jam: data.jam,
+                jumlah_pengunjung: 0, // Dihitung dari paket
+                catatan: '', // Paintball tidak ada catatan
+                paket: [],
+                fasilitas: [] // Paintball tidak ada fasilitas tambahan
             };
 
-            // Save to localStorage
-            localStorage.setItem('booking_data', JSON.stringify(formData));
+            let totalPengunjung = 0;
+            selectedPackages.forEach(pkg => {
+                payload.paket.push({
+                    paket_wisat-id: pkg.id,
+                    qty: pkg.qty
+                });
+                totalPengunjung += pkg.qty;
+            });
 
-            setTimeout(() => {
-                window.location.href = "{{ url('detail-booking-paintball') }}";
-            }, 800);
+            payload.jumlah_pengunjung = totalPengunjung;
+
+            if (payload.paket.length === 0) {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                alert('Silakan pilih minimal satu paket paintball.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+
+                if (!response.ok) {
+                    let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+                    if (result.errors) {
+                        errorMessage = Object.values(result.errors).flat().join('\n');
+                    } else if (result.message) {
+                        errorMessage = result.message;
+                    }
+                    alert(`Error: ${errorMessage}`);
+                    return;
+                }
+
+                alert('Booking berhasil! Kode Booking: ' + result.data.kode_booking);
+                window.location.href = `/tracking?kode_booking=${result.data.kode_booking}`;
+
+            } catch (error) {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                console.error('Submission error:', error);
+                alert('Terjadi kesalahan saat mengirim data. Periksa koneksi Anda.');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addPackage('Paket 1'); // Default load paket 1
         });
     </script>
 

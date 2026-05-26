@@ -90,13 +90,13 @@
                     <div class="space-y-6 pt-6">
                         <div class="p-8 md:p-10 bg-white rounded-[2rem] border border-gray-200 shadow-sm space-y-6">
                             <div class="flex items-center justify-between gap-4">
-                                <label for="jumlah_orang" class="text-[11px] font-bold text-primary uppercase tracking-[0.1em]">Pengunjung Tambahan</label>
+                                <label for="jumlah_pengunjung" class="text-[11px] font-bold text-primary uppercase tracking-[0.1em]">Pengunjung Tambahan</label>
                                 <div class="flex items-center gap-4 bg-gray-50/50 p-2 rounded-2xl border border-gray-100">
-                                    <button type="button" onclick="decrement('jumlah_orang')" 
+                                    <button type="button" onclick="decrement('jumlah_pengunjung')" 
                                         class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-secondary hover:text-white transition-all active:scale-90 font-bold text-lg shadow-sm">-</button>
-                                    <input type="number" id="jumlah_orang" name="jumlah_orang" value="0" min="0" readonly
+                                    <input type="number" id="jumlah_pengunjung" name="jumlah_pengunjung" value="0" min="0" readonly
                                         class="w-10 bg-transparent text-center font-bold text-primary text-sm outline-none">
-                                    <button type="button" onclick="increment('jumlah_orang')" 
+                                    <button type="button" onclick="increment('jumlah_pengunjung')" 
                                         class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-secondary hover:text-white transition-all active:scale-90 font-bold text-lg shadow-sm">+</button>
                                 </div>
                             </div>
@@ -215,18 +215,17 @@
                     </div>
                 </div>
 
-                <!-- Navigation Buttons -->
-                <div class="mt-24 pt-12 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 border-t-2 border-gray-200">
-                    <a href="{{ route('camping') }}" 
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] shadow-sm uppercase tracking-widest">
-                        Kembali
-                    </a>
-                    
-                    <button type="submit" id="submitBtn"
-                        style="background-color: #FFC236;"
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
-                        <span>Lanjut</span>
-                        <i class="fa-solid fa-chevron-right text-sm"></i>
+                <!-- Catatan Section -->
+                <div class="space-y-2.5">
+                    <label for="catatan" class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-1 ml-1">Catatan</label>
+                    <textarea id="catatan" name="catatan" rows="4" placeholder="Ada permintaan khusus? Tulis di sini..." 
+                        class="w-full p-6 rounded-xl border border-gray-200 bg-white outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400"></textarea>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <div class="pt-6 text-center">
+                    <button type="submit" class="h-[60px] w-full max-w-sm mx-auto bg-primary text-white font-bold text-lg rounded-2xl hover:bg-hover-primary transition-all shadow-lg shadow-primary/30">
+                        Booking Sekarang
                     </button>
                 </div>
 
@@ -274,13 +273,181 @@
     <!-- SCRIPTS -->
     <script>
         const PACKAGES_CONFIG = {
-            'Nyaman Camp': { price: 350000, pax: 6, includesTenda: true },
-            'Seru Camp': { price: 185000, pax: 4, includesTenda: true },
-            'Santai Camp': { price: 150000, pax: 4, includesTenda: true },
-            'Bawa Tenda Sendiri': { price: 25000, pax: 0, includesTenda: false }
+            'Nyaman Camp': {
+                id: 1, // Sesuaikan dengan ID di database
+                price: 350000,
+                capacity: 6,
+            },
+            'Seru Camp': {
+                id: 2, // Sesuaikan dengan ID di database
+                price: 185000,
+                capacity: 4,
+            },
+            'Santai Camp': {
+                id: 3, // Sesuaikan dengan ID di database
+                price: 150000,
+                capacity: 4,
+            },
+            'Bawa Tenda Sendiri': {
+                id: 4, // Sesuaikan dengan ID di database
+                price: 25000, // Harga per orang
+                capacity: 1, // Kapasitas per tiket
+            }
         };
 
-        let selectedPackages = [];
+        const bookingForm = document.getElementById('bookingForm');
+        const selectedPackagesContainer = document.getElementById('selected_packages_container');
+        const packageModal = document.getElementById('packageModal');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        let selectedPackages = new Map();
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function openPackageSelector() {
+            packageModal.classList.remove('hidden');
+            packageModal.classList.add('flex');
+        }
+
+        function closePackageSelector() {
+            packageModal.classList.add('hidden');
+            packageModal.classList.remove('flex');
+        }
+
+        function addPackage(packageName) {
+            if (!selectedPackages.has(packageName)) {
+                selectedPackages.set(packageName, { ...PACKAGES_CONFIG[packageName], qty: 1 });
+            }
+            renderSelectedPackages();
+            closePackageSelector();
+        }
+
+        function removePackage(packageName) {
+            selectedPackages.delete(packageName);
+            renderSelectedPackages();
+        }
+
+        function updateQuantity(packageName, change) {
+            if (selectedPackages.has(packageName)) {
+                const pkg = selectedPackages.get(packageName);
+                pkg.qty = Math.max(1, pkg.qty + change);
+                renderSelectedPackages();
+            }
+        }
+
+        function renderSelectedPackages() {
+            if (selectedPackages.size === 0) {
+                selectedPackagesContainer.innerHTML = `
+                    <div class="text-center py-10 border-2 border-dashed border-gray-200 rounded-2xl">
+                        <p class="text-gray-400 font-medium">Belum ada paket yang dipilih.</p>
+                        <button type="button" onclick="openPackageSelector()" class="mt-4 text-sm font-bold text-primary hover:underline">
+                            + Tambah Paket
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            selectedPackagesContainer.innerHTML = Array.from(selectedPackages.entries()).map(([name, pkg]) => `
+                <div class="bg-gray-50/80 rounded-2xl p-6 border border-gray-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h5 class="font-bold text-dark-navy">${name}</h5>
+                            <p class="text-sm text-primary font-semibold">${formatRupiah(pkg.price)}</p>
+                        </div>
+                        <button type="button" onclick="removePackage('${name}')" class="text-gray-400 hover:text-red-500 transition-colors">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-end items-center mt-4">
+                        <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-200">
+                            <button type="button" onclick="updateQuantity('${name}', -1)" class="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all font-bold">-</button>
+                            <input type="number" value="${pkg.qty}" min="1" readonly class="w-10 bg-transparent text-center font-bold text-dark-navy text-sm outline-none">
+                            <button type="button" onclick="updateQuantity('${name}', 1)" class="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all font-bold">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        bookingForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+
+            const formData = new FormData(bookingForm);
+            const data = Object.fromEntries(formData.entries());
+
+            const payload = {
+                nama_pemesan: data.nama_pemesan,
+                no_hp: data.no_hp,
+                tanggal_kunjungan: data.tanggal_kunjungan,
+                jam: data.jam,
+                jumlah_pengunjung: parseInt(data.jumlah_pengunjung) || 0,
+                catatan: data.catatan || '',
+                paket: [],
+                fasilitas: []
+            };
+
+            selectedPackages.forEach(pkg => {
+                payload.paket.push({
+                    paket_wisata_id: pkg.id,
+                    qty: pkg.qty
+                });
+            });
+
+            document.querySelectorAll('input[name^="fasilitas["]').forEach(input => {
+                if (input.type === 'number' && parseInt(input.value) > 0) {
+                    const id = input.id.split('_')[1];
+                    payload.fasilitas.push({
+                        fasilitas_id: parseInt(id),
+                        qty: parseInt(input.value)
+                    });
+                }
+            });
+
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+
+                if (!response.ok) {
+                    let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+                    if (result.errors) {
+                        errorMessage = Object.values(result.errors).flat().join('\n');
+                    } else if (result.message) {
+                        errorMessage = result.message;
+                    }
+                    alert(`Error: ${errorMessage}`);
+                    return;
+                }
+
+                alert('Booking berhasil! Kode Booking: ' + result.data.kode_booking);
+                window.location.href = `/tracking?kode_booking=${result.data.kode_booking}`;
+
+            } catch (error) {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                console.error('Submission error:', error);
+                alert('Terjadi kesalahan saat mengirim data. Periksa koneksi Anda.');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSelectedPackages();
+        });
 
         function increment(id) {
             const input = document.getElementById(id);
@@ -293,132 +460,6 @@
                 input.value = parseInt(input.value) - 1;
             }
         }
-
-        function openPackageSelector() {
-            document.getElementById('packageModal').classList.remove('hidden');
-            document.getElementById('packageModal').classList.add('flex');
-        }
-
-        function closePackageSelector() {
-            document.getElementById('packageModal').classList.add('hidden');
-            document.getElementById('packageModal').classList.remove('flex');
-        }
-
-        function addPackage(name) {
-            selectedPackages.push({ name: name, qty: 1 });
-            renderSelectedPackages();
-            closePackageSelector();
-            updateTendaVisibility();
-        }
-
-        function removePackage(index) {
-            selectedPackages.splice(index, 1);
-            renderSelectedPackages();
-            updateTendaVisibility();
-        }
-
-        function updatePackageQty(index, delta) {
-            selectedPackages[index].qty = Math.max(1, selectedPackages[index].qty + delta);
-            renderSelectedPackages();
-        }
-
-        function renderSelectedPackages() {
-            const container = document.getElementById('selected_packages_container');
-            container.innerHTML = '';
-
-            selectedPackages.forEach((pkg, index) => {
-                const config = PACKAGES_CONFIG[pkg.name];
-                const html = `
-                    <div class="bg-white p-8 rounded-[2rem] border border-gray-200 flex items-center justify-between gap-4 shadow-sm">
-                        <div class="flex-1">
-                            <span class="block font-bold text-dark-navy text-lg uppercase tracking-wide">${pkg.name}</span>
-                            <span class="block text-xs text-gray-400 font-bold mt-1">${config.pax > 0 ? 'Kapasitas ' + config.pax + ' Orang' : 'Sewa Lahan'}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-bold text-primary text-sm">${pkg.qty} Paket</span>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-
-            if (selectedPackages.length === 0) {
-                container.innerHTML = '<p class="text-xs text-gray-400 italic text-center py-4 border-2 border-dashed border-gray-100 rounded-2xl">Belum ada paket dipilih</p>';
-            }
-        }
-
-        function updateTendaVisibility() {
-            const hasCustomTenda = selectedPackages.some(pkg => !PACKAGES_CONFIG[pkg.name].includesTenda);
-            const tendaWrapper = document.getElementById('jumlah_tenda_wrapper');
-            const ukuranTendaContainer = document.getElementById('ukuran_tenda_container');
-
-            if (hasCustomTenda) {
-                tendaWrapper.classList.remove('hidden');
-                ukuranTendaContainer.classList.remove('hidden');
-                ukuranTendaContainer.classList.add('flex');
-            } else {
-                tendaWrapper.classList.add('hidden');
-                ukuranTendaContainer.classList.add('hidden');
-                ukuranTendaContainer.classList.remove('flex');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const initialPaket = document.getElementById('paket_hidden').value;
-            if (initialPaket && initialPaket !== 'Pilih Paket Camp') {
-                addPackage(initialPaket);
-            } else {
-                renderSelectedPackages();
-            }
-        });
-
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (selectedPackages.length === 0) {
-                alert('Silakan pilih minimal satu paket.');
-                return;
-            }
-
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerText = 'Memproses...';
-
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('loadingOverlay').classList.add('flex');
-
-            // Collect Data
-            const formData = {
-                nama_pemesan: document.getElementById('nama_pemesan').value,
-                no_hp: document.getElementById('no_hp').value,
-                tanggal_kunjungan: document.getElementById('tanggal_kunjungan').value,
-                jam: document.getElementById('jam').value,
-                total_pengunjung: document.getElementById('jumlah_orang').value,
-                jumlah_tenda: document.getElementById('jumlah_tenda').value,
-                ukuran_tenda: document.getElementById('ukuran_tenda').value,
-                selected_packages: selectedPackages,
-                fasilitas: {},
-                makanan: {}
-            };
-
-            // Collect Dynamic Items
-            document.querySelectorAll('input[id^="fasilitas_"]').forEach(input => {
-                const id = input.id.split('_')[1];
-                if(parseInt(input.value) > 0) formData.fasilitas[id] = parseInt(input.value);
-            });
-            document.querySelectorAll('input[id^="makanan_"]').forEach(input => {
-                const id = input.id.split('_')[1];
-                if(parseInt(input.value) > 0) formData.makanan[id] = parseInt(input.value);
-            });
-
-            // Save to localStorage
-            localStorage.setItem('booking_data', JSON.stringify(formData));
-
-            // Redirect
-            setTimeout(() => {
-                window.location.href = "{{ route('booking.detail') }}";
-            }, 800);
-        });
     </script>
 
     <style>

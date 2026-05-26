@@ -123,18 +123,10 @@
 
                 </div>
 
-                <!-- Navigation Buttons -->
-                <div class="mt-24 pt-12 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 border-t-2 border-gray-200">
-                    <a href="javascript:history.back()" 
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 transition-all duration-200 active:scale-[0.98] shadow-sm uppercase tracking-widest">
-                        Kembali
-                    </a>
-                    
-                    <button type="submit" id="submitBtn"
-                        style="background-color: #FFC236;"
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] transition-all duration-200 active:scale-[0.98] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
-                        <span>Lanjut</span>
-                        <i class="fa-solid fa-chevron-right text-sm"></i>
+                <!-- SUBMIT BUTTON -->
+                <div class="pt-6 text-center">
+                    <button type="submit" class="h-[60px] w-full max-w-sm mx-auto bg-primary text-white font-bold text-lg rounded-2xl hover:bg-hover-primary transition-all shadow-lg shadow-primary/30">
+                        Booking Sekarang
                     </button>
                 </div>
 
@@ -168,228 +160,155 @@
 
     <!-- SCRIPTS -->
     <script>
-        const CATEGORIES_CONFIG = {
-            'Kalisawah Explorer': { 
-                price: 520000, 
-                category: '1day', 
-                img: 'https://picsum.photos/600/400?random=11', 
-                duration: '± 7 Jam', 
-                desc: '“Pengalaman lengkap untuk event corporate premium”', 
-                tag: 'Premium Corporate' 
-            },
-            'Kalisawah Challenge': { 
-                price: 360000, 
-                category: '1day', 
-                img: 'https://picsum.photos/600/400?random=12', 
-                duration: '± 6 Jam', 
-                desc: '“Pilihan terbaik untuk membangun kebersamaan tim secara efektif”', 
-                tag: 'Best Seller' 
-            },
-            'Kalisawah Action': { 
-                price: 290000, 
-                category: '1day', 
-                img: 'https://picsum.photos/600/400?random=13', 
-                duration: '± 3.5 Jam', 
-                desc: '“Paket hemat dengan pengalaman tetap maksimal”', 
-                tag: 'Hemat Seru' 
-            },
-            'Kalisawah Ultimate': { 
-                price: 685000, 
-                category: '2d1n', 
-                img: 'https://picsum.photos/600/400?random=21', 
-                duration: '2 Hari 1 Malam', 
-                desc: '“Pengalaman lengkap untuk event corporate premium”', 
-                tag: 'Premium Corporate' 
-            },
-            'Kalisawah Bonding': { 
-                price: 445000, 
-                category: '2d1n', 
-                img: 'https://picsum.photos/600/400?random=22', 
-                duration: '2 Hari 1 Malam', 
-                desc: '“Pilihan terbaik untuk membangun kekompakan tim secara efektif”', 
-                tag: 'Best Seller' 
-            },
-            'Kalisawah Kebersamaan': { 
-                price: 320000, 
-                category: '2d1n', 
-                img: 'https://picsum.photos/600/400?random=23', 
-                duration: '2 Hari 1 Malam', 
-                desc: '“Paket hemat dengan pengalaman tetap maksimal”', 
-                tag: 'Hemat Seru' 
-            }
+        const PACKAGES_CONFIG = {
+            'Kalisawah Explorer':    { id: 12, price: 520000, category: '1day' },
+            'Kalisawah Challenge':   { id: 13, price: 360000, category: '1day' },
+            'Kalisawah Action':      { id: 14, price: 290000, category: '1day' },
+            'Kalisawah Ultimate':    { id: 15, price: 685000, category: '2d1n' },
+            'Kalisawah Bonding':     { id: 16, price: 445000, category: '2d1n' },
+            'Kalisawah Kebersamaan': { id: 17, price: 320000, category: '2d1n' }
         };
 
-        let selectedPackages = [];
+        const bookingForm = document.getElementById('bookingForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const selectedPackagesContainer = document.getElementById('selected_packages_container');
+        const jumlahPesertaInput = document.getElementById('jumlah_peserta');
+        
+        let selectedPackages = new Map();
         let activeCategory = '1day';
 
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
         function openPackageSelector() {
-            const container = document.getElementById('package_modal_options');
-            container.innerHTML = '';
-            
-            Object.keys(CATEGORIES_CONFIG).forEach(name => {
-                const pkg = CATEGORIES_CONFIG[name];
-                if (pkg.category !== activeCategory) return;
-                
-                const isAdded = selectedPackages.some(p => p.name === name);
-                const isBestSeller = pkg.tag === 'Best Seller';
-                
-                const html = `
-                    <div class="bg-white rounded-[32px] overflow-hidden shadow-xl border ${isBestSeller ? 'border-secondary' : 'border-gray-100'} flex flex-col group hover:shadow-2xl transition-all duration-300 relative text-left">
-                        ${isBestSeller ? `
-                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                            <span class="bg-secondary text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-xl whitespace-nowrap">BEST SELLER</span>
-                        </div>
-                        ` : `
-                        <div class="absolute top-4 left-4 z-20">
-                            <span class="bg-blue-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">${pkg.tag}</span>
-                        </div>
-                        `}
-                        
-                        <div class="relative h-44 overflow-hidden shrink-0">
-                            <img src="${pkg.img}" alt="${name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow ${isBestSeller ? 'bg-secondary/5' : ''}">
-                            <div class="mb-4">
-                                <h3 class="text-primary text-lg font-black mb-1 leading-tight uppercase">${name}</h3>
-                                <p class="text-gray-500 text-xs italic mb-2">${pkg.desc}</p>
-                                <div class="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                                    <i class="fa-regular fa-clock"></i>
-                                    <span>${pkg.duration}</span>
-                                </div>
-                            </div>
-                            
-                            <div class="pt-4 border-t ${isBestSeller ? 'border-secondary/20' : 'border-gray-100'} mt-auto">
-                                <div class="flex flex-col mb-4">
-                                    <span class="text-dark-navy font-black text-2xl">Rp ${new Intl.NumberFormat('id-ID').format(pkg.price)}</span>
-                                    <span class="text-gray-400 text-[9px] font-bold uppercase tracking-widest mt-0.5">Per Orang (Pax)</span>
-                                </div>
-                                <button type="button" onclick="${isAdded ? '' : `addPackage('${name}')`}" 
-                                    class="w-full ${isAdded ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-secondary text-white hover:opacity-90 active:scale-[0.98]'} py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-md">
-                                    ${isAdded ? 'Sudah Dipilih' : 'Pilih Paket'}
-                                    <i class="fa-solid fa-chevron-right text-[9px]"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-            
-            document.getElementById('packageModal').classList.remove('hidden');
-            document.getElementById('packageModal').classList.add('flex');
+            // Fungsi ini bisa dikembangkan lebih lanjut jika diperlukan
+            alert('Fungsi tambah paket lain sedang dalam pengembangan. Silakan pilih satu paket utama terlebih dahulu.');
         }
 
-        function closePackageSelector() {
-            document.getElementById('packageModal').classList.add('hidden');
-            document.getElementById('packageModal').classList.remove('flex');
-        }
-
-        function addPackage(name) {
-            const config = CATEGORIES_CONFIG[name];
-            if (config) {
+        function addPackage(packageName) {
+            if (PACKAGES_CONFIG[packageName]) {
+                const config = PACKAGES_CONFIG[packageName];
+                // Hanya izinkan satu paket yang dipilih untuk gathering
+                selectedPackages.clear();
+                selectedPackages.set(packageName, { ...config });
                 activeCategory = config.category;
-                const existing = selectedPackages.find(p => p.name === name);
-                if (!existing) {
-                    selectedPackages.push({ name: name, price: config.price });
-                }
             }
             renderSelectedPackages();
-            closePackageSelector();
         }
 
-        function removePackage(index) {
-            selectedPackages.splice(index, 1);
+        function removePackage(packageName) {
+            selectedPackages.delete(packageName);
             renderSelectedPackages();
         }
 
         function renderSelectedPackages() {
-            const container = document.getElementById('selected_packages_container');
-            container.innerHTML = '';
-            
-            const jumlahPeserta = parseInt(document.getElementById('jumlah_peserta').value) || 20;
+            const jumlahPeserta = parseInt(jumlahPesertaInput.value) || 20;
 
-            selectedPackages.forEach((pkg, index) => {
-                const totalHarga = pkg.price * jumlahPeserta;
-                const html = `
-                    <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-200 flex items-center justify-between gap-4 shadow-sm group hover:shadow-md transition-all duration-300">
-                        <div class="flex-1">
-                            <span class="block font-bold text-dark-navy text-lg uppercase tracking-wide group-hover:text-primary transition-colors">${pkg.name}</span>
-                            <span class="block text-xs text-gray-400 font-bold mt-1">Rp ${new Intl.NumberFormat('id-ID').format(pkg.price)} / Orang</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="removePackage(${index})" 
-                                class="w-10 h-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90 font-bold text-xl shadow-sm"><i class="fa-solid fa-trash text-sm"></i></button>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-
-            if (selectedPackages.length === 0) {
-                container.innerHTML = `
+            if (selectedPackages.size === 0) {
+                selectedPackagesContainer.innerHTML = `
                     <div class="text-center py-12 border-2 border-dashed border-gray-100 rounded-[2rem]">
                         <p class="text-sm text-gray-400 italic font-medium mb-4">Belum ada paket dipilih</p>
-                        <button type="button" onclick="openPackageSelector()" class="text-[11px] font-black text-primary uppercase tracking-widest hover:text-secondary transition-colors">
-                            + Pilih Paket Sekarang
-                        </button>
                     </div>
                 `;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check hidden input first, then URL param
-            let initialPaketRaw = document.getElementById('paket_hidden').value;
-            if (!initialPaketRaw || initialPaketRaw === 'Paket Gathering') {
-                const urlParams = new URLSearchParams(window.location.search);
-                initialPaketRaw = urlParams.get('paket');
-            }
-
-            if (initialPaketRaw && CATEGORIES_CONFIG[initialPaketRaw]) {
-                addPackage(initialPaketRaw);
-            } else {
-                renderSelectedPackages();
-            }
-        });
-
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (selectedPackages.length === 0) {
-                alert('Silakan pilih minimal satu paket gathering.');
                 return;
             }
 
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span>Memproses...</span>';
+            selectedPackagesContainer.innerHTML = Array.from(selectedPackages.entries()).map(([name, pkg]) => `
+                <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-gray-200 flex items-center justify-between gap-4 shadow-sm">
+                    <div class="flex-1">
+                        <span class="block font-bold text-dark-navy text-lg uppercase tracking-wide">${name}</span>
+                        <span class="block text-xs text-gray-400 font-bold mt-1">${formatRupiah(pkg.price)} / Orang</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="block font-bold text-primary text-xl">${formatRupiah(pkg.price * jumlahPeserta)}</span>
+                        <span class="block text-xs text-gray-400 font-medium">${jumlahPeserta} Peserta</span>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('loadingOverlay').classList.add('flex');
+        bookingForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
 
-            const jumlahPeserta = parseInt(document.getElementById('jumlah_peserta').value) || 20;
+            const formData = new FormData(bookingForm);
+            const data = Object.fromEntries(formData.entries());
+            const jumlahPeserta = parseInt(data.jumlah_peserta) || 0;
 
-            // Collect Data
-            const formData = {
-                nama_pemesan: document.getElementById('nama_pemesan').value,
-                no_hp: document.getElementById('no_hp').value,
-                tanggal_kunjungan: document.getElementById('tanggal_kunjungan').value,
-                jam: document.getElementById('jam').value,
-                jumlah_peserta: jumlahPeserta,
-                selected_packages: selectedPackages.map(pkg => ({
-                    name: pkg.name,
-                    price: pkg.price,
-                    qty: jumlahPeserta
-                })),
-                category: 'gathering'
+            if (selectedPackages.size === 0) {
+                loadingOverlay.classList.add('hidden');
+                alert('Silakan pilih paket gathering terlebih dahulu.');
+                return;
+            }
+            
+            if (jumlahPeserta < 20) {
+                loadingOverlay.classList.add('hidden');
+                alert('Jumlah peserta minimal adalah 20 orang.');
+                return;
+            }
+
+            const payload = {
+                nama_pemesan: data.nama_pemesan,
+                no_hp: data.no_hp,
+                tanggal_kunjungan: data.tanggal_kunjungan,
+                jam: data.jam,
+                jumlah_pengunjung: jumlahPeserta,
+                catatan: '', // Gathering tidak ada catatan spesifik di form ini
+                paket: [],
+                fasilitas: []
             };
 
-            // Save to localStorage
-            localStorage.setItem('booking_data', JSON.stringify(formData));
+            selectedPackages.forEach(pkg => {
+                payload.paket.push({
+                    paket_wisata_id: pkg.id,
+                    qty: jumlahPeserta // Untuk gathering, qty adalah jumlah peserta
+                });
+            });
 
-            setTimeout(() => {
-                window.location.href = "{{ url('/detail-booking-gathering') }}"; 
-            }, 800);
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                loadingOverlay.classList.add('hidden');
+
+                if (!response.ok) {
+                    let errorMessage = result.message || 'Terjadi kesalahan. Silakan coba lagi.';
+                    if (result.errors) {
+                        errorMessage = Object.values(result.errors).flat().join('\n');
+                    }
+                    alert(`Error: ${errorMessage}`);
+                    return;
+                }
+
+                alert('Booking berhasil! Kode Booking: ' + result.data.kode_booking);
+                window.location.href = `/tracking?kode_booking=${result.data.kode_booking}`;
+
+            } catch (error) {
+                loadingOverlay.classList.add('hidden');
+                console.error('Submission error:', error);
+                alert('Terjadi kesalahan saat mengirim data. Periksa koneksi Anda.');
+            }
+        });
+
+        jumlahPesertaInput.addEventListener('input', renderSelectedPackages);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialPackageName = document.getElementById('paket_hidden').value;
+            if (initialPackageName && PACKAGES_CONFIG[initialPackageName]) {
+                addPackage(initialPackageName);
+            } else {
+                renderSelectedPackages();
+            }
         });
     </script>
 

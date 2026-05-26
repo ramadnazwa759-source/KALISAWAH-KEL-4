@@ -26,6 +26,7 @@ class GaleriController extends Controller
 
         Galeri::create([
             'judul' => $request->judul,
+            
             'gambar' => $nama_file
         ]);
 

@@ -224,6 +224,8 @@
         </div>
         <div class="submenu">
             <a href="/admin/berita" class="menu-item" style="padding-left:50px;">Berita</a>
+            <a href="/admin/berita" class="menu-item" style="padding-left:50px;">Hero Section</a>
+            <a href="/admin/client-logo" class="menu-item" style="padding-left:50px;">Client Logo</a>
         </div>
     </div>
 
@@ -234,8 +236,8 @@
             <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
         </div>
         <div class="submenu">
-            <a href="{{ route('admin.paket-wisata.index') }}" class="menu-item" style="padding-left:50px;">Paket Wisata</a>
             <a href="{{ route('admin.kategori-paket.index') }}" class="menu-item" style="padding-left:50px;">Kategori Paket</a>
+            <a href="{{ route('admin.paket-wisata.index') }}" class="menu-item" style="padding-left:50px;">Paket Wisata</a>
             <a href="{{ route('admin.paket-fasilitas.index') }}" class="menu-item" style="padding-left:50px;">Fasilitas Paket</a>
         </div>
     </div>

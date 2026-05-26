@@ -121,18 +121,10 @@
                     </div>
                 </div>
 
-                <!-- Navigation Buttons -->
-                <div class="mt-24 pt-12 flex flex-row flex-nowrap items-center justify-between gap-4 md:gap-8 border-t-2 border-gray-200">
-                    <a href="{{ route('jeeptour') }}" 
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl border border-blue-400 bg-white text-primary font-bold text-lg flex items-center justify-center hover:bg-blue-50 hover:-translate-y-1 transition-all duration-300 active:scale-[0.97] shadow-sm uppercase tracking-widest">
-                        Kembali
-                    </a>
-                    
-                    <button type="submit" id="submitBtn"
-                        style="background-color: #FFC236;"
-                        class="btn-action flex-1 md:flex-none md:w-[280px] h-[55px] rounded-xl text-white font-bold text-lg flex items-center justify-center hover:bg-[#FFD15B] hover:-translate-y-1 transition-all duration-300 active:scale-[0.97] shadow-lg shadow-yellow-500/20 uppercase tracking-widest gap-3">
-                        <span>Lanjut</span>
-                        <i class="fa-solid fa-chevron-right text-sm"></i>
+                <!-- SUBMIT BUTTON -->
+                <div class="pt-6 text-center">
+                    <button type="submit" class="h-[60px] w-full max-w-sm mx-auto bg-primary text-white font-bold text-lg rounded-2xl hover:bg-hover-primary transition-all shadow-lg shadow-primary/30">
+                        Booking Sekarang
                     </button>
                 </div>
 
@@ -151,48 +143,91 @@
 
     <!-- SCRIPTS -->
     <script>
-        let currentQty = 5;
-        const pricePerPerson = 275000;
+        const PACKAGE_ID = 11; // Sesuaikan dengan ID paket "Adventure JEEP" di database
+        const MIN_QTY = 5;
+        const PRICE_PER_PERSON = 275000;
+        let currentQty = MIN_QTY;
+
+        const bookingForm = document.getElementById('bookingForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const qtyDisplay = document.getElementById('qty_display');
+        const totalPriceDisplay = document.getElementById('total_price_display');
 
         function updatePackageQty(delta) {
-            currentQty = Math.max(5, currentQty + delta);
-            document.getElementById('qty_display').innerText = currentQty;
+            currentQty = Math.max(MIN_QTY, currentQty + delta);
+            qtyDisplay.innerText = currentQty;
             updateTotalPrice();
         }
 
         function updateTotalPrice() {
-            const total = currentQty * pricePerPerson;
+            const total = currentQty * PRICE_PER_PERSON;
             const formattedTotal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(total);
-            document.getElementById('total_price_display').innerText = formattedTotal.replace('Rp', 'Rp ');
+            totalPriceDisplay.innerText = formattedTotal;
         }
 
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        bookingForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
 
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span>Memproses...</span>';
+            const formData = new FormData(bookingForm);
+            const data = Object.fromEntries(formData.entries());
 
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('loadingOverlay').classList.add('flex');
-
-            // Collect Data
-            const formData = {
-                nama_pemesan: document.getElementById('nama_pemesan').value,
-                no_hp: document.getElementById('no_hp').value,
-                tanggal_kunjungan: document.getElementById('tanggal_kunjungan').value,
-                jam: document.getElementById('jam').value,
-                selected_packages: [{ name: 'Adventure JEEP', qty: currentQty, price: pricePerPerson }],
-                category: 'jeeptour'
+            const payload = {
+                nama_pemesan: data.nama_pemesan,
+                no_hp: data.no_hp,
+                tanggal_kunjungan: data.tanggal_kunjungan,
+                jam: data.jam,
+                jumlah_pengunjung: currentQty,
+                catatan: '', // Jeep Tour tidak ada catatan
+                paket: [
+                    {
+                        paket_wisata_id: PACKAGE_ID,
+                        qty: currentQty
+                    }
+                ],
+                fasilitas: [] // Jeep Tour tidak ada fasilitas tambahan
             };
 
-            // Save to localStorage
-            localStorage.setItem('booking_data', JSON.stringify(formData));
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-            setTimeout(() => {
-                window.location.href = "{{ route('detail.booking.jeeptour') }}"; 
-            }, 800);
+                const result = await response.json();
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+
+                if (!response.ok) {
+                    let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+                    if (result.errors) {
+                        errorMessage = Object.values(result.errors).flat().join('\n');
+                    } else if (result.message) {
+                        errorMessage = result.message;
+                    }
+                    alert(`Error: ${errorMessage}`);
+                    return;
+                }
+
+                alert('Booking berhasil! Kode Booking: ' + result.data.kode_booking);
+                window.location.href = `/tracking?kode_booking=${result.data.kode_booking}`;
+
+            } catch (error) {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                console.error('Submission error:', error);
+                alert('Terjadi kesalahan saat mengirim data. Periksa koneksi Anda.');
+            }
         });
+
+        // Initialize display
+        updateTotalPrice();
     </script>
 
     <style>

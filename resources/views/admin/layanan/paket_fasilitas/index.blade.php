@@ -21,13 +21,6 @@
         </div>
     @endif
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
     @php
         $data = \App\Models\PaketFasilitas::with(['paketWisata', 'fasilitas'])->latest()->get();
     @endphp
@@ -50,22 +43,14 @@
                         @forelse($data as $item)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>
-                                <span class="fw-bold text-dark">
-                                    {{ $item->paketWisata->nama_paket ?? 'Paket tidak ditemukan' }}
-                                </span>
-                            </td>
+                            <td><span class="fw-bold text-dark">{{ $item->paketWisata->nama_paket ?? 'N/A' }}</span></td>
                             <td>
                                 <span class="badge bg-light text-primary border border-primary-subtle px-2 py-1 rounded-2">
                                     <i class="fas fa-box me-1"></i> {{ $item->fasilitas->nama_fasilitas ?? '-' }}
                                 </span>
                             </td>
-                            <td>
-                                <span class="fw-bold text-secondary">{{ $item->jumlah }} Pcs/Unit</span>
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ $item->keterangan ?? '-' }}</small>
-                            </td>
+                            <td><span class="fw-bold text-secondary">{{ $item->jumlah }} Pcs</span></td>
+                            <td><small class="text-muted">{{ $item->keterangan ?? '-' }}</small></td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <button class="btn btn-warning btn-sm text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $item->id }}">
@@ -75,8 +60,7 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                     <form id="delete-form-{{ $item->id }}" action="{{ route('admin.paket-fasilitas.destroy', $item->id) }}" method="POST" style="display: none;">
-                                        @csrf
-                                        @method('DELETE')
+                                        @csrf @method('DELETE')
                                     </form>
                                 </div>
                             </td>
@@ -86,21 +70,18 @@
                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                 <div class="modal-content border-0 shadow rounded-4">
                                     <div class="modal-header border-0 pt-4 px-4">
-                                        <h5 class="modal-title fw-bold">Edit Hubungan Paket Fasilitas</h5>
+                                        <h5 class="modal-title fw-bold">Edit Hubungan</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <form action="{{ route('admin.paket-fasilitas.update', $item->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
+                                        @csrf @method('PUT')
                                         <div class="modal-body px-4">
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label fw-bold">Pilih Paket Wisata</label>
-                                                    <select name="id_paket" class="form-select rounded-3" required>
+                                                    <select name="paket_wisata_id" class="form-select rounded-3" required>
                                                         @foreach(\App\Models\PaketWisata::all() as $pw)
-                                                            <option value="{{ $pw->id }}" {{ $item->paket_wisata_id == $pw->id ? 'selected' : '' }}>
-                                                                {{ $pw->nama_paket }}
-                                                            </option>
+                                                            <option value="{{ $pw->id }}" {{ $item->paket_wisata_id == $pw->id ? 'selected' : '' }}>{{ $pw->nama_paket }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -108,34 +89,21 @@
                                                     <label class="form-label fw-bold">Pilih Item Fasilitas</label>
                                                     <select name="fasilitas_id" class="form-select rounded-3" required>
                                                         @foreach(\App\Models\Fasilitas::where('tipe_fasilitas', 'paket')->get() as $fasil)
-                                                            <option value="{{ $fasil->id }}" {{ $item->fasilitas_id == $fasil->id ? 'selected' : '' }}>
-                                                                {{ $fasil->nama_fasilitas }}
-                                                            </option>
+                                                            <option value="{{ $fasil->id }}" {{ $item->fasilitas_id == $fasil->id ? 'selected' : '' }}>{{ $fasil->nama_fasilitas }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <label class="form-label fw-bold">Jumlah Kuantitas</label>
-                                                    <input type="number" name="jumlah" class="form-control rounded-3" value="{{ $item->jumlah }}" min="1" required>
-                                                </div>
-                                                <div class="col-md-8">
-                                                    <label class="form-label fw-bold">Keterangan</label>
-                                                    <input type="text" name="keterangan" class="form-control rounded-3" value="{{ $item->keterangan }}">
-                                                </div>
+                                                <div class="col-md-4"><label class="form-label fw-bold">Jumlah</label><input type="number" name="jumlah" class="form-control rounded-3" value="{{ $item->jumlah }}" min="1" required></div>
+                                                <div class="col-md-8"><label class="form-label fw-bold">Keterangan</label><input type="text" name="keterangan" class="form-control rounded-3" value="{{ $item->keterangan }}"></div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer border-0 pb-4 px-4">
-                                            <button type="button" class="btn btn-light px-4 rounded-3" data-bs-dismiss="modal">Batal</button>
-                                            <button type="submit" class="btn btn-primary px-4 rounded-3">Simpan Perubahan</button>
-                                        </div>
+                                        <div class="modal-footer border-0 pb-4 px-4"><button type="submit" class="btn btn-primary px-4 rounded-3">Simpan Perubahan</button></div>
                                     </form>
                                 </div>
                             </div>
                         </div>
                         @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">Belum ada data.</td>
-                        </tr>
+                        <tr><td colspan="6" class="text-center py-4 text-muted">Belum ada data.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -147,46 +115,30 @@
 <div class="modal fade" id="modalTambah" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold">Hubungkan Fasilitas ke Paket</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+            <div class="modal-header border-0 pt-4 px-4"><h5 class="modal-title fw-bold">Hubungkan Fasilitas</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <form action="{{ route('admin.paket-fasilitas.store') }}" method="POST">
                 @csrf
                 <div class="modal-body px-4">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Pilih Paket Wisata</label>
-                            <select name="id_paket" class="form-select rounded-3" required>
-                                <option value="">-- Pilih Paket Wisata --</option>
-                                @foreach(\App\Models\PaketWisata::all() as $pw)
-                                    <option value="{{ $pw->id }}">{{ $pw->nama_paket }}</option>
-                                @endforeach
+                            <select name="paket_wisata_id" class="form-select rounded-3" required>
+                                <option value="">-- Pilih Paket --</option>
+                                @foreach(\App\Models\PaketWisata::all() as $pw)<option value="{{ $pw->id }}">{{ $pw->nama_paket }}</option>@endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Pilih Item Fasilitas</label>
                             <select name="fasilitas_id" class="form-select rounded-3" required>
                                 <option value="">-- Pilih Fasilitas --</option>
-                                @foreach(\App\Models\Fasilitas::where('tipe_fasilitas', 'paket')->get() as $fasil)
-                                    <option value="{{ $fasil->id }}">{{ $fasil->nama_fasilitas }}</option>
-                                @endforeach
+                                @foreach(\App\Models\Fasilitas::where('tipe_fasilitas', 'paket')->get() as $fasil)<option value="{{ $fasil->id }}">{{ $fasil->nama_fasilitas }}</option>@endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Jumlah</label>
-                            <input type="number" name="jumlah" class="form-control rounded-3" min="1" required>
-                        </div>
-                        <div class="col-md-8">
-                            <label class="form-label fw-bold">Keterangan</label>
-                            <input type="text" name="keterangan" class="form-control rounded-3">
-                        </div>
+                        <div class="col-md-4"><label class="form-label fw-bold">Jumlah</label><input type="number" name="jumlah" class="form-control rounded-3" min="1" required></div>
+                        <div class="col-md-8"><label class="form-label fw-bold">Keterangan</label><input type="text" name="keterangan" class="form-control rounded-3"></div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light px-4 rounded-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary px-4 rounded-3">Simpan Data</button>
-                </div>
+                <div class="modal-footer border-0 pb-4 px-4"><button type="submit" class="btn btn-primary px-4 rounded-3">Simpan Data</button></div>
             </form>
         </div>
     </div>
@@ -197,19 +149,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function confirmDelete(id) {
-        Swal.fire({
-            title: 'Hapus data?',
-            text: "Data akan dihapus permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Hapus!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id).submit();
-            }
-        })
+        Swal.fire({ title: 'Hapus data?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya, Hapus!' })
+        .then((result) => { if (result.isConfirmed) { document.getElementById('delete-form-' + id).submit(); } })
     }
 </script>
 @endpush

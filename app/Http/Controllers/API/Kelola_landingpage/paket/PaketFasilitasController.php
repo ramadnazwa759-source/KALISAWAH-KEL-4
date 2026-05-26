@@ -12,6 +12,14 @@ class PaketFasilitasController extends Controller
     // GET /api/paket-fasilitas
     public function index()
     {
+        // FRONENDEND
+        // Gunakan query builder
+        $query = \App\Models\PaketWisata::query();
+
+        // Filter berdasarkan Kategori
+        if ($request->filled('kategori_id')) {
+        $query->where('kategori_paket_id', $request->kategori_id);
+        }
         // return response()->json(PaketFasilitas::all(), 200);
 
         return view('admin.layanan.paket_fasilitas.index');
@@ -50,8 +58,8 @@ class PaketFasilitasController extends Controller
         $paketFasilitas = PaketFasilitas::findOrFail($id);
 
         $request->validate([
-            'id_paket'     => 'required|integer|exists:paket_wisata,id',
-            'id_fasilitas' => 'required|integer|exists:fasilitas,id',
+            'paket_wisata_id'     => 'required|integer|exists:paket_wisata,id',
+            'fasilitas_id' => 'required|integer|exists:fasilitas,id',
             'jumlah'       => 'required|integer|min:1',
             'keterangan'   => 'nullable|string',
         ]);
