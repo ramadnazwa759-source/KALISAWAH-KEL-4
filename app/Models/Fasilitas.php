@@ -42,4 +42,17 @@ class Fasilitas extends Model
     {
         return $this->hasMany(BookingFasilitas::class);
     }
+
+    // Di dalam file App\Models\Fasilitas.php
+
+    public function paketWisata()
+    {
+        // Kebalikan dari relasi di PaketWisata
+        return $this->belongsToMany(
+            PaketWisata::class, 
+            'paket_fasilitas', 
+            'id_fasilitas',    // FK dari model ini (Fasilitas) di tabel pivot
+            'paket_wisata_id'  // FK dari model lawan (PaketWisata) di tabel pivot
+        );
+    }
 }

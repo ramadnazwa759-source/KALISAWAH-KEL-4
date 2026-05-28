@@ -14,11 +14,7 @@ return new class extends Migration
         $table->string('nama_pemesan');
         $table->string('no_hp');
         $table->date('tanggal_kunjungan');
-        
-        // SISIPKAN DUA KOLOM BARU INI
-        $table->date('tanggal_pulang');
         $table->integer('jumlah_hari')->default(1);
-
         $table->time('jam');
         $table->integer('jumlah_pengunjung');
         $table->integer('jumlah_tiket_tambahan')->default(0);

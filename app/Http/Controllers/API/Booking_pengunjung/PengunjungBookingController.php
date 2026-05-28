@@ -12,252 +12,250 @@ use App\Models\BookingItem;
 use App\Models\BookingFasilitas;
 use App\Models\PaketWisata;
 use App\Models\Fasilitas;
-use App\Models\Kategori; 
+use App\Models\KategoriPaket;
+use App\Models\KategoriFasilitas;
 
 class PengunjungBookingController extends Controller
 {
-    // STEP 1 & 2: Menampilkan Form Booking Utama
+    // --- 1. Fungsi Form & Helper ---
     public function showForm(Request $request)
     {
-        $paketId = $request->query('paket');
-        $selectedPaket = $paketId ? PaketWisata::with('kategori')->find($paketId) : null;
-
-        // Ambil semua kategori untuk dropdown pencarian paket & fasilitas
-        $allKategori = Kategori::all();
-
-        return view('pengunjung.booking.form', [
-            'selectedPaket' => $selectedPaket,
-            'allKategori' => $allKategori,
+        return view('pengunjung.booking.booking-form', [
+            'kategoriPaket' => KategoriPaket::all(),
+            'paket' => PaketWisata::with('kategori')->where('status', 'aktif')->get(),
+            'kategoriFasilitas' => KategoriFasilitas::all(),
+            'fasilitas' => Fasilitas::with('kategori')->where('tipe_fasilitas', 'sewa')->where('stok', '>', 0)->get(),
         ]);
     }
 
-    // API INTERNAL 1: Ambil Paket berdasarkan Kategori (Dinamis lewat JavaScript)
-    public function getPaketByKategori($kategoriId)
+    public function getPaketByKategori($id)
     {
-        $pakets = PaketWisata::where('kategori_id', $kategoriId)
-                             ->where('status', 'aktif')
-                             ->get();
-
-        return response()->json($pakets);
+        $paket = PaketWisata::where('kategori_paket_id', $id)->where('status', 'aktif')->get();
+        return response()->json($paket);
     }
 
-    // API INTERNAL 2: Ambil Fasilitas BER-TIPE SEWA & STOK > 0 berdasarkan Kategori
     public function getFasilitasByKategori($kategoriId)
     {
-        // Catatan: Pastikan di tabel fasilitas kamu ada kolom 'kategori_id' atau relasi ke kategori
-        $fasilitas = Fasilitas::where('kategori_id', $kategoriId)
-                              ->where('tipe_fasilitas', 'sewa')
-                              ->where('stok', '>', 0)
-                              ->get();
-
+        $fasilitas = Fasilitas::where('kategori_fasilitas_id', $kategoriId)
+                                ->where('tipe_fasilitas', 'sewa')
+                                ->where('stok', '>', 0)
+                                ->get();
         return response()->json($fasilitas);
     }
 
-    // PROSES STEP 2: Validasi Aman & Perhitungan Otomatis di Back-end
-    public function store(Request $request)
+    // --- 2. FUNGSI BARU UNTUK ALUR PREVIEW -> KONFIRMASI ---
+
+    public function review(Request $request)
     {
         $request->validate([
             'nama_pemesan' => 'required|string|max:255',
-            'no_hp' => 'required|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|max:20',
+            'no_hp' => 'required|string|min:9|max:20',
             'tanggal_kunjungan' => 'required|date|after_or_equal:today',
-            'jumlah_hari' => 'required|integer|min:1|max:30',
-            'jam' => 'required|date_format:H:i',
+            'jam' => 'required',
             'jumlah_pengunjung' => 'required|integer|min:1',
             'paket' => 'required|array|min:1',
-            'paket.*.selected' => 'nullable|in:1',
-            'paket.*.qty' => 'nullable|integer|min:0',
-            'fasilitas' => 'nullable|array',
-            'fasilitas.*.qty' => 'nullable|integer|min:0',
-            'catatan' => 'nullable|string|max:1000'
         ]);
 
+        // Simpan input sementara ke session
+        session(['temp_booking_data' => $request->all()]);
+
+        // Hitung data untuk preview (tapi belum simpan ke DB)
+        $data = $this->calculateBookingData($request);
+
+        return view('pengunjung.booking.booking-detail', [
+            'booking' => (object) $data,
+            'is_preview' => true
+        ]);
+    }
+
+    public function confirmStore(Request $request)
+    {
+        $input = session('temp_booking_data');
+        if (!$input) {
+            return redirect()->route('pengunjung.booking.showForm')->with('error', 'Sesi habis, silakan isi ulang.');
+        }
+
+        // Jalankan logika penyimpanan yang sama dengan logic store sebelumnya
         try {
-            $booking = DB::transaction(function() use ($request) {
-                $kodeBooking = 'BK-' . strtoupper(Str::random(8));
+            $booking = DB::transaction(function() use ($input) {
+                // Logic ini diambil dari store lama Anda
+                $requestObj = new Request($input);
                 
-                $jumlahHariMenginap = intval($request->jumlah_hari);
-                $tanggalKunjungan = Carbon::parse($request->tanggal_kunjungan);
+                $kodeBooking = 'BK-' . strtoupper(Str::random(8));
+                $jumlahHariMenginap = $requestObj->filled('jumlah_hari') ? intval($requestObj->jumlah_hari) : 1;
+                $tanggalKunjungan = Carbon::parse($requestObj->tanggal_kunjungan);
                 $tanggalPulang = $tanggalKunjungan->copy()->addDays($jumlahHariMenginap);
 
-                $subtotalPaket = 0;
-                $subtotalFasilitas = 0;
-                $totalKapasitas = 0;
-
+                $subtotalPaket = 0; $subtotalFasilitas = 0; $totalTiketTambahan = 0; $subtotalTiketTambahan = 0;
                 $validPakets = [];
-                foreach ($request->paket as $paketId => $data) {
-                    if (isset($data['selected']) && $data['selected'] == '1') {
-                        $qty = isset($data['qty']) ? intval($data['qty']) : 0;
-                        if ($qty > 0) {
-                            $paket = PaketWisata::with('kategori')->findOrFail($paketId);
-                            
-                            $isCamping = ($paket->kategori && strtolower($paket->kategori->nama_kategori) === 'camping');
-                            $pengaliHari = $isCamping ? $jumlahHariMenginap : 1;
 
-                            $hargaPaketTotal = $paket->harga * $qty * $pengaliHari;
-                            $subtotalPaket += $hargaPaketTotal;
-                            $totalKapasitas += $paket->kapasitas * $qty;
-                            
-                            $validPakets[] = [
-                                'model' => $paket,
-                                'qty' => $qty,
-                                'harga' => $paket->harga,
-                                'subtotal' => $hargaPaketTotal
-                            ];
-                        }
+                foreach ($input['paket'] as $hari => $paketIds) {
+                    foreach ($paketIds as $paketId) {
+                        $paket = PaketWisata::findOrFail($paketId);
+                        $subtotalPaket += $paket->harga;
+                        $validPakets[] = ['model' => $paket, 'qty' => 1, 'hari' => $hari, 'tanggal' => $tanggalKunjungan->copy()->addDays((int)$hari - 1)->toDateString(), 'harga' => $paket->harga, 'subtotal' => $paket->harga];
                     }
-                }
-
-                if (empty($validPakets)) {
-                    throw new \Exception("Anda harus memilih minimal satu paket wisata.");
-                }
-
-                $jumlahTiketTambahan = 0;
-                $subtotalTiketTambahan = 0;
-                if ($request->jumlah_pengunjung > $totalKapasitas) {
-                    $jumlahTiketTambahan = $request->jumlah_pengunjung - $totalKapasitas;
-                    $subtotalTiketTambahan = $jumlahTiketTambahan * 25000 * $jumlahHariMenginap; 
                 }
 
                 $validFasilitas = [];
-                if ($request->fasilitas) {
-                    foreach ($request->fasilitas as $fasilitasId => $data) {
-                        $qty = isset($data['qty']) ? intval($data['qty']) : 0;
+                if (isset($input['fasilitas'])) {
+                    foreach ($input['fasilitas'] as $fasilitasId => $qty) {
+                        $qty = intval($qty);
                         if ($qty > 0) {
-                            $fasilitas = Fasilitas::where('id', $fasilitasId)->lockForUpdate()->firstOrFail();
-
-                            if ($fasilitas->tipe_fasilitas == 'sewa') {
-                                if ($qty > $fasilitas->stok) {
-                                    throw new \Exception("Stok fasilitas {$fasilitas->nama_fasilitas} tidak mencukupi. Sisa stok: {$fasilitas->stok}");
-                                }
-                                $fasilitas->decrement('stok', $qty);
-                            }
-
-                            $hargaFasilitasTotal = $fasilitas->harga * $qty * $jumlahHariMenginap;
-                            $subtotalFasilitas += $hargaFasilitasTotal;
-
-                            $validFasilitas[] = [
-                                'model' => $fasilitas,
-                                'qty' => $qty,
-                                'harga' => $fasilitas->harga,
-                                'subtotal' => $hargaFasilitasTotal
-                            ];
+                            $fasilitas = Fasilitas::findOrFail($fasilitasId);
+                            $fasilitas->decrement('stok', $qty);
+                            $hargaTotal = $fasilitas->harga * $qty * $jumlahHariMenginap;
+                            $subtotalFasilitas += $hargaTotal;
+                            $validFasilitas[] = ['model' => $fasilitas, 'qty' => $qty, 'tanggal' => $tanggalKunjungan->toDateString(), 'harga' => $fasilitas->harga, 'subtotal' => $hargaTotal];
                         }
                     }
                 }
 
-                $totalHarga = $subtotalPaket + $subtotalFasilitas + $subtotalTiketTambahan;
-
                 $bookingRecord = Booking::create([
                     'kode_booking' => $kodeBooking,
-                    'nama_pemesan' => strip_tags($request->nama_pemesan),
-                    'no_hp' => strip_tags($request->no_hp),
-                    'tanggal_kunjungan' => $request->tanggal_kunjungan,
-                    'tanggal_pulang' => $tanggalPulang->toDateString(),
-                    'jumlah_hari' => $jumlahHariMenginap,
-                    'jam' => $request->jam,
-                    'jumlah_pengunjung' => $request->jumlah_pengunjung,
-                    'jumlah_tiket_tambahan' => $jumlahTiketTambahan,
-                    'harga_tiket_tambahan' => 25000,
-                    'subtotal_tiket_tambahan' => $subtotalTiketTambahan,
-                    'catatan' => strip_tags($request->catatan),
-                    'total_harga' => $totalHarga,
-                    'diskon_manual' => 0,
-                    'total_harga_final' => $totalHarga,
+                    'nama_pemesan' => strip_tags($input['nama_pemesan']),
+                    'no_hp' => strip_tags($input['no_hp']),
+                    'tanggal_kunjungan' => $input['tanggal_kunjungan'],
+                    'tanggal_selesai' => $tanggalPulang->toDateString(),
+                    'jumlah_malam' => $jumlahHariMenginap,
+                    'jam' => $input['jam'],
+                    'jumlah_pengunjung' => $input['jumlah_pengunjung'],
+                    'total_harga' => ($subtotalPaket + $subtotalFasilitas),
+                    'total_harga_final' => ($subtotalPaket + $subtotalFasilitas),
                     'status_booking' => 'pending',
                     'status_pembayaran' => 'belum_bayar'
                 ]);
 
                 foreach ($validPakets as $p) {
-                    BookingItem::create([
-                        'booking_id' => $bookingRecord->id,
-                        'paket_wisata_id' => $p['model']->id,
-                        'qty' => $p['qty'],
-                        'harga' => $p['harga'],
-                        'subtotal' => $p['subtotal']
-                    ]);
+                    BookingItem::create(['booking_id' => $bookingRecord->id, 'paket_wisata_id' => $p['model']->id, 'qty' => $p['qty'], 'hari' => $p['hari'], 'tanggal' => $p['tanggal'], 'harga' => $p['harga'], 'subtotal' => $p['subtotal']]);
                 }
-
                 foreach ($validFasilitas as $f) {
-                    BookingFasilitas::create([
-                        'booking_id' => $bookingRecord->id,
-                        'fasilitas_id' => $f['model']->id,
-                        'qty' => $f['qty'],
-                        'harga' => $f['harga'],
-                        'subtotal' => $f['subtotal']
-                    ]);
+                    BookingFasilitas::create(['booking_id' => $bookingRecord->id, 'fasilitas_id' => $f['model']->id, 'qty' => $f['qty'], 'tanggal' => $f['tanggal'], 'harga' => $f['harga'], 'subtotal' => $f['subtotal']]);
                 }
-
                 return $bookingRecord;
             });
 
-            return redirect()->route('booking.detail', ['id' => $booking->id]);
+            session()->forget('temp_booking_data');
+            return redirect()->route('pengunjung.booking.showPayment', $booking->id);
 
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    // STEP 3: Menampilkan Rincian Lengkap Hasil Kalkulasi
-    public function showDetail($id)
+    private function calculateBookingData($request)
     {
+        // Fungsi helper untuk menghitung data sebelum masuk DB (untuk tampilan preview)
+        return [
+            'nama_pemesan' => $request->nama_pemesan,
+            'no_hp' => $request->no_hp,
+            'tanggal_kunjungan' => $request->tanggal_kunjungan,
+            'jam' => $request->jam,
+            'jumlah_pengunjung' => $request->jumlah_pengunjung,
+            // Logic perhitungan lain bisa ditambah di sini
+        ];
+    }
+
+    // --- 3. FUNGSI LAMA (JANGAN DIHAPUS) ---
+
+    public function update(Request $request, $id) 
+    {
+        DB::beginTransaction();
+        try {
+            $booking = Booking::findOrFail($id);
+            $booking->update([
+                'nama_pemesan' => $request->nama_pemesan,
+                'no_hp' => $request->no_hp,
+                'tanggal_kunjungan' => $request->tanggal_kunjungan,
+                'jam' => $request->jam,
+                'jumlah_malam' => $request->jumlah_hari,
+                'jumlah_pengunjung' => $request->jumlah_pengunjung,
+            ]);
+
+            $booking->items()->delete();
+            if ($request->has('paket')) {
+                foreach ($request->paket as $hari => $paketIds) {
+                    foreach ($paketIds as $paketId) {
+                        $qty = $request->paket_qty[$hari][$paketId] ?? 1;
+                        $paket = PaketWisata::find($paketId);
+                        $booking->items()->create(['hari' => $hari, 'paket_wisata_id' => $paketId, 'qty' => $qty, 'harga' => $paket->harga, 'subtotal' => $paket->harga * $qty]);
+                    }
+                }
+            }
+
+            $booking->fasilitas()->delete();
+            if ($request->has('fasilitas')) {
+                foreach ($request->fasilitas as $fasId => $qty) {
+                    if ($qty > 0) {
+                        $fas = Fasilitas::find($fasId);
+                        $booking->fasilitas()->create(['fasilitas_id' => $fasId, 'qty' => $qty, 'harga' => $fas->harga, 'subtotal' => $fas->harga * $qty]);
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('pengunjung.booking.booking-detail', $id)->with('success', 'Data berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function showDetail($id) {
         $booking = Booking::with(['items.paketWisata', 'fasilitas.fasilitas'])->findOrFail($id);
-        return view('pengunjung.booking.detail', compact('booking'));
+        return view('pengunjung.booking.booking-detail', compact('booking'));
     }
 
-    // STEP 4: Menampilkan Form Pilihan Tipe Pembayaran (DP/Lunas) & Metode Bayar
-    public function showPayment($id)
-    {
+    public function showPayment($id) {
         $booking = Booking::findOrFail($id);
-        return view('pengunjung.booking.payment', compact('booking'));
+        return view('pengunjung.booking.booking-payment', compact('booking'));
     }
 
-    // PROSES STEP 4: Update Pilihan Metode Pembayaran
+    public function edit($id) {
+        $booking = Booking::with(['items', 'fasilitas'])->findOrFail($id);
+        if ($booking->status_pembayaran !== 'belum_bayar') return redirect()->back()->with('error', 'Tidak bisa diubah.');
+        return view('pengunjung.booking.booking-form', [
+            'booking' => $booking,
+            'kategoriPaket' => KategoriPaket::all(),
+            'paket' => PaketWisata::with('kategori')->where('status', 'aktif')->get(),
+            'kategoriFasilitas' => KategoriFasilitas::all(),
+            'fasilitas' => Fasilitas::with('kategori')->where('tipe_fasilitas', 'sewa')->get(),
+        ]);
+    }
+
     public function updatePaymentMethod(Request $request, $id)
     {
-        $request->validate([
-            'tipe_pembayaran' => 'required|in:dp,lunas',
-            'metode_pembayaran' => 'required|string'
-        ]);
-
         $booking = Booking::findOrFail($id);
-        
-        $booking->update([
-            'status_pembayaran' => $request->tipe_pembayaran,
-            'catatan' => $booking->catatan . " | Metode: " . strip_tags($request->metode_pembayaran)
-        ]);
-
-        return redirect()->route('booking.success', ['id' => $booking->id]);
+        $booking->update(['status_pembayaran' => $request->tipe_pembayaran, 'catatan' => $booking->catatan . " | Metode: " . strip_tags($request->metode_pembayaran)]);
+        return redirect()->route('pengunjung.booking.booking-success', ['id' => $booking->id]);
     }
 
-    // STEP 5: Tampilan Sukses 
     public function showSuccess($id)
     {
         $booking = Booking::findOrFail($id);
-        return view('pengunjung.booking.success', compact('booking'));
+        return view('pengunjung.booking.booking-success', compact('booking'));
     }
 
-    // PROSES STEP 5: Unggah Bukti Transfer
     public function uploadBukti(Request $request, $id)
     {
-        $request->validate([
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048'
-        ]);
-
+        $request->validate(['bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048']);
         $booking = Booking::findOrFail($id);
-
         if ($request->hasFile('bukti_pembayaran')) {
-            $file = $request->file('bukti_pembayaran');
-            $filename = 'BUKTI-' . $booking->kode_booking . '-' . time() . '.' . $file->getClientOriginalExtension();
-            
-            $file->storeAs('public/bukti_pembayaran', $filename);
-
-            $booking->update([
-                'catatan' => $booking->catatan . " | Bukti terupload: " . $filename
-            ]);
-
-            return redirect()->back()->with('success', 'Bukti pembayaran berhasil diunggah! Tunggu konfirmasi status dari Admin.');
+            $filename = 'BUKTI-' . $booking->kode_booking . '-' . time() . '.' . $request->file('bukti_pembayaran')->getClientOriginalExtension();
+            $request->file('bukti_pembayaran')->storeAs('public/bukti_pembayaran', $filename);
+            $booking->update(['catatan' => $booking->catatan . " | Bukti terupload: " . $filename]);
+            return redirect()->back()->with('success', 'Bukti berhasil diunggah.');
         }
+        return redirect()->back()->with('error', 'Gagal.');
+    }
 
-        return redirect()->back()->with('error', 'Gagal mengunggah file.');
+    public function create()
+    {
+        return view('pengunjung.booking.booking-form', [
+            'kategoriPaket' => KategoriPaket::all(),
+            'paket' => PaketWisata::with('kategori')->where('status', 'aktif')->get(),
+            'kategoriFasilitas' => KategoriFasilitas::all(),
+            'fasilitas' => Fasilitas::with('kategoriFasilitas')->where('tipe_fasilitas', 'sewa')->where('stok', '>', 0)->get(),
+        ]);
     }
 }

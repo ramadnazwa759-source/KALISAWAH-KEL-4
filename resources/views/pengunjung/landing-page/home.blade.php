@@ -1,449 +1,556 @@
-@extends('layouts.app')
-
-@section('title', 'Beranda - Kalisawah Adventure Banyuwangi')
-
-@section('content')
-    <!-- SECTION 1: HERO CAROUSEL -->
-    <section class="relative h-screen min-h-[600px] w-full overflow-hidden">
-        <div class="swiper heroSwiper h-full w-full">
-            <div class="swiper-wrapper">
-                <!-- Slide 1 -->
-                <div class="swiper-slide relative">
-                    <img src="https://picsum.photos/id/1015/1920/1080" alt="Hero 1" class="absolute inset-0 w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
-                    <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto">
-                        <div class="max-w-2xl">
-                            <h1 class="text-primary text-4xl md:text-6xl lg:text-7xl font-bold mb-2">Rafting & Outbound</h1>
-                            <h2 class="font-script text-secondary text-4xl md:text-5xl lg:text-6xl mb-6">Seru di Banyuwangi</h2>
-                            <p class="text-white text-lg md:text-xl font-normal mb-10 max-w-lg leading-relaxed">
-                                Rasakan pengalaman tak terlupakan di Kali Sawah Adventure, menyatu dengan alam yang asri.
-                            </p>
-                            <div class="flex flex-wrap gap-4">
-                                <a href="{{ route('panduan.booking') }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 2 -->
-                <div class="swiper-slide relative">
-                    <img src="https://picsum.photos/id/1016/1920/1080" alt="Hero 2" class="absolute inset-0 w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
-                    <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto">
-                        <div class="max-w-2xl">
-                            <h1 class="text-primary text-4xl md:text-6xl lg:text-7xl font-bold mb-2">Camping Seru</h1>
-                            <h2 class="font-script text-secondary text-4xl md:text-5xl lg:text-6xl mb-6">Bernapas Bersama Alam</h2>
-                            <p class="text-white text-lg md:text-xl font-normal mb-10 max-w-lg leading-relaxed">
-                                Nikmati malam bertabur bintang di area camping eksklusif Kalisawah Adventure.
-                            </p>
-                            <div class="flex flex-wrap gap-4">
-                                <a href="{{ route('panduan.booking') }}" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-hover-primary transition-all transform hover:-translate-y-1 shadow-lg">Panduan Booking</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Swiper Navigation -->
-            <div class="swiper-button-next !text-white !w-12 !h-12 after:!text-2xl hidden md:flex"></div>
-            <div class="swiper-button-prev !text-white !w-12 !h-12 after:!text-2xl hidden md:flex"></div>
-            <div class="swiper-pagination !bottom-10"></div>
-        </div>
-    </section>
-
-    <!-- SECTION 2: TRUST SIGNAL -->
-    <section class="relative z-20 -mt-16 md:-mt-24 px-6 md:px-20 max-w-7xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 md:p-12 flex flex-col items-center">
-            <h2 class="text-2xl md:text-3xl font-bold text-center mb-10 text-dark-navy">
-                Kenapa Memilih <span class="text-secondary underline decoration-primary decoration-4 underline-offset-8">Kalisawah Adventure?</span>
-            </h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 w-full">
-                <!-- Card 1 -->
-                <div class="flex flex-col items-center text-center">
-                    <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mb-4 text-secondary text-2xl">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <span class="text-2xl md:text-3xl font-bold text-primary block">20.000+</span>
-                    <span class="text-gray-500 text-sm font-semibold">Peserta</span>
-                </div>
-                <!-- Card 2 -->
-                <div class="flex flex-col items-center text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary text-2xl">
-                        <i class="fa-solid fa-briefcase"></i>
-                    </div>
-                    <span class="text-2xl md:text-3xl font-bold text-primary block">500+</span>
-                    <span class="text-gray-500 text-sm font-semibold text-wrap">Corporate & Komunitas</span>
-                </div>
-                <!-- Card 3 -->
-                <div class="flex flex-col items-center text-center">
-                    <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mb-4 text-secondary text-2xl">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                    </div>
-                    <span class="text-2xl md:text-3xl font-bold text-primary block">300+</span>
-                    <span class="text-gray-500 text-sm font-semibold text-wrap">Sekolah / Kampus</span>
-                </div>
-                <!-- Card 4 -->
-                <div class="flex flex-col items-center text-center">
-                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary text-2xl">
-                        <i class="fa-solid fa-calendar-check"></i>
-                    </div>
-                    <span class="text-2xl md:text-3xl font-bold text-primary block">10+</span>
-                    <span class="text-gray-500 text-sm font-semibold">Tahun Pengalaman</span>
-                </div>
-                <!-- Card 5 -->
-                <div class="flex flex-col items-center text-center">
-                    <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 text-green-500 text-2xl">
-                        <i class="fa-brands fa-google"></i>
-                    </div>
-                    <span class="text-2xl md:text-3xl font-bold text-primary block">4.9 <i class="fa-solid fa-star text-secondary text-sm"></i></span>
-                    <span class="text-gray-500 text-sm font-semibold">(1.200+ review)</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 3: KENALAN DENGAN KALISAWAH -->
-    <section id="tentang-kalisawah" class="py-24 px-6 md:px-20 bg-soft-blue mt-12 overflow-hidden scroll-mt-20">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-            <!-- Left: Image -->
-            <div class="w-full lg:w-1/2 relative">
-                <div class="absolute -top-6 -left-6 w-32 h-32 bg-secondary/20 rounded-full -z-10 animate-pulse"></div>
-                <div class="absolute -bottom-6 -right-6 w-48 h-48 bg-primary/10 rounded-full -z-10"></div>
-                <img src="https://picsum.photos/id/1018/800/600" alt="Tentang Kalisawah" class="rounded-3xl shadow-2xl w-full object-cover">
-            </div>
-            <!-- Right: Text -->
-            <div class="w-full lg:w-1/2">
-                <h3 class="text-xl font-bold text-primary mb-2">Kenalan dengan <span class="text-secondary">Kalisawah</span></h3>
-                <h2 class="text-3xl md:text-4xl font-bold text-dark-navy mb-6 leading-tight">Apa itu Kalisawah Adventure?</h2>
-                <p class="text-gray-600 text-lg leading-relaxed mb-8">
-                    Kalisawah adalah destinasi wisata petualangan alam di Banyuwangi yang menawarkan rafting seru, camping di alam, dan berbagai aktivitas outbound yang dirancang untuk menyatukan Anda dengan alam.
-                </p>
-                <div class="space-y-4 mb-10">
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm text-primary">
-                            <i class="fa-solid fa-check-circle"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-dark-navy">Menyatu dengan Alam</h4>
-                            <p class="text-gray-500 text-sm">Lokasi asri di pinggiran sungai dan sawah.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm text-primary">
-                            <i class="fa-solid fa-check-circle"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-dark-navy">Seru & Edukatif</h4>
-                            <p class="text-gray-500 text-sm">Program outbound yang melatih team building.</p>
-                        </div>
-                    </div>
-                </div>
-                <a href="#" class="inline-flex items-center gap-2 text-primary font-bold text-lg hover:gap-4 transition-all">
-                    Tentang Kalisawah <i class="fa-solid fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 3.5: PENCARIAN BOOKING (PRECISE TRAVEL BAR) -->
-    <section id="pencarian-booking" class="py-20 px-6 md:px-20 bg-[#f8f9fb]">
-        <div class="max-w-[1100px] mx-auto">
-            <!-- Title Section -->
-            <div class="text-center mb-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-[#0057c2] mb-3">Cari Booking Anda</h2>
-                <p class="text-gray-500 font-medium">Temukan riwayat pesanan Anda dengan memasukkan data di bawah ini</p>
-            </div>
-
-            <!-- Single Elegant Card -->
-            <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-200 p-8 md:p-10">
-                <form id="search-booking-form" action="{{ route('search.results') }}" method="GET" class="flex flex-col md:flex-row items-end gap-6">
-                    
-                    <!-- Field 1: Phone (26%) -->
-                    <div class="w-full md:w-[26%]">
-                        <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Nomor HP</label>
-                        <div class="relative group">
-                            <input type="text" name="phone" id="search-phone" placeholder="Contoh: 0812..." required
-                                class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
-                        </div>
-                    </div>
-
-                    <!-- Field 2: Date (26%) -->
-                    <div class="w-full md:w-[26%]">
-                        <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Tanggal Booking</label>
-                        <div class="relative group">
-                            <input type="date" name="date" id="search-date" required
-                                class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy cursor-pointer">
-                        </div>
-                    </div>
-
-                    <!-- Field 3: Name (32%) -->
-                    <div class="w-full md:w-[32%]">
-                        <label class="block text-[11px] font-bold text-dark-navy uppercase tracking-[0.1em] mb-3 ml-1">Nama Pemesan</label>
-                        <div class="relative group">
-                            <input type="text" name="name" id="search-name" placeholder="Nama lengkap Anda" required
-                                class="w-full h-[56px] px-6 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm font-medium text-dark-navy placeholder:text-gray-400">
-                        </div>
-                    </div>
-
-                    <!-- Search Button (16%) -->
-                    <div class="w-full md:w-[16%]">
-                        <button type="submit" class="w-full h-[56px] bg-primary hover:bg-hover-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg active:scale-[0.98]">
-                            <span>Cari</span>
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-    </section>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalisawah Adventure - Premium Outdoor & Petualangan Seru</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
-        document.getElementById('search-booking-form').addEventListener('submit', function(e) {
-            const phone = document.getElementById('search-phone').value.trim();
-            const date = document.getElementById('search-date').value.trim();
-            const name = document.getElementById('search-name').value.trim();
-
-            if (!phone || !date || !name) {
-                e.preventDefault();
-                alert('Lengkapi nama, tanggal booking, dan nomor HP terlebih dahulu.');
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Plus Jakarta Sans', 'sans-serif'],
+                        'latin': ['Pacifico', 'cursive'],
+                    },
+                    colors: {
+                        'primary': '#0066CC',
+                        'primary-hover': '#005BB5',
+                        'secondary': '#FFC236',
+                        'dark-navy': '#0B1224',
+                        'card-dark': '#131C35',
+                        'light-bg': '#F8FAFC'
+                    },
+                    boxShadow: {
+                        'premium': '0 20px 50px -12px rgba(11, 18, 36, 0.05)',
+                        'premium-hover': '0 30px 60px -10px rgba(0, 102, 204, 0.12)',
+                        'button-solid': '0 10px 24px -4px rgba(0, 102, 204, 0.4)',
+                        'button-dark': '0 10px 24px -4px rgba(11, 18, 36, 0.25)',
+                    }
+                }
             }
-        });
+        }
     </script>
-
-
-
-    <!-- SECTION 4: PILIH PAKET SERU KAMU -->
-    <section id="paket-seru" class="py-24 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-5xl font-bold text-dark-navy">Pilih Paket <span class="text-secondary">Seru Kamu</span></h2>
-            <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            @forelse($categories as $category)
-            <a href="{{ $category->slug }}" class="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-2 flex flex-col h-full">
-                <div class="relative h-56 overflow-hidden">
-                    <img src="{{ $category->gambar ? asset('storage/' . $category->gambar) : 'https://picsum.photos/id/1019/600/400' }}" alt="{{ $category->nama }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-primary text-xl font-bold mb-3 leading-tight group-hover:text-hover-primary transition-colors">{{ $category->nama }}</h3>
-                    <p class="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">{{ $category->deskripsi }}</p>
-                    <div class="mt-auto block w-full text-center bg-secondary text-white py-3 rounded-xl font-bold shadow-md group-hover:bg-secondary/90 transition-all">
-                        Lihat Detail <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
-                    </div>
-                </div>
-            </a>
-            @empty
-            <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-200">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-soft-blue text-primary text-2xl mb-4">
-                    <i class="fa-solid fa-folder-open"></i>
-                </div>
-                <h3 class="text-lg font-bold text-dark-navy mb-1">Belum Ada Kategori Wisata</h3>
-                <p class="text-gray-500 text-sm max-w-md mx-auto">Silakan tambahkan data kategori wisata melalui panel admin atau database.</p>
-            </div>
-            @endforelse
-        </div>
-    </section>
-
-    <!-- SECTION 5: LOGO CAROUSEL -->
-    <section class="py-20 bg-light-gray overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 md:px-20 mb-12">
-            <h2 class="text-2xl md:text-3xl font-bold text-center text-dark-navy">
-                 <span class="text-secondary">Experience</span>
-            </h2>
-        </div>
-        
-        <!-- Corporate Loop -->
-        <div class="flex flex-col gap-12">
-            <div class="flex overflow-hidden group">
-                <div class="flex animate-loop-scroll group-hover:paused space-x-16 items-center">
-                    @for($i=1; $i<=8; $i++)
-                        <img src="https://via.placeholder.com/150x80?text=Corporate+{{$i}}" alt="Client" class="max-w-none grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100 h-12">
-                    @endfor
-                </div>
-                <!-- Duplicate for infinite effect -->
-                <div class="flex animate-loop-scroll group-hover:paused space-x-16 items-center ml-16" aria-hidden="true">
-                    @for($i=1; $i<=8; $i++)
-                        <img src="https://via.placeholder.com/150x80?text=Corporate+{{$i}}" alt="Client" class="max-w-none grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100 h-12">
-                    @endfor
-                </div>
-            </div>
-
-            <!-- Schools Loop -->
-            <div class="flex overflow-hidden group">
-                <div class="flex animate-loop-scroll-reverse group-hover:paused space-x-16 items-center">
-                    @for($i=1; $i<=8; $i++)
-                        <img src="https://via.placeholder.com/150x80?text=School+{{$i}}" alt="Client" class="max-w-none grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100 h-12">
-                    @endfor
-                </div>
-                <div class="flex animate-loop-scroll-reverse group-hover:paused space-x-16 items-center ml-16" aria-hidden="true">
-                    @for($i=1; $i<=8; $i++)
-                        <img src="https://via.placeholder.com/150x80?text=School+{{$i}}" alt="Client" class="max-w-none grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100 h-12">
-                    @endfor
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 6: CERITA SERU DI KALISAWAH (Blog) -->
-    <section id="cerita-seru" class="py-24 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div>
-                <h2 class="text-3xl md:text-5xl font-bold text-dark-navy mb-4">Cerita Seru di <span class="text-secondary">Kalisawah</span></h2>
-                <p class="text-gray-500 font-medium italic">Dokumentasi kegiatan seru dari berbagai perusahaan, sekolah, dan komunitas</p>
-            </div>
-            <a href="{{ route('kabar.index') }}" class="bg-soft-blue text-primary px-6 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 shadow-sm">
-                Lihat Semua Cerita <i class="fa-solid fa-arrow-right"></i>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            @forelse($kabars as $kabar)
-            <x-news-card 
-                :image="$kabar->foto ? asset('storage/' . $kabar->foto) : 'https://picsum.photos/seed/' . $kabar->id . '/800/600'"
-                :date="\Carbon\Carbon::parse($kabar->tanggal)->translatedFormat('d F Y')"
-                :title="$kabar->judul"
-                :description="Str::limit(strip_tags($kabar->isi_berita), 120)"
-                :slug="Str::slug($kabar->judul)"
-            />
-            @empty
-            <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-dashed border-gray-200">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-soft-blue text-primary text-2xl mb-4">
-                    <i class="fa-solid fa-newspaper"></i>
-                </div>
-                <h3 class="text-lg font-bold text-dark-navy mb-1">Belum Ada Cerita Seru</h3>
-                <p class="text-gray-500 text-sm max-w-md mx-auto">Nantikan rangkuman cerita dan kegiatan seru kami berikutnya di Kalisawah Adventure.</p>
-            </div>
-            @endforelse
-        </div>
-    </section>
-
-    <!-- SECTION 7: KATA MEREKA (Testimoni) -->
-    <section class="py-24 px-6 md:px-20 bg-soft-blue relative">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-start mb-16">
-                <div class="text-left">
-                    <h2 class="text-3xl md:text-5xl font-bold text-dark-navy mb-4">Kata <span class="text-secondary">Mereka</span></h2>
-                    <p class="text-gray-500 font-medium">Pendapat mereka setelah kegiatan seru bersama Kalisawah</p>
-                </div>
-                <a href="{{ route('testimoni.create') }}" class="w-12 h-12 md:w-14 md:h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl hover:bg-hover-primary hover:rotate-90 transition-all duration-500 group" title="Tulis Review">
-                    <i class="fa-solid fa-plus text-xl md:text-2xl"></i>
-                </a>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                @php
-                    $testis = [
-                        ['Taufik Hidayat', 'Pertamina', 'Sangat seru, profesional, dan fasilitas lengkap. Raftingnya benar-benar menantang namun tetap aman bagi pemula.', 'https://i.pravatar.cc/150?u=1'],
-                        ['Annisa Putri', 'Universitas Jember', 'Outboundnya sangat menyenangkan dan penuh tantangan! Tim instruktur ramah dan sangat membantu.', 'https://i.pravatar.cc/150?u=2'],
-                        ['Andi Prabowo', 'Bank Mandiri', 'Acara team building yang menyenangkan dan terorganisir. Kami mendapatkan banyak pelajaran tentang kerja sama.', 'https://i.pravatar.cc/150?u=3'],
-                        ['Siti Rahmawati', 'SMPN 1 Glenmore', 'Belajar sambil bermain di Kalisawah sangat seru! Anak-anak sangat antusias mengikuti kegiatan.', 'https://i.pravatar.cc/150?u=4'],
-                    ];
-                @endphp
-                @foreach($testis as $t)
-                <x-testimoni-card 
-                    :name="$t[0]"
-                    :instansi="$t[1]"
-                    :review="$t[2]"
-                    :image="$t[3]"
-                />
-                @endforeach
-            </div>
-
-            <div class="text-center">
-                <a href="{{ route('testimoni.index') }}" class="bg-primary text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:bg-hover-primary transition-all">Lihat Semua Testimoni</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 8: LOKASI & CTA -->
-    <section class="py-24 px-6 md:px-20 max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <!-- Location -->
-            <div>
-                <h2 class="text-3xl font-bold text-dark-navy mb-8">Lokasi Kalisawah Adventure</h2>
-                <div class="bg-light-gray rounded-3xl overflow-hidden shadow-xl mb-8 relative group">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15792.89547514304!2d114.1293375!3d-8.2801456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd153e7f6e3001f%3A0x600c73336d8d6411!2sKali%20Sawah%20Adventure!5e0!3m2!1sid!2sid!4v1714041000000!5m2!1sid!2sid" 
-                    width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                </div>
-                <div class="space-y-6">
-                    <div class="flex gap-4">
-                        <i class="fa-solid fa-map-location-dot text-primary text-xl mt-1"></i>
-                        <p class="text-gray-600">Jl. Blambangan, Dusun Tegalrejo, Desa Sumbergondo, Kecamatan Glenmore, Banyuwangi</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-soft-blue p-4 rounded-2xl flex items-center gap-3">
-                            <i class="fa-solid fa-train text-primary"></i>
-                            <span class="text-sm font-semibold text-dark-navy">20 menit dari Stasiun Karangasem</span>
-                        </div>
-                        <div class="bg-soft-blue p-4 rounded-2xl flex items-center gap-3">
-                            <i class="fa-solid fa-plane text-primary"></i>
-                            <span class="text-sm font-semibold text-dark-navy">25 menit dari Bandara Banyuwangi</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CTA Banner -->
-            <div class="relative rounded-3xl overflow-hidden p-10 md:p-16 text-center text-white min-h-[500px] flex flex-col justify-center items-center shadow-2xl">
-                <img src="https://picsum.photos/id/1039/1200/800" alt="CTA" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
-                <div class="relative z-10">
-                    <h2 class="text-3xl md:text-5xl font-bold mb-6">Siap Seru Bareng Kalisawah?</h2>
-                    <p class="text-lg md:text-xl opacity-90 mb-10 max-w-md mx-auto">Hubungi kami sekarang untuk booking paket seru di Kalisawah Adventure!</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="#" class="bg-secondary hover:bg-secondary/90 text-dark-navy px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all transform hover:-translate-y-1">
-                            <i class="fa-solid fa-calendar-check text-xl"></i> Booking Sekarang
-                        </a>
-                    </div>
-                    <p class="mt-10 text-sm font-medium opacity-80 italic">"Hanya 30 menit dari pusat kota Banyuwangi"</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SWIPER INITIALIZATION -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const swiper = new Swiper('.heroSwiper', {
-                loop: true,
-                autoplay: {
-                    delay: 5000,
-                    disableOnInteraction: false,
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                effect: 'fade',
-                fadeEffect: {
-                    crossFade: true
-                },
-            });
-        });
-    </script>
-
-    <!-- CUSTOM ANIMATION STYLES -->
     <style>
-        @keyframes loop-scroll {
-            from { transform: translateX(0); }
-            to { transform: translateX(-100%); }
+        html { scroll-behavior: smooth; }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(11, 18, 24, 0.98) 30%, rgba(11, 18, 36, 0.85) 70%, rgba(0, 102, 204, 0.15) 100%);
         }
-        @keyframes loop-scroll-reverse {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
+        .text-gradient {
+            background: linear-gradient(to right, #FFFFFF 60%, #FFC236 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .animate-loop-scroll {
-            animation: loop-scroll 30s linear infinite;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
-        .animate-loop-scroll-reverse {
-            animation: loop-scroll-reverse 30s linear infinite;
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .paused {
-            animation-play-state: paused;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
-@endsection
+</head>
+<body class="bg-light-bg text-slate-800 antialiased font-sans">
+
+    @include('components.navbar')
+
+    <section id="hero" x-data="{ 
+        activeSlide: 0, 
+        slides: [
+            'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=1920&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1920&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=1920&auto=format&fit=crop'
+        ],
+        init() {
+            setInterval(() => {
+                this.activeSlide = (this.activeSlide + 1) % this.slides.length;
+            }, 6000);
+        }
+    }" class="relative min-h-[95vh] w-full flex items-center bg-dark-navy pt-40 pb-48 overflow-hidden">
+        
+        <div class="absolute inset-0 z-0">
+            <template x-for="(slide, index) in slides" :key="index">
+                <div x-show="activeSlide === index" 
+                     x-transition:enter="transition ease-out duration-1000"
+                     x-transition:enter-start="opacity-0 scale-105"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-1000"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="absolute inset-0 w-full h-full">
+                    <img :src="slide" class="w-full h-full object-cover object-center" alt="Hero Asset">
+                </div>
+            </template>
+            <div class="absolute inset-0 hero-gradient"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="space-y-8 lg:col-span-8 xl:col-span-7">
+                <div class="inline-flex items-center gap-2.5 bg-white/10 px-4 py-2 rounded-xl border border-white/10 backdrop-blur-md">
+                    <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
+                    <span class="text-white font-semibold text-xs tracking-widest uppercase">Wonderful Songgon, Banyuwangi</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="font-latin text-secondary text-3xl md:text-5xl tracking-wide">Rafting & Outbound</p>
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] text-gradient">
+                        Jelajahi Petualangan <br>Tanpa Batas
+                    </h1>
+                </div>
+                
+                <p class="text-slate-300 text-base md:text-lg font-light leading-relaxed max-w-xl">
+                    Nikmati keseruan arung jeram, outbound training, camping eksklusif, hingga keindahan alam Songgon bersama fasilitator bersertifikasi nasional.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 pt-4">
+                    <a href="{{ route('pengunjung.booking.booking-form', ['paket' => 'semua']) }}" class="bg-primary hover:bg-primary-hover text-white font-extrabold px-10 py-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 text-sm uppercase tracking-widest text-center flex items-center justify-center gap-3 shadow-button-solid active:translate-y-0">
+                        <i class="fa-solid fa-calendar-check text-base"></i> Booking Sekarang
+                    </a>
+                    <a href="{{ route('panduan.booking') }}" class="bg-white/10 hover:bg-white/20 text-white font-bold px-10 py-5 rounded-2xl border border-white/20 backdrop-blur-sm transition-all duration-300 hover:border-white/40 text-sm uppercase tracking-widest text-center flex items-center justify-center gap-3 transform hover:-translate-y-1 active:translate-y-0">
+                        <i class="fa-solid fa-book-open text-slate-300"></i> Panduan Booking
+                    </a>
+                </div>
+            </div>
+
+            <div class="hidden lg:flex lg:col-span-4 xl:col-span-5 h-full items-center justify-end">
+                <div class="flex items-center gap-4 bg-white/5 p-3 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl">
+                    <button @click="activeSlide = (activeSlide - 1 + slides.length) % slides.length" class="w-14 h-14 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all duration-200 active:scale-90 border border-white/10">
+                        <i class="fa-solid fa-chevron-left text-base"></i>
+                    </button>
+                    <button @click="activeSlide = (activeSlide + 1) % slides.length" class="w-14 h-14 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all duration-200 active:scale-90 border border-white/10">
+                        <i class="fa-solid fa-chevron-right text-base"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cari-booking" class="relative z-20 -mt-24 max-w-6xl mx-auto px-6">
+        <div class="glass-card p-8 md:p-10 rounded-[32px] shadow-premium border border-white/60 space-y-8 transform transition-all duration-500 hover:shadow-premium-hover">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/60 pb-5">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                        <i class="fa-solid fa-magnifying-glass text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-900 tracking-tight">Cari & Lacak Status Reservasi</h3>
+                        <p class="text-slate-500 text-xs mt-0.5">Masukkan data identitas sesuai dengan formulir saat Anda mendaftar</p>
+                    </div>
+                </div>
+            </div>
+            
+            <form action="{{ route('landing-page.home') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                <div class="space-y-2.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block">Nama Pemesan</label>
+                    <div class="relative group">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm group-focus-within:text-primary transition-colors"></i>
+                        <input type="text" name="nama_pemesan" value="{{ request('nama_pemesan') }}" placeholder="Nama lengkap..." class="w-full pl-12 pr-4 py-5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary text-xs font-semibold transition-all placeholder:text-slate-400 text-slate-700 shadow-sm" required>
+                    </div>
+                </div>
+
+                <div class="space-y-2.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block">No. WhatsApp</label>
+                    <div class="relative group">
+                        <i class="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm group-focus-within:text-primary transition-colors"></i>
+                        <input type="tel" name="no_hp" value="{{ request('no_hp') }}" placeholder="Contoh: 081234..." class="w-full pl-12 pr-4 py-5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary text-xs font-semibold transition-all placeholder:text-slate-400 text-slate-700 shadow-sm" required>
+                    </div>
+                </div>
+
+                <div class="space-y-2.5">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block">Tanggal Kunjungan</label>
+                    <div class="relative group">
+                        <i class="fa-solid fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm group-focus-within:text-primary transition-colors"></i>
+                        <input type="date" name="tanggal_kunjungan" value="{{ request('tanggal_kunjungan') }}" class="w-full pl-12 pr-4 py-5 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary text-xs font-semibold transition-all text-slate-600 shadow-sm" required>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-primary text-white font-extrabold py-4.5 px-6 rounded-2xl transition-all duration-300 shadow-button-dark hover:shadow-button-solid text-xs uppercase tracking-widest flex items-center justify-center gap-2 h-[56px] transform hover:-translate-y-0.5 active:translate-y-0">
+                        Cari Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section id="trust-signal" class="pt-32 pb-16 px-6 max-w-7xl mx-auto space-y-24 scroll-mt-12">
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+            <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">Core Advantages</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Kenapa Memilih <span class="text-secondary">Kalisawah</span> Adventure?
+            </h2>
+            <div class="w-16 h-1.5 bg-primary mx-auto rounded-full"></div>
+        </div>
+        
+        <div class="grid grid-cols-2 lg:grid-cols-6 gap-6">
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 text-center space-y-1.5 shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300">
+                <p class="text-3xl font-extrabold text-primary tracking-tight">{{ $settings['total_peserta'] ?? '20.000+' }}</p>
+                <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Total Peserta</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 text-center space-y-1.5 shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300">
+                <p class="text-3xl font-extrabold text-primary tracking-tight">{{ $settings['total_perusahaan'] ?? '500+' }}</p>
+                <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Perusahaan</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 text-center space-y-1.5 shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300">
+                <p class="text-3xl font-extrabold text-primary tracking-tight">{{ $settings['total_institusi'] ?? '300+' }}</p>
+                <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Institusi</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 text-center space-y-1.5 shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300">
+                <p class="text-3xl font-extrabold text-primary tracking-tight">{{ $settings['tahun_berdiri'] ?? '10+' }}</p>
+                <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Tahun Berdiri</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 text-center space-y-1.5 shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300">
+                <p class="text-3xl font-extrabold text-primary tracking-tight">{{ $settings['luas_area'] ?? '10+' }}</p>
+                <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Hektar Area</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 text-center space-y-1.5 shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300">
+                <p class="text-3xl font-extrabold text-secondary tracking-tight">{{ $settings['rating_google'] ?? '4.9' }}</p>
+                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider"><i class="fa-solid fa-star text-secondary mr-1"></i> Google</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center bg-white p-8 md:p-16 rounded-[40px] border border-slate-100 shadow-premium">
+            <div class="space-y-6 lg:col-span-7">
+                <div class="space-y-3">
+                    <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">Tentang Destinasi</span>
+                    <h3 class="text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">Mengenal Lebih Dekat <br><span class="text-secondary">Kalisawah</span> Adventure</h3>
+                </div>
+                <p class="text-slate-500 text-base leading-relaxed font-normal">
+                    {{ $settings['about_description'] ?? 'Kalisawah adalah pionir destinasi wisata petualangan alam terbuka terintegrasi di Banyuwangi. Kami mengombinasikan keindahan alam bentang sungai dan persawahan Songgon yang sejuk dengan standar manajemen keselamatan nasional.' }}
+                </p>
+                <div class="pt-4">
+                    <a href="{{ route('pengunjung.booking.booking-form', ['paket' => 'semua']) }}" class="inline-flex items-center gap-3 bg-primary hover:bg-primary-hover text-white text-xs font-extrabold py-5 px-10 rounded-2xl transition-all duration-300 shadow-button-solid transform hover:-translate-y-0.5 group">
+                        MULAI RESERVASI SEKARANG <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6 lg:col-span-5 w-full">
+                <div class="space-y-6">
+                    <div class="overflow-hidden rounded-[24px] shadow-premium group">
+                        <img src="{{ isset($settings['about_img_1']) ? asset('storage/' . $settings['about_img_1']) : 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=400&auto=format&fit=crop' }}" class="w-full h-52 object-cover object-center transform transition-transform duration-700 group-hover:scale-110" alt="Rafting Activity">
+                    </div>
+                    <div class="bg-blue-50/80 border border-blue-100 p-6 rounded-[24px] text-center">
+                        <span class="block text-2xl font-black text-primary">Safe</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Certified Guides</span>
+                    </div>
+                </div>
+                <div class="space-y-6 pt-10">
+                    <div class="bg-amber-50/80 border border-amber-100 p-6 rounded-[24px] text-center">
+                        <span class="block text-2xl font-black text-amber-600">Fun</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Exciting Games</span>
+                    </div>
+                    <div class="overflow-hidden rounded-[24px] shadow-premium group">
+                        <img src="{{ isset($settings['about_img_2']) ? asset('storage/' . $settings['about_img_2']) : 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=400&auto=format&fit=crop' }}" class="w-full h-52 object-cover object-center transform transition-transform duration-700 group-hover:scale-110" alt="Camping Activity">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pilih-paket" class="py-24 px-6 bg-slate-100/50 border-t border-slate-200/40">
+        <div class="max-w-7xl mx-auto space-y-20">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">Our Packages</span>
+                <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Pilih Paket Seru Kamu</h2>
+                <div class="w-16 h-1.5 bg-primary mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                @forelse($categories as $category)
+                    <div class="bg-white rounded-[32px] overflow-hidden shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300 flex flex-col h-full border border-slate-200/40 group">
+                        <div class="relative h-56 overflow-hidden shrink-0 bg-slate-100">
+                            @if($category->gambar)
+                                <img src="{{ asset('storage/' . $category->gambar) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="{{ $category->nama_kategori }}">
+                            @else
+                                 <img src="https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=500" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Rafting Default">
+                            @endif
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                        </div>
+
+                        <div class="p-8 flex flex-col flex-grow justify-between bg-gradient-to-b from-white to-slate-50/40">
+                            <div class="space-y-3">
+                                <h3 class="text-lg font-extrabold text-slate-900 group-hover:text-primary transition-colors duration-300 tracking-tight">
+                                    {{ $category->nama_kategori }}
+                                </h3>
+                                <p class="text-slate-500 text-xs leading-relaxed line-clamp-3 font-normal">
+                                    {{ $category->deskripsi ?? 'Nikmati momen liburan seru yang dirancang khusus demi kenyamanan Anda.' }}
+                                </p>
+                            </div>
+                            
+                            <div class="pt-8">
+                                <a href="{{ route('kategori.detail', $category->id) }}" class="w-full flex items-center justify-center bg-slate-900 hover:bg-primary text-white text-xs font-extrabold py-4 px-4 rounded-2xl transition-all duration-300 uppercase tracking-widest shadow-button-dark hover:shadow-button-solid">
+                                    Lihat Pilihan Paket
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full text-center py-16 bg-white rounded-3xl text-slate-400 text-sm font-semibold border border-slate-200/60 shadow-premium">
+                        Belum ada kategori paket aktif saat ini.
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="pt-20 border-t border-slate-200">
+                <div class="text-center space-y-2 mb-12">
+                    <h3 class="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">Experience</h3>
+                    <div class="w-8 h-1 bg-primary mx-auto rounded-full"></div>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-16 opacity-75 select-none transition-all duration-500">
+                    @forelse($experiences as $exp)
+                        @php
+                            $logoPath = $exp->logo_image_path ?? ($exp->logo ?? null);
+                            $companyName = $exp->company_name ?? ($exp->nama_instansi ?? 'Instansi');
+                        @endphp
+                        <div class="h-16 w-40 flex items-center justify-center bg-white p-3 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 hover:scale-105">
+                            <img src="{{ asset('storage/' . $logoPath) }}" alt="{{ $companyName }}" class="max-h-full max-w-full object-contain" title="{{ $companyName }}">
+                        </div>
+                    @empty
+                        <div class="col-span-full text-center py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            Belum ada logo mitra instansi yang diunggah.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cerita-kalisawah" class="py-28 bg-white px-6">
+        <div class="max-w-7xl mx-auto space-y-16">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-slate-100 pb-8">
+                <div class="space-y-2">
+                    <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">Kabar & Cerita</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Cerita Seru Terbaru</h2>
+                    <p class="text-slate-500 text-sm">Dokumentasi serta rangkuman keseruan aktivitas terbaru kami</p>
+                </div>
+                <a href="{{ route('kabar.index') }}" class="inline-flex items-center gap-2 text-primary hover:text-primary-hover font-extrabold text-sm group transition-colors duration-300 tracking-wide bg-primary/5 px-6 py-4 rounded-2xl">
+                    Lihat Semua Cerita <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1.5"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @forelse($kabars as $kabar)
+                    @include('components.news-card', [
+                        'image' => $kabar->gambar ? asset('storage/' . $kabar->gambar) : 'https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=500',
+                        'date' => isset($kabar->tanggal) ? \Carbon\Carbon::parse($kabar->tanggal)->translatedFormat('d M Y') : date('d M Y'),
+                        'title' => $kabar->judul,
+                        'description' => Str::limit(strip_tags($kabar->isi), 120, '...'),
+                        'slug' => $kabar->slug ?? \Illuminate\Support\Str::slug($kabar->judul)
+                    ])
+                @empty
+                    <div class="col-span-full py-20 px-8 flex flex-col items-center justify-center text-center bg-slate-50 border border-dashed border-slate-200 rounded-[32px] space-y-4">
+                        <div class="w-20 h-20 bg-white shadow-premium border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-2xl">
+                            <i class="fa-regular fa-folder-open text-3xl text-primary/70"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-slate-800 font-extrabold text-base tracking-tight">Belum Ada Artikel Cerita</p>
+                            <p class="text-slate-500 text-sm max-w-sm leading-relaxed">Catatan dokumentasi dan kabar kegiatan seru di <span class="text-secondary font-bold">Kalisawah</span> akan segera diperbarui oleh admin.</p>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+    <section id="testimoni" class="py-28 bg-slate-100/60 px-6 border-t border-b border-slate-200/40" 
+             x-data="{ 
+                skip: 1,
+                next() {
+                    this.$refs.slider.scrollBy({ left: this.$refs.slider.offsetWidth, behavior: 'smooth' });
+                },
+                prev() {
+                    this.$refs.slider.scrollBy({ left: -this.$refs.slider.offsetWidth, behavior: 'smooth' });
+                }
+             }">
+        <div class="max-w-7xl mx-auto space-y-16">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div class="space-y-3">
+                    <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">Reviews</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight text-left">Apa Kata Mereka?</h2>
+                    <div class="w-16 h-1.5 bg-primary rounded-full"></div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm mr-2">
+                        <button @click="prev()" class="w-12 h-12 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all duration-200 active:scale-90 border border-slate-200">
+                            <i class="fa-solid fa-chevron-left text-sm"></i>
+                        </button>
+                        <button @click="next()" class="w-12 h-12 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all duration-200 active:scale-90 border border-slate-200">
+                            <i class="fa-solid fa-chevron-right text-sm"></i>
+                        </button>
+                    </div>
+                    <a href="{{ route('testimoni.create') }}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-xs font-extrabold py-5 px-8 rounded-2xl transition-all duration-300 shadow-button-solid transform hover:-translate-y-0.5 active:translate-y-0 shrink-0 uppercase tracking-widest">
+                        <i class="fa-solid fa-plus text-xs"></i> Tambah Ulasan
+                    </a>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div x-ref="slider" class="flex gap-8 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-6 scroll-smooth">
+                    @forelse($testimonials ?? [] as $testi)
+                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 transform transition-all duration-300 hover:shadow-premium-hover snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
+                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"{{ $testi->komentar }}"</p>
+                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
+                                <img src="{{ $testi->foto_user ? asset('storage/' . $testi->foto_user) : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80' }}" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="User Avatar">
+                                <div>
+                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">{{ $testi->nama }}</h4>
+                                    <span class="text-xs text-slate-400 block mt-0.5">{{ $testi->instansi_atau_peran }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
+                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"Sangat seru, profesional, dan fasilitas lengkap. Terima kasih <span class="text-secondary font-bold">Kalisawah</span>, raftingnya luar biasa menantang!"</p>
+                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=80&auto=format&fit=crop" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="Reviewer">
+                                <div>
+                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">Taufik Hidayat</h4>
+                                    <span class="text-xs text-slate-400 block mt-0.5">Peserta Rafting</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
+                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"Outboundnya sangat menyenangkan dan penuh tantangan! Instruktur ramah dan sabar mendampingi."</p>
+                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=80&auto=format&fit=crop" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="Reviewer">
+                                <div>
+                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">Siti Rahmawati</h4>
+                                    <span class="text-xs text-slate-400 block mt-0.5">Instansi Pendidikan</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
+                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"Fasilitas basecamp bersih, makanannya enak, dan pemandangan alam Songgon bikin pikiran fresh kembali."</p>
+                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
+                                <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=80&auto=format&fit=crop" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="Reviewer">
+                                <div>
+                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">Andi Pratama</h4>
+                                    <span class="text-xs text-slate-400 block mt-0.5">Karyawan Swasta</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="lokasi" class="py-24 px-6 bg-white border-t border-slate-100">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <div class="space-y-4">
+                    <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">Lokasi Kami</span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Temukan Kami di <span class="text-secondary">Songgon</span></h2>
+                    <div class="w-16 h-1.5 bg-primary rounded-full"></div>
+                </div>
+                
+                <p class="text-slate-500 text-base leading-relaxed">
+                    Kunjungi basecamp kami untuk memulai petualangan seru Anda. Kami berlokasi di area perkebunan yang sejuk, asri, dan mudah dijangkau di Songgon, Banyuwangi.
+                </p>
+                
+                <div class="flex items-start gap-4 pt-4">
+                    <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0 shadow-inner">
+                        <i class="fa-solid fa-location-dot text-xl"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-base font-extrabold text-slate-900">Alamat Lengkap</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Jl. Raya Songgon, Area Perkebunan, Songgon, Kabupaten Banyuwangi, Jawa Timur.</p>
+                    </div>
+                </div>
+                
+                <div class="pt-6">
+                    <a href="https://maps.google.com" target="_blank" class="inline-flex items-center gap-3 bg-slate-900 hover:bg-primary text-white text-xs font-extrabold py-4 px-8 rounded-2xl transition-all duration-300 shadow-button-dark hover:shadow-button-solid transform hover:-translate-y-0.5 uppercase tracking-widest">
+                        <i class="fa-solid fa-map-location-dot"></i> Buka di Google Maps
+                    </a>
+                </div>
+            </div>
+            
+            <div class="h-[450px] w-full rounded-[32px] overflow-hidden shadow-premium border border-slate-200/50 relative group">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3948.3307675975056!2d114.195232!3d-8.2325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd1531e2c918c57%3A0xc682f1bbaec7b526!2sKalisawah%20Adventure!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="grayscale group-hover:grayscale-0 transition-all duration-700"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-dark-navy text-slate-300 pt-24 pb-10 border-t-4 border-primary">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+            <div class="space-y-6 md:col-span-12 lg:col-span-4">
+                <h3 class="text-4xl font-latin text-white tracking-wide">Kalisawah</h3>
+                <p class="text-sm text-slate-400 leading-relaxed max-w-sm">
+                    Pusat petualangan arung jeram dan outbound terbaik di Banyuwangi. Kami mengutamakan standar keselamatan, kenyamanan, dan keseruan tanpa batas untuk setiap pengunjung.
+                </p>
+                <div class="flex items-center gap-4 pt-4">
+                    <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all duration-300 shadow-lg transform hover:-translate-y-1"><i class="fa-brands fa-instagram text-lg"></i></a>
+                    <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all duration-300 shadow-lg transform hover:-translate-y-1"><i class="fa-brands fa-facebook-f text-lg"></i></a>
+                    <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all duration-300 shadow-lg transform hover:-translate-y-1"><i class="fa-brands fa-tiktok text-lg"></i></a>
+                </div>
+            </div>
+            
+            <div class="space-y-6 md:col-span-4 lg:col-span-3 lg:col-start-6">
+                <h4 class="text-white font-extrabold uppercase text-xs tracking-widest relative inline-block">
+                    Navigasi
+                    <span class="absolute -bottom-2 left-0 w-1/2 h-0.5 bg-primary rounded-full"></span>
+                </h4>
+                <ul class="space-y-4 text-sm text-slate-400 mt-6">
+                    <li><a href="#hero" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Beranda</a></li>
+                    <li><a href="#pilih-paket" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Paket Wisata</a></li>
+                    <li><a href="#cerita-kalisawah" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Kabar & Cerita</a></li>
+                    <li><a href="#testimoni" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Testimoni Pengunjung</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-6 md:col-span-8 lg:col-span-4">
+                <h4 class="text-white font-extrabold uppercase text-xs tracking-widest relative inline-block">
+                    Hubungi Kami
+                    <span class="absolute -bottom-2 left-0 w-1/2 h-0.5 bg-primary rounded-full"></span>
+                </h4>
+                <ul class="space-y-5 text-sm text-slate-400 mt-6">
+                    <li class="flex items-start gap-4 group">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
+                            <i class="fa-solid fa-location-dot text-white"></i>
+                        </div>
+                        <span class="mt-1 leading-relaxed">Songgon, Kabupaten Banyuwangi, Jawa Timur, Indonesia</span>
+                    </li>
+                    <li class="flex items-center gap-4 group">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
+                            <i class="fa-solid fa-envelope text-white"></i>
+                        </div>
+                        <span>info@kalisawah.com</span>
+                    </li>
+                    <li class="flex items-center gap-4 group">
+                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
+                            <i class="fa-brands fa-whatsapp text-white text-lg"></i>
+                        </div>
+                        <span class="font-bold text-white tracking-wide">+62 812 3456 7890</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-slate-500 font-medium">
+                    © {{ date('Y') }} Kalisawah Adventure. All rights reserved.
+                </p>
+                <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                    <span>Didesain secara profesional</span>
+                    <i class="fa-solid fa-bolt text-secondary"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

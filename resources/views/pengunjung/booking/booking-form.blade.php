@@ -1,263 +1,336 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Pendaftaran Booking Camping</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        /* Map custom brand colors agar senada dengan layout utama Kalisawah */
-        :root {
-            --color-primary: #0f172a;    /* Slate 900 / Dark Navy */
-            --color-secondary: #d97706;  /* Amber 600 / Orange Accent */
-            --color-success: #0d9488;    /* Teal 600 / Nature Green Element */
-        }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-900 antialiased">
+@extends('layouts.app')
 
-    <div class="relative bg-slate-950 h-[30vh] flex items-center justify-center overflow-hidden">
-        <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url('https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1600');"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-50"></div>
-        <div class="relative z-10 text-center px-4">
-            <span class="text-xs font-bold tracking-widest text-amber-400 uppercase bg-slate-900/80 px-3 py-1 rounded-full">Kalisawah Adventure</span>
-            <h1 class="text-3xl md:text-4xl font-black text-white mt-3 tracking-tight">Form Reservasi Camping</h1>
+@section('content')
+
+<div class="container mx-auto px-4 pt-32 md:pt-40 pb-32">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
+                {{ isset($booking) ? 'Ubah Reservasi' : 'Reservasi Camping' }}
+            </h1>
+            <p class="text-slate-500 mt-2 text-base">
+                Silakan tentukan jadwal kedatangan, pilih paket wisata terbaik, serta atur fasilitas tambahan sesuai kebutuhan liburan Anda.
+            </p>
         </div>
-    </div>
 
-    <div class="max-w-4xl mx-auto px-4 pb-28 -mt-10 relative z-20">
-        @if(session('error'))
-            <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-r-xl shadow-sm text-sm">
-                {{ session('error') }}
+        @if ($errors->any())
+            <div class="bg-red-50 rounded-2xl p-5 mb-8 flex items-start gap-4 border border-red-100">
+                <div class="bg-red-100 p-2 rounded-full text-red-500 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-red-700 mb-1">Terjadi Kesalahan</h3>
+                    <ul class="space-y-1 text-sm text-red-600">
+                        @foreach ($errors->all() as $error)
+                            <li>• {{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         @endif
 
-        <form action="{{ route('booking.camping.store') }}" method="POST" id="mainBookingForm">
+        <form action="{{ isset($booking) ? route('pengunjung.booking.update', $booking->id) : route('pengunjung.booking.booking-store') }}" method="POST" id="form-reservasi">
             @csrf
+            @if(isset($booking)) @method('PUT') @endif
 
-            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-xs border border-slate-100 mb-6">
-                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+            <div id="hidden-inputs"></div>
+
+            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 sm:p-10 mb-8">
+                <div class="mb-8 pb-4 border-b border-slate-100">
+                    <h2 class="text-xl font-bold text-slate-800">Data Pemesan</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <h2 class="text-xl font-bold tracking-tight text-slate-900">1. Pilihan Paket Wisata</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Anda bisa menambahkan kuantitas / memilih lebih dari satu paket</p>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
+                        <input type="text" name="nama_pemesan" value="{{ old('nama_pemesan', $booking->nama_pemesan ?? '') }}" 
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" placeholder="Masukkan nama pemesan" required>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @foreach($paketCamping as $paket)
-                    <div class="border border-slate-200 rounded-xl p-5 hover:border-amber-500 transition relative flex flex-col justify-between bg-white" id="card_paket_{{ $paket->id }}">
-                        <div>
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-slate-800 text-base uppercase">{{ $paket->nama_paket }}</h3>
-                                <span class="text-xl text-amber-600">⛺</span>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-1">👥 Kapasitas: <span id="cap_value_{{ $paket->id }}">{{ $paket->kapasitas }}</span> orang</p>
-                            <p class="text-lg font-black text-amber-600 mt-3" data-harga="{{ $paket->harga }}" id="price_paket_{{ $paket->id }}">
-                                Rp{{ number_format($paket->harga, 0, ',', '.') }}
-                            </p>
-                        </div>
-
-                        <div class="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-slate-100">
-                            <input type="hidden" name="paket[{{ $paket->id }}][selected]" id="input_selected_{{ $paket->id }}" value="0">
-                            <input type="hidden" name="paket[{{ $paket->id }}][qty]" id="input_qty_{{ $paket->id }}" value="0">
-
-                            <button type="button" onclick="adjustPaket('{{ $paket->id }}', -1)" class="w-8 h-8 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold transition flex items-center justify-center text-sm">-</button>
-                            <span id="display_qty_{{ $paket->id }}" class="text-sm font-bold w-6 text-center text-slate-800">0</span>
-                            <button type="button" onclick="adjustPaket('{{ $paket->id }}', 1)" class="w-8 h-8 rounded bg-amber-600 text-white hover:bg-amber-700 font-bold transition flex items-center justify-center text-sm">+</button>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-xs border border-slate-100 mb-6">
-                <div class="mb-6 border-b border-slate-100 pb-4">
-                    <h2 class="text-xl font-bold tracking-tight text-slate-900">2. Data Pemesan & Pengunjung</h2>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nama Pemesan</label>
-                            <input type="text" name="nama_pemesan" required placeholder="Nama lengkap Anda" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-amber-500 transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">No HP</label>
-                            <input type="tel" name="no_hp" required placeholder="Contoh: 081234567xxx" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-amber-500 transition">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tanggal Kunjungan</label>
-                            <input type="date" name="tanggal_kunjungan" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-amber-500 transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Jam</label>
-                            <input type="time" name="jam" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-amber-500 transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-amber-700 uppercase mb-1">Jumlah Pengunjung</label>
-                            <input type="number" name="jumlah_pengunjung" id="jumlah_pengunjung" value="1" min="1" required oninput="calculatePricing()" class="w-full px-3 py-2 text-sm rounded-lg border border-amber-300 bg-amber-50/20 font-bold focus:outline-none focus:border-amber-500 transition">
-                        </div>
-                    </div>
-
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Catatan</label>
-                        <textarea name="catatan" rows="2" placeholder="Catatan tambahan (opsional)..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-amber-500 transition"></textarea>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Nomor WhatsApp</label>
+                        <input type="text" name="no_hp" value="{{ old('no_hp', $booking->no_hp ?? '') }}" 
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" placeholder="08xxxxxxxxxx" required>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-xs border border-slate-100 mb-6">
-                <div class="mb-6 border-b border-slate-100 pb-4">
-                    <h2 class="text-xl font-bold tracking-tight text-slate-900">3. Fasilitas Tambahan (Sewa)</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Item opsional pendukung kenyamanan camping Anda</p>
-                </div>
-
-                <div class="space-y-3">
-                    @foreach($fasilitasSewa as $fasilitas)
-                    <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition">
-                        <div class="flex-1 min-w-0 pr-4">
-                            <h4 class="font-bold text-slate-800 text-sm">{{ $fasilitas->nama_fasilitas }}</h4>
-                            <p class="text-xs text-slate-500 mt-0.5">Sisa Stok: {{ $fasilitas->stok }} unit &middot; <span class="text-amber-600 font-semibold">Rp{{ number_format($fasilitas->harga, 0, ',', '.') }}</span></p>
-                        </div>
-                        
-                        <div class="flex items-center gap-3">
-                            <input type="hidden" name="fasilitas[{{ $fasilitas->id }}][qty]" id="input_fasilitas_qty_{{ $fasilitas->id }}" value="0">
-
-                            <button type="button" onclick="adjustFasilitas('{{ $fasilitas->id }}', -1, {{ $fasilitas->stok }})" class="w-7 h-7 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold transition flex items-center justify-center text-xs">-</button>
-                            <span id="display_fasilitas_qty_{{ $fasilitas->id }}" class="text-xs font-bold w-5 text-center text-slate-700" data-harga="{{ $fasilitas->harga }}">0</span>
-                            <button type="button" onclick="adjustFasilitas('{{ $fasilitas->id }}', 1, {{ $fasilitas->stok }})" class="w-7 h-7 rounded bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold transition flex items-center justify-center text-xs">+</button>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 shadow-xl z-50 py-4 px-4">
-                <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     <div>
-                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Estimasi Total Biaya</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl font-black text-amber-600" id="grand_total_label">Rp0</span>
-                            <span class="text-xs hidden" id="extra_ticket_badge"></span>
-                        </div>
-                        <span class="text-[11px] text-slate-400 block" id="summary_capacity_text">Total Kuota Kapasitas: 0 Orang</span>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Check-In</label>
+                        <input type="date" name="tanggal_kunjungan" id="tanggal_checkin" value="{{ old('tanggal_kunjungan', $booking->tanggal_kunjungan ?? '') }}" 
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 transition-all outline-none" required>
                     </div>
-                    <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-lg text-sm transition text-center shadow-md">
-                        Simpan Booking
-                    </button>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Jam</label>
+                        <input type="time" name="jam" value="{{ old('jam', isset($booking) ? \Carbon\Carbon::parse($booking->jam)->format('H:i') : '') }}" 
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 transition-all outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Durasi (Malam)</label>
+                        <input type="number" name="jumlah_hari" id="lama_menginap" min="1" value="{{ old('jumlah_hari', $booking->jumlah_malam ?? 1) }}" 
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 transition-all outline-none font-bold" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Jumlah Orang</label>
+                        <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl h-14 px-2">
+                            <button type="button" id="btn-kurang-p" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+                            </button>
+                            <input type="number" name="jumlah_pengunjung" id="jumlah_pengunjung" value="{{ old('jumlah_pengunjung', $booking->jumlah_pengunjung ?? 1) }}" class="w-12 text-center bg-transparent border-none focus:ring-0 font-bold text-slate-700" readonly>
+                            <button type="button" id="btn-tambah-p" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-slate-50 rounded-xl p-5 flex items-start gap-3 border border-slate-200">
+                    <div class="text-slate-400 mt-0.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Jika jumlah pengunjung melebihi total kapasitas paket yang dipilih, akan dikenakan biaya tiket tambahan sebesar <span class="font-bold text-slate-800">Rp 25.000 / orang</span>.
+                    </p>
                 </div>
             </div>
 
+            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 sm:p-10">
+                <div id="container-tab" class="flex overflow-x-auto hide-scrollbar gap-3 mb-8 pb-2 border-b border-slate-100"></div>
+                <div id="container-konten-hari"></div>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row gap-4 justify-center mt-12 mb-24 items-center">
+                <a href="{{ route('landing-page.home') }}" class="px-8 py-4 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold transition w-full sm:w-auto text-center">Kembali</a>
+                <button type="submit" class="px-12 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition w-full sm:w-auto shadow-lg shadow-blue-600/20">
+                    {{ isset($booking) ? 'Simpan Perubahan' : 'Lanjutkan Reservasi' }}
+                </button>
+            </div>
         </form>
     </div>
+</div>
 
-    <script>
-        function adjustPaket(id, change) {
-            const qtyInput = document.getElementById('input_qty_' + id);
-            const selectedInput = document.getElementById('input_selected_' + id);
-            const displayQty = document.getElementById('display_qty_' + id);
-            const card = document.getElementById('card_paket_' + id);
+{{-- Modal ... (konten modal tetap sama) --}}
+<div id="modal-pilih-paket" class="fixed inset-0 z-[999] hidden overflow-y-auto">
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" id="modal-backdrop"></div>
+    <div class="flex items-center justify-center min-h-screen p-4 sm:p-6 relative z-20">
+        <div class="bg-white w-full max-w-3xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] relative" id="modal-content">
+            <div class="flex justify-between items-center p-8 border-b border-slate-100 bg-white rounded-t-[2.5rem] shrink-0 sticky top-0 z-10">
+                <h3 class="font-bold text-2xl text-slate-800">Pilih Paket</h3>
+                <button type="button" id="btn-close-modal" class="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-8 bg-slate-50 rounded-b-[2.5rem] overflow-y-auto flex-1">
+                @if($paket->isEmpty())
+                    <p class="text-center text-slate-500">Tidak ada paket tersedia.</p>
+                @else
+                    @foreach($paket->groupBy(function($item) { return $item->kategoriPaket->nama_kategori ?? ($item->kategori->nama_kategori ?? 'Umum'); }) as $namaKategori => $kumpulanPaket)
+                        <div class="mb-10 last:mb-0">
+                            <h4 class="text-sm font-black text-blue-600 uppercase tracking-widest mb-4">{{ $namaKategori }}</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                @foreach($kumpulanPaket as $p)
+                                    <div class="item-paket-modal border-2 border-slate-200/60 bg-white rounded-3xl p-6 hover:border-blue-500 hover:bg-blue-50/20 cursor-pointer transition-all group" data-id="{{ $p->id }}" data-nama="{{ $p->nama_paket }}" data-harga="{{ $p->harga }}" data-kapasitas="{{ $p->kapasitas ?? 0 }}">
+                                        <h5 class="font-bold text-slate-800 mb-3 group-hover:text-blue-600 text-lg transition">{{ $p->nama_paket }}</h5>
+                                        <div class="flex items-center justify-between mt-4 border-t border-slate-100 pt-3">
+                                            <div>
+                                                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Harga</p>
+                                                <p class="text-base font-black text-blue-600">Rp {{ number_format($p->harga, 0, ',', '.') }}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Kapasitas</p>
+                                                <p class="text-sm font-bold text-slate-600">{{ $p->kapasitas ?? 0 }} Org</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
 
-            if (!qtyInput || !displayQty || !card) return;
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover,
+    input[type="time"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+</style>
 
-            let currentQty = parseInt(qtyInput.value) || 0;
-            currentQty += change;
-            if (currentQty < 0) currentQty = 0;
+<script>
+    let statePackages = {};
+    let stateFasilitas = {};
+    let targetHariAktif = 0;
+    let activeFasCategory = {};
+    const allFasilitas = @json($fasilitas);
 
-            qtyInput.value = currentQty;
-            displayQty.innerText = currentQty;
+    @if(isset($booking))
+        @foreach($booking->items as $item)
+            @php $hariIdx = (int) $item->hari; @endphp
+            if (!statePackages[{{ $hariIdx }}]) statePackages[{{ $hariIdx }}] = [];
+            statePackages[{{ $hariIdx }}].push({ id: {{ $item->paket_wisata_id }}, nama: "{!! addslashes(optional($item->paketWisata)->nama_paket ?? 'Paket Terpilih') !!}", qty: {{ (int) $item->qty }}, harga: {{ optional($item->paketWisata)->harga ?? 0 }}, kapasitas: "{{ optional($item->paketWisata)->kapasitas ?? 0 }}" });
+        @endforeach
+        @foreach($booking->fasilitas as $f)
+            @php $hariIdxFas = isset($f->hari) ? (int) $f->hari : 0; @endphp
+            if (!stateFasilitas[{{ $hariIdxFas }}]) stateFasilitas[{{ $hariIdxFas }}] = {};
+            stateFasilitas[{{ $hariIdxFas }}][{{ $f->fasilitas_id }}] = {{ (int) $f->qty }};
+        @endforeach
+    @endif
 
-            if (currentQty > 0) {
-                selectedInput.value = "1";
-                card.classList.replace('border-slate-200', 'border-amber-500');
-                card.classList.add('bg-amber-50/10');
-            } else {
-                selectedInput.value = "0";
-                card.classList.replace('border-amber-500', 'border-slate-200');
-                card.classList.remove('bg-amber-50/10');
+    function renderTabs() {
+        const jmlMalam = parseInt(document.getElementById('lama_menginap').value) || 1;
+        const tanggalCheckin = document.getElementById('tanggal_checkin').value;
+        const containerTab = document.getElementById('container-tab');
+        const containerKonten = document.getElementById('container-konten-hari');
+        const hiddenInputs = document.getElementById('hidden-inputs');
+
+        containerTab.innerHTML = '';
+        containerKonten.innerHTML = '';
+        if (targetHariAktif >= jmlMalam) targetHariAktif = 0;
+
+        for (let i = 0; i < jmlMalam; i++) {
+            let labelTgl = '';
+            if (tanggalCheckin) {
+                let d = new Date(tanggalCheckin);
+                d.setDate(d.getDate() + i);
+                labelTgl = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
             }
-            calculatePricing();
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `px-6 py-4 rounded-2xl flex flex-col items-center min-w-[120px] transition-all border-2 shrink-0 ${i === targetHariAktif ? 'border-blue-600 bg-blue-50 text-blue-600 shadow-sm' : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'}`;
+            btn.innerHTML = `<span class="text-[10px] font-black uppercase tracking-tighter">HARI ${i + 1}</span><span class="text-sm font-bold">${labelTgl}</span>`;
+            btn.onclick = () => { targetHariAktif = i; renderTabs(); };
+            containerTab.appendChild(btn);
         }
 
-        function adjustFasilitas(id, change, maxStok) {
-            const inputQty = document.getElementById('input_fasilitas_qty_' + id);
-            const displayQty = document.getElementById('display_fasilitas_qty_' + id);
+        let html = `<div class="mt-4">
+            <div class="flex justify-between items-center mb-6 gap-4">
+                <h3 class="font-bold text-slate-800 text-lg">Paket Malam ${targetHariAktif + 1}</h3>
+                <button type="button" onclick="bukaModal(${targetHariAktif})" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Tambah Paket
+                </button>
+            </div>`;
 
-            if (!inputQty || !displayQty) return;
-
-            let currentQty = parseInt(inputQty.value) || 0;
-            currentQty += change;
-
-            if (currentQty < 0) currentQty = 0;
-            if (currentQty > maxStok) {
-                alert('Stok tidak cukup!');
-                currentQty = maxStok;
-            }
-
-            inputQty.value = currentQty;
-            displayQty.innerText = currentQty;
-            calculatePricing();
+        if (statePackages[targetHariAktif]?.length > 0) {
+            statePackages[targetHariAktif].forEach((p, idx) => {
+                html += `<div class="bg-white border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shadow-sm">
+                    <div class="flex-1">
+                        <p class="font-bold text-slate-800 text-base mb-2.5">${p.nama}</p>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Rp ${Number(p.harga).toLocaleString('id-ID')}</span>
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl">Kapasitas: ${p.kapasitas} Org</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+                        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-2xl">
+                            <button type="button" onclick="ubahQtyPaket(${targetHariAktif}, ${idx}, -1)" class="w-11 h-11 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition active:scale-95">-</button>
+                            <span class="font-bold text-slate-700 w-8 text-center text-sm">${p.qty}</span>
+                            <button type="button" onclick="ubahQtyPaket(${targetHariAktif}, ${idx}, 1)" class="w-11 h-11 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition active:scale-95">+</button>
+                        </div>
+                        <button type="button" onclick="hapusPaket(${targetHariAktif}, ${idx})" class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 font-bold text-xs transition duration-200 active:scale-95">Hapus</button>
+                    </div>
+                </div>`;
+            });
+        } else {
+            html += `<div class="p-6 border-2 border-dashed border-slate-100 rounded-2xl text-center text-slate-400 text-sm mb-8">Belum ada paket</div>`;
         }
 
-        function calculatePricing() {
-            let totalPaketHarga = 0;
-            let totalKapasitasMax = 0;
-            let totalFasilitasHarga = 0;
-
-            @foreach($paketCamping as $p)
-                if (document.getElementById('input_qty_{{ $p->id }}')) {
-                    const pQty = parseInt(document.getElementById('input_qty_{{ $p->id }}').value) || 0;
-                    const pHarga = parseFloat(document.getElementById('price_paket_{{ $p->id }}').getAttribute('data-harga')) || 0;
-                    const pCap = parseInt(document.getElementById('cap_value_{{ $p->id }}').innerText) || 0;
-
-                    totalPaketHarga += (pQty * pHarga);
-                    totalKapasitasMax += (pQty * pCap);
-                }
-            @endforeach
-
-            @foreach($fasilitasSewa as $f)
-                if (document.getElementById('input_fasilitas_qty_{{ $f->id }}')) {
-                    const fQty = parseInt(document.getElementById('input_fasilitas_qty_{{ $f->id }}').value) || 0;
-                    const fHarga = parseFloat(document.getElementById('display_fasilitas_qty_{{ $f->id }}').getAttribute('data-harga')) || 0;
-
-                    totalFasilitasHarga += (fQty * fHarga);
-                }
-            @endforeach
-
-            const pengunjungInput = parseInt(document.getElementById('jumlah_pengunjung').value) || 1;
-            let biayaTiketTambahan = 0;
-            let qtyTiketTambahan = 0;
-            const badgeExtra = document.getElementById('extra_ticket_badge');
-
-            if (pengunjungInput > totalKapasitasMax && totalKapasitasMax > 0) {
-                qtyTiketTambahan = pengunjungInput - totalKapasitasMax;
-                biayaTiketTambahan = qtyTiketTambahan * 25000; 
-                
-                badgeExtra.innerText = `(+${qtyTiketTambahan} Orang Ekstra)`;
-                badgeExtra.classList.remove('hidden');
-                badgeExtra.classList.add('inline-block', 'bg-amber-100', 'text-amber-700', 'px-2', 'py-0.5', 'rounded', 'font-bold');
-            } else {
-                badgeExtra.classList.add('hidden');
-            }
-
-            const grandTotal = totalPaketHarga + totalFasilitasHarga + biayaTiketTambahan;
-            document.getElementById('grand_total_label').innerText = 'Rp ' + grandTotal.toLocaleString('id-ID');
-            document.getElementById('summary_capacity_text').innerText = `Total Kuota Kapasitas: ${totalKapasitasMax} Orang`;
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const initPaketId = urlParams.get('init_paket');
-            
-            if (initPaketId) {
-                adjustPaket(initPaketId, 1);
-            } else {
-                calculatePricing();
-            }
+        // --- INI BAGIAN KODE ANDA YANG SUDAH TERINTEGRASI ---
+        let groupedFas = {};
+        allFasilitas.forEach(f => {
+            let cat = f.kategori_fasilitas?.nama_kategori || f.kategori?.nama_kategori || 'Lainnya';
+            if (!groupedFas[cat]) groupedFas[cat] = [];
+            groupedFas[cat].push(f);
         });
-    </script>
-</body>
-</html>
+        let cats = Object.keys(groupedFas);
+        html += `
+        <div class="mt-10 pt-8 border-t border-slate-100">
+            <div class="flex items-center justify-between mb-6 gap-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">Fasilitas Tambahan</h3>
+                    <p class="text-sm text-slate-400 mt-1">Pilih fasilitas berdasarkan kategori</p>
+                </div>
+            </div>`;
+        if (cats.length > 0) {
+            let curIdx = activeFasCategory[targetHariAktif] || 0;
+            if (curIdx >= cats.length) curIdx = 0;
+            html += `<div class="flex gap-3 overflow-x-auto hide-scrollbar mb-7 pb-1">`;
+            cats.forEach((c, idx) => {
+                html += `
+                    <button type="button" onclick="changeFasCat(${targetHariAktif}, ${idx})" class="px-5 h-11 rounded-2xl text-sm font-bold border transition-all shrink-0 ${idx === curIdx ? 'bg-slate-800 border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'}">
+                        ${c}
+                    </button>`;
+            });
+            html += `</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+            groupedFas[cats[curIdx]].forEach(f => {
+                let qty = stateFasilitas[targetHariAktif]?.[f.id] || 0;
+                html += `
+                    <div class="rounded-3xl border p-5 flex items-center justify-between gap-4 transition-all ${qty > 0 ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200 hover:border-slate-300'}">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-slate-800 text-sm leading-relaxed">${f.nama_fasilitas}</p>
+                            <p class="text-xs text-slate-500 mt-1">Rp ${Number(f.harga).toLocaleString('id-ID')}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="ubahQtyFas(${targetHariAktif}, ${f.id}, -1)" class="w-11 h-11 rounded-2xl flex items-center justify-center bg-white border border-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-50 transition active:scale-95">-</button>
+                            <span class="w-8 text-center font-bold text-sm text-slate-700">${qty}</span>
+                            <button type="button" onclick="ubahQtyFas(${targetHariAktif}, ${f.id}, 1)" class="w-11 h-11 rounded-2xl flex items-center justify-center bg-white border border-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-50 transition active:scale-95">+</button>
+                        </div>
+                    </div>`;
+            });
+            html += `</div>`;
+        } else {
+            html += `<p class="text-slate-400 text-sm">Tidak ada fasilitas tersedia.</p>`;
+        }
+        html += `</div></div>`;
+        // --- SELESAI BAGIAN KODE ANDA ---
+
+        containerKonten.innerHTML = html;
+        let hiddenHtml = '';
+        for (let h in statePackages) {
+            statePackages[h].forEach(p => {
+                hiddenHtml += `<input type="hidden" name="paket[${h}][]" value="${p.id}">`;
+                hiddenHtml += `<input type="hidden" name="paket_qty[${h}][${p.id}]" value="${p.qty}">`;
+            });
+        }
+        let aggregatedFas = {};
+        for (let h in stateFasilitas) {
+            for (let fId in stateFasilitas[h]) {
+                if (!aggregatedFas[fId]) aggregatedFas[fId] = 0;
+                aggregatedFas[fId] += stateFasilitas[h][fId];
+            }
+        }
+        for (let fId in aggregatedFas) {
+            if (aggregatedFas[fId] > 0) hiddenHtml += `<input type="hidden" name="fasilitas[${fId}]" value="${aggregatedFas[fId]}">`;
+        }
+        hiddenInputs.innerHTML = hiddenHtml;
+    }
+
+    window.changeFasCat = (h, i) => { activeFasCategory[h] = i; renderTabs(); };
+    window.ubahQtyFas = (h, id, v) => { if(!stateFasilitas[h]) stateFasilitas[h] = {}; stateFasilitas[h][id] = Math.max(0, (stateFasilitas[h][id] || 0) + v); renderTabs(); };
+    window.ubahQtyPaket = (h, i, v) => { statePackages[h][i].qty = Math.max(1, statePackages[h][i].qty + v); renderTabs(); };
+    window.hapusPaket = (h, i) => { statePackages[h].splice(i, 1); renderTabs(); };
+    window.bukaModal = (h) => { targetHariAktif = h; document.getElementById('modal-pilih-paket').classList.remove('hidden'); document.body.style.overflow = 'hidden'; };
+    window.tutupModal = () => { document.getElementById('modal-pilih-paket').classList.add('hidden'); document.body.style.overflow = ''; };
+    document.getElementById('btn-close-modal').onclick = tutupModal;
+
+    document.querySelectorAll('.item-paket-modal').forEach(el => {
+        el.onclick = () => {
+            if(!statePackages[targetHariAktif]) statePackages[targetHariAktif] = [];
+            statePackages[targetHariAktif].push({ id: el.dataset.id, nama: el.dataset.nama, qty: 1, harga: el.dataset.harga, kapasitas: el.dataset.kapasitas });
+            tutupModal(); renderTabs();
+        };
+    });
+
+    document.getElementById('btn-tambah-p').onclick = () => { document.getElementById('jumlah_pengunjung').value++; };
+    document.getElementById('btn-kurang-p').onclick = () => { let i = document.getElementById('jumlah_pengunjung'); if(i.value > 1) i.value--; };
+    document.getElementById('tanggal_checkin').onchange = renderTabs;
+    document.getElementById('lama_menginap').oninput = renderTabs;
+
+    renderTabs();
+</script>
+@endsection

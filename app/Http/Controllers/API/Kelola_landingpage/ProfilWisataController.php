@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\Kelola_landingpage;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProfilWisata;
@@ -12,18 +12,38 @@ class ProfilWisataController extends Controller
     {
         $categories = \App\Models\KategoriPaket::all();
         $kabars = \App\Models\Berita::latest('tanggal')->take(3)->get();
-        return view('home', compact('categories', 'kabars'));
+        
+        // AMBIL DATA LOGO INSTANSI DARI TABEL client_logos
+        $experiences = \DB::table('client_logos')->get();
+        
+        // Kirim semua variabel ($categories, $kabars, $experiences) ke view home
+        return view('pengunjung.landing-page.home', compact('categories', 'kabars', 'experiences'));
+    }
+
+    /**
+     * METHOD BARU: Menampilkan daftar paket berdasarkan kategori yang dipilih dari Home
+     */
+    public function detailKategori($id)
+    {
+        $kategori = \App\Models\KategoriPaket::findOrFail($id);
+        
+        // Mengambil paket wisata yang terhubung dengan kategori ini
+        $pakets = \App\Models\PaketWisata::where('kategori_paket_id', $kategori->id)
+            ->with('fasilitas')
+            ->get();
+
+        // Mengarahkan ke halaman detail khusus list paket
+        return view('pengunjung.halaman-paket.detail-paket', compact('kategori', 'pakets'));
     }
 
     public function kabarIndex()
     {
         $kabars = \App\Models\Berita::latest('tanggal')->paginate(6);
-        return view('kabar', compact('kabars'));
+        return view('pengunjung.landing-page.kabar.index', compact('kabars'));
     }
 
     public function showKabar($slug)
     {
-        // Find by slug (using logic similar to what was there or a more efficient one)
         $kabars = \App\Models\Berita::all();
         $berita = $kabars->first(function ($item) use ($slug) {
             return \Illuminate\Support\Str::slug($item->judul) === $slug;
@@ -38,7 +58,7 @@ class ProfilWisataController extends Controller
             ->take(3)
             ->get();
 
-        return view('kabar.detail', compact('berita', 'relatedKabars'));
+        return view('pengunjung.landing-page.kabar.detail', compact('berita', 'relatedKabars'));
     }
 
     public function camping()
@@ -46,15 +66,17 @@ class ProfilWisataController extends Controller
         $kategori = \App\Models\KategoriPaket::where('nama_kategori', 'like', '%camping%')->first();
 
         if ($kategori) {
-            $pakets = \App\Models\PaketWisata::where('kategori_paket_id', $kategori->kategori_paket_id ?? $kategori->id)
-                ->orWhere('kategori_paket_id', $kategori->id)
+            $pakets = \App\Models\PaketWisata::where(function($query) use ($kategori) {
+                    $query->where('kategori_paket_id', $kategori->kategori_paket_id ?? $kategori->id)
+                          ->orWhere('kategori_paket_id', $kategori->id);
+                })
                 ->with('fasilitas')
                 ->get();
         } else {
             $pakets = collect();
         }
 
-        return view('camping', compact('pakets'));
+        return view('pengunjung.landing-page.halaman-paket.detail-paket', compact('pakets'));
     }
 
     public function adventureGame()
@@ -65,8 +87,10 @@ class ProfilWisataController extends Controller
             ->first();
 
         if ($kategori) {
-            $pakets = \App\Models\PaketWisata::where('id_kategori', $kategori->id_kategori ?? $kategori->id)
-                ->orWhere('kategori_paket_id', $kategori->id)
+            $pakets = \App\Models\PaketWisata::where(function($query) use ($kategori) {
+                    $query->where('id_kategori', $kategori->id_kategori ?? $kategori->id)
+                          ->orWhere('kategori_paket_id', $kategori->id);
+                })
                 ->with('fasilitas')
                 ->get();
         } else {
@@ -92,7 +116,7 @@ class ProfilWisataController extends Controller
             ]);
         }
 
-        return view('adventure-game', compact('pakets'));
+        return view('pengunjung.landing-page.halaman-paket.adventure-game', compact('pakets'));
     }
 
     public function bookingAdventureGame()
@@ -104,8 +128,10 @@ class ProfilWisataController extends Controller
 
         $pakets = collect();
         if ($kategori) {
-            $pakets = \App\Models\PaketWisata::where('id_kategori', $kategori->id_kategori ?? $kategori->id)
-                ->orWhere('kategori_paket_id', $kategori->id)
+            $pakets = \App\Models\PaketWisata::where(function($query) use ($kategori) {
+                    $query->where('id_kategori', $kategori->id_kategori ?? $kategori->id)
+                          ->orWhere('kategori_paket_id', $kategori->id);
+                })
                 ->get();
         }
 
@@ -116,7 +142,7 @@ class ProfilWisataController extends Controller
             ]);
         }
 
-        return view('booking-adventure-game', compact('kategori', 'pakets'));
+        return view('pengunjung.booking.adventure-game', compact('kategori', 'pakets'));
     }
 
     public function create()

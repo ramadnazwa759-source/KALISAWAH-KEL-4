@@ -31,7 +31,7 @@ class PaketWisata extends Model
 
     public function fasilitas()
     {
-        return $this->belongsToMany(Fasilitas::class, 'paket_fasilitas', 'paket_wisata_id', 'id_fasilitas')
+        return $this->belongsToMany(Fasilitas::class, 'paket_fasilitas', 'paket_wisata_id', 'id')
                     ->withPivot('jumlah', 'keterangan');
     }
 
