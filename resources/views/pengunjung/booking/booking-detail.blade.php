@@ -6,6 +6,7 @@
 <div class="bg-slate-50/50 min-h-screen pt-32 pb-20">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
+        {{-- Header Status --}}
         <div class="flex justify-center mb-6">
             <span class="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
                 Rincian Booking
@@ -48,12 +49,12 @@
             </div>
         </div>
 
+        {{-- Aktivitas Per Hari --}}
         <div class="flex items-center gap-3 mb-8">
             <div class="w-1.5 h-6 bg-amber-400 rounded-full"></div>
             <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-wide uppercase">Aktivitas Per Hari</h2>
         </div>
 
-        {{-- Loop Per Hari --}}
         <div class="space-y-8 mb-16">
             @php
                 $tanggalMulai = \Carbon\Carbon::parse($booking->tanggal_kunjungan);
@@ -90,7 +91,7 @@
                         @endif
                     </div>
 
-                    {{-- Fasilitas Hari Ini (Di dalam card paket) --}}
+                    {{-- Fasilitas Hari Ini --}}
                     @if($fasilitasHari->count() > 0)
                         <div class="mt-6 pt-6 border-t border-dashed border-gray-200">
                             <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">Fasilitas Tambahan</p>
@@ -107,8 +108,8 @@
                 </div>
             @endfor
 
-            {{-- Tiket Tambahan (Luar Kapasitas) --}}
-            @if((int)$booking->subtotal_tiket_tambahan > 0)
+            {{-- Tiket Tambahan --}}
+            @if((int)($booking->subtotal_tiket_tambahan ?? 0) > 0)
                 <div class="bg-orange-50 rounded-3xl p-6 md:p-8 shadow-sm border border-orange-100">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-2 h-6 bg-orange-400 rounded-full"></div>
@@ -123,6 +124,7 @@
             @endif
         </div>
 
+        {{-- Rekapitulasi Harga --}}
         <div class="flex items-center gap-3 mb-8">
             <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
             <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-wide uppercase">Rekapitulasi Harga</h2>
@@ -130,7 +132,7 @@
 
         <div class="bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
             <span class="text-base md:text-lg font-black text-slate-800 uppercase tracking-wide">Total Pembayaran Keseluruhan</span>
-            <span class="text-4xl md:text-5xl font-black text-blue-600">Rp {{ number_format((float)$booking->total_harga_final, 0, ',', '.') }}</span>
+            <span class="text-4xl md:text-5xl font-black text-blue-600">Rp {{ number_format((float)($booking->total_harga_final ?? 0), 0, ',', '.') }}</span>
         </div>
 
         <div class="flex flex-col items-center gap-4">
