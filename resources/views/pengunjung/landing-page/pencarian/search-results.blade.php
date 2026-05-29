@@ -31,7 +31,7 @@
                     <p class="text-gray-500 mb-10 max-w-md mx-auto font-medium text-lg leading-relaxed">
                         Maaf, kami tidak dapat menemukan data reservasi dengan informasi tersebut. Periksa kembali nomor HP, nama, dan tanggal booking Anda.
                     </p>
-                    <a href="{{ route('home') }}" class="inline-flex items-center gap-3 bg-primary text-white px-12 py-4 rounded-xl font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:bg-hover-primary transition-all active:scale-[0.95]">
+                    <a href="{{ route('landing-page.home') }}" class="inline-flex items-center gap-3 bg-primary text-white px-12 py-4 rounded-xl font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:bg-hover-primary transition-all active:scale-[0.95]">
                         <i class="fa-solid fa-rotate-left"></i> Kembali Ke Beranda
                     </a>
                 </div>

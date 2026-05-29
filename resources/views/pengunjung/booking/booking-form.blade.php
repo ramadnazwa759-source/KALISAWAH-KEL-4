@@ -2,335 +2,936 @@
 
 @section('content')
 
-<div class="container mx-auto px-4 pt-32 md:pt-40 pb-32">
+<div class="container mx-auto px-4 pt-32 md:pt-40 pb-40">
     <div class="max-w-5xl mx-auto">
-        <div class="text-center mb-12">
+
+        {{-- HEADER --}}
+        <div class="text-center mb-14">
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
                 {{ isset($booking) ? 'Ubah Reservasi' : 'Reservasi Camping' }}
             </h1>
-            <p class="text-slate-500 mt-2 text-base">
-                Silakan tentukan jadwal kedatangan, pilih paket wisata terbaik, serta atur fasilitas tambahan sesuai kebutuhan liburan Anda.
+
+            <p class="text-slate-500 mt-3 text-base leading-relaxed max-w-3xl mx-auto">
+                Tentukan jadwal check-in dan check-out, pilih paket wisata setiap malam,
+                lalu tambahkan fasilitas sesuai kebutuhan selama menginap.
             </p>
         </div>
 
+        {{-- ERROR --}}
         @if ($errors->any())
-            <div class="bg-red-50 rounded-2xl p-5 mb-8 flex items-start gap-4 border border-red-100">
-                <div class="bg-red-100 p-2 rounded-full text-red-500 shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="font-bold text-red-700 mb-1">Terjadi Kesalahan</h3>
-                    <ul class="space-y-1 text-sm text-red-600">
-                        @foreach ($errors->all() as $error)
-                            <li>• {{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="bg-red-50 rounded-3xl p-5 mb-10 border border-red-100">
+                <h3 class="font-bold text-red-700 mb-3">Terjadi Kesalahan</h3>
+
+                <ul class="space-y-2 text-sm text-red-600">
+                    @foreach ($errors->all() as $error)
+                        <li>• {{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
-        <form action="{{ isset($booking) ? route('pengunjung.booking.update', $booking->id) : route('pengunjung.booking.booking-store') }}" method="POST" id="form-reservasi">
+        <form
+            action="{{ isset($booking) ? route('pengunjung.booking.update', $booking->id) : route('pengunjung.booking.review') }}"
+            method="POST"
+            id="form-reservasi"
+        >
             @csrf
-            @if(isset($booking)) @method('PUT') @endif
+            @if(isset($booking))
+                @method('PUT')
+            @endif
 
             <div id="hidden-inputs"></div>
 
-            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 sm:p-10 mb-8">
-                <div class="mb-8 pb-4 border-b border-slate-100">
-                    <h2 class="text-xl font-bold text-slate-800">Data Pemesan</h2>
+            {{-- CARD DATA PEMESAN --}}
+            <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 sm:p-10 mb-10">
+
+                <div class="mb-8 pb-5 border-b border-slate-100">
+                    <h2 class="text-2xl font-bold text-slate-800">
+                        Data Pemesan
+                    </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {{-- INPUT ATAS --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
-                        <input type="text" name="nama_pemesan" value="{{ old('nama_pemesan', $booking->nama_pemesan ?? '') }}" 
-                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" placeholder="Masukkan nama pemesan" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Nama Lengkap
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nama_pemesan"
+                            value="{{ old('nama_pemesan', $booking->nama_pemesan ?? '') }}"
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
+                            placeholder="Masukkan nama pemesan"
+                            required
+                        >
                     </div>
+
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Nomor WhatsApp</label>
-                        <input type="text" name="no_hp" value="{{ old('no_hp', $booking->no_hp ?? '') }}" 
-                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none" placeholder="08xxxxxxxxxx" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Nomor WhatsApp
+                        </label>
+
+                        <input
+                            type="text"
+                            name="no_hp"
+                            value="{{ old('no_hp', $booking->no_hp ?? '') }}"
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
+                            placeholder="08xxxxxxxxxx"
+                            required
+                        >
                     </div>
+
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {{-- INPUT BAWAH --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+
+                    {{-- CHECKIN --}}
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Check-In</label>
-                        <input type="date" name="tanggal_kunjungan" id="tanggal_checkin" value="{{ old('tanggal_kunjungan', $booking->tanggal_kunjungan ?? '') }}" 
-                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 transition-all outline-none" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Check-In
+                        </label>
+
+                        <input
+                            type="date"
+                            name="tanggal_kunjungan"
+                            id="tanggal_checkin"
+                            value="{{ old('tanggal_kunjungan', $booking->tanggal_kunjungan ?? '') }}"
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
+                            required
+                        >
                     </div>
+
+                    {{-- CHECKOUT --}}
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Jam</label>
-                        <input type="time" name="jam" value="{{ old('jam', isset($booking) ? \Carbon\Carbon::parse($booking->jam)->format('H:i') : '') }}" 
-                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 transition-all outline-none" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Check-Out
+                        </label>
+
+                        <input
+                            type="date"
+                            name="tanggal_checkout"
+                            id="tanggal_checkout"
+                            value="{{ old('tanggal_checkout',
+                                isset($booking->tanggal_selesai)
+                                    ? \Carbon\Carbon::parse($booking->tanggal_selesai)->format('Y-m-d')
+                                    : ''
+                            ) }}"
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
+                            required
+                        >
                     </div>
+
+                    {{-- JAM --}}
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Durasi (Malam)</label>
-                        <input type="number" name="jumlah_hari" id="lama_menginap" min="1" value="{{ old('jumlah_hari', $booking->jumlah_malam ?? 1) }}" 
-                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 transition-all outline-none font-bold" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Jam Check-In
+                        </label>
+
+                        <input
+                            type="time"
+                            name="jam"
+                            value="{{ old('jam', isset($booking) ? \Carbon\Carbon::parse($booking->jam)->format('H:i') : '') }}"
+                            class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
+                            required
+                        >
                     </div>
+
+                    {{-- JUMLAH MALAM --}}
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Jumlah Orang</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Jumlah Malam (Menginap)
+                        </label>
+
                         <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl h-14 px-2">
-                            <button type="button" id="btn-kurang-p" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shadow-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+
+                            <button
+                                type="button"
+                                id="btn-kurang-malam"
+                                class="w-10 h-10 rounded-xl bg-white border border-slate-200 font-bold"
+                            >
+                                -
                             </button>
-                            <input type="number" name="jumlah_pengunjung" id="jumlah_pengunjung" value="{{ old('jumlah_pengunjung', $booking->jumlah_pengunjung ?? 1) }}" class="w-12 text-center bg-transparent border-none focus:ring-0 font-bold text-slate-700" readonly>
-                            <button type="button" id="btn-tambah-p" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition shadow-sm">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+
+                            <input
+                                type="number"
+                                name="jumlah_malam"
+                                id="lama_menginap"
+                                min="1"
+                                value="{{ old('jumlah_malam', $booking->jumlah_malam ?? 1) }}"
+                                class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold"
+                                readonly
+                            >
+
+
+                            <button
+                                type="button"
+                                id="btn-tambah-malam"
+                                class="w-10 h-10 rounded-xl bg-white border border-slate-200 font-bold"
+                            >
+                                +
                             </button>
+
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-8 bg-slate-50 rounded-xl p-5 flex items-start gap-3 border border-slate-200">
-                    <div class="text-slate-400 mt-0.5">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {{-- JUMLAH ORANG --}}
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Jumlah Orang
+                        </label>
+
+                        <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl h-14 px-2">
+
+                            <button
+                                type="button"
+                                id="btn-kurang-p"
+                                class="w-10 h-10 rounded-xl bg-white border border-slate-200 font-bold"
+                            >
+                                -
+                            </button>
+
+                            <input
+                                type="number"
+                                name="jumlah_pengunjung"
+                                id="jumlah_pengunjung"
+                                value="{{ old('jumlah_pengunjung', $booking->jumlah_pengunjung ?? 1) }}"
+                                class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold"
+                                readonly
+                            >
+
+                            <button
+                                type="button"
+                                id="btn-tambah-p"
+                                class="w-10 h-10 rounded-xl bg-white border border-slate-200 font-bold"
+                            >
+                                +
+                            </button>
+
+                        </div>
                     </div>
-                    <p class="text-sm text-slate-600 leading-relaxed">
-                        Jika jumlah pengunjung melebihi total kapasitas paket yang dipilih, akan dikenakan biaya tiket tambahan sebesar <span class="font-bold text-slate-800">Rp 25.000 / orang</span>.
-                    </p>
+
                 </div>
+
+                {{-- KETERANGAN --}}
+                <div class="mt-8 space-y-4">
+
+                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5">
+                        <p class="text-sm text-blue-700 leading-relaxed">
+                            Jumlah malam otomatis dihitung dari tanggal
+                            <span class="font-bold">check-in</span>
+                            sampai
+                            <span class="font-bold">check-out</span>.
+                        </p>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+                        <p class="text-sm text-yellow-800 leading-relaxed">
+                            Jika jumlah orang melebihi total kapasitas paket yang dipilih,
+                            maka akan dikenakan
+                            <span class="font-bold">biaya tiket tambahan Rp 25.000 / orang</span>.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Fasilitas tambahan dihitung
+                            <span class="font-bold">per malam menginap</span>.
+                            Semakin lama menginap, maka total biaya fasilitas akan menyesuaikan.
+                        </p>
+                    </div>
+
+                </div>
+
             </div>
 
+            {{-- CARD PAKET --}}
             <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8 sm:p-10">
-                <div id="container-tab" class="flex overflow-x-auto hide-scrollbar gap-3 mb-8 pb-2 border-b border-slate-100"></div>
+
+                {{-- TAB HARI --}}
+                <div
+                    id="container-tab"
+                    class="flex overflow-x-auto hide-scrollbar gap-3 mb-8 pb-4 border-b border-slate-100"
+                ></div>
+
+                {{-- ISI --}}
                 <div id="container-konten-hari"></div>
+
             </div>
 
-            <div class="flex flex-col-reverse sm:flex-row gap-4 justify-center mt-12 mb-24 items-center">
-                <a href="{{ route('landing-page.home') }}" class="px-8 py-4 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold transition w-full sm:w-auto text-center">Kembali</a>
-                <button type="submit" class="px-12 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition w-full sm:w-auto shadow-lg shadow-blue-600/20">
+            {{-- BUTTON --}}
+            <div class="flex flex-col-reverse sm:flex-row gap-5 justify-center mt-16 mb-32 items-center">
+
+                <a
+                    href="{{ route('landing-page.home') }}"
+                    class="px-10 py-4 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold transition w-full sm:w-auto text-center"
+                >
+                    Batal
+                </a>
+
+                <button
+                    type="submit"
+                    class="px-12 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition w-full sm:w-auto shadow-lg"
+                >
                     {{ isset($booking) ? 'Simpan Perubahan' : 'Lanjutkan Reservasi' }}
                 </button>
+
             </div>
+
         </form>
     </div>
 </div>
 
-{{-- Modal ... (konten modal tetap sama) --}}
+{{-- MODAL --}}
 <div id="modal-pilih-paket" class="fixed inset-0 z-[999] hidden overflow-y-auto">
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" id="modal-backdrop"></div>
-    <div class="flex items-center justify-center min-h-screen p-4 sm:p-6 relative z-20">
-        <div class="bg-white w-full max-w-3xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[85vh] relative" id="modal-content">
-            <div class="flex justify-between items-center p-8 border-b border-slate-100 bg-white rounded-t-[2.5rem] shrink-0 sticky top-0 z-10">
-                <h3 class="font-bold text-2xl text-slate-800">Pilih Paket</h3>
-                <button type="button" id="btn-close-modal" class="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+
+    <div class="flex items-center justify-center min-h-screen p-4 relative z-20">
+
+        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh]">
+
+            {{-- HEADER --}}
+            <div class="flex justify-between items-center p-8 border-b border-slate-100">
+
+                <h3 class="font-bold text-2xl text-slate-800">
+                    Pilih Paket
+                </h3>
+
+                <button
+                    type="button"
+                    id="btn-close-modal"
+                    class="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200"
+                >
+                    ✕
                 </button>
+
             </div>
-            <div class="p-8 bg-slate-50 rounded-b-[2.5rem] overflow-y-auto flex-1">
-                @if($paket->isEmpty())
-                    <p class="text-center text-slate-500">Tidak ada paket tersedia.</p>
-                @else
-                    @foreach($paket->groupBy(function($item) { return $item->kategoriPaket->nama_kategori ?? ($item->kategori->nama_kategori ?? 'Umum'); }) as $namaKategori => $kumpulanPaket)
-                        <div class="mb-10 last:mb-0">
-                            <h4 class="text-sm font-black text-blue-600 uppercase tracking-widest mb-4">{{ $namaKategori }}</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                @foreach($kumpulanPaket as $p)
-                                    <div class="item-paket-modal border-2 border-slate-200/60 bg-white rounded-3xl p-6 hover:border-blue-500 hover:bg-blue-50/20 cursor-pointer transition-all group" data-id="{{ $p->id }}" data-nama="{{ $p->nama_paket }}" data-harga="{{ $p->harga }}" data-kapasitas="{{ $p->kapasitas ?? 0 }}">
-                                        <h5 class="font-bold text-slate-800 mb-3 group-hover:text-blue-600 text-lg transition">{{ $p->nama_paket }}</h5>
-                                        <div class="flex items-center justify-between mt-4 border-t border-slate-100 pt-3">
-                                            <div>
-                                                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Harga</p>
-                                                <p class="text-base font-black text-blue-600">Rp {{ number_format($p->harga, 0, ',', '.') }}</p>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Kapasitas</p>
-                                                <p class="text-sm font-bold text-slate-600">{{ $p->kapasitas ?? 0 }} Org</p>
-                                            </div>
+
+            {{-- CONTENT --}}
+            <div class="p-8 overflow-y-auto">
+
+                @foreach($kategoriPaket as $kategori)
+
+                    <div class="mb-10">
+
+                        <h4 class="text-blue-600 font-black uppercase tracking-widest text-sm mb-5">
+                            {{ $kategori->nama_kategori }}
+                        </h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            @foreach($paket->where('kategori_paket_id', $kategori->id) as $p)
+
+                                <div
+                                    class="item-paket-modal border-2 border-slate-200 rounded-3xl p-6 hover:border-blue-500 cursor-pointer transition"
+                                    data-id="{{ $p->id }}"
+                                    data-nama="{{ $p->nama_paket }}"
+                                    data-harga="{{ $p->harga }}"
+                                    data-kapasitas="{{ $p->kapasitas ?? 0 }}"
+                                >
+
+                                    <h5 class="font-bold text-lg text-slate-800 mb-3">
+                                        {{ $p->nama_paket }}
+                                    </h5>
+
+                                    <div class="flex items-center justify-between">
+
+                                        <div>
+                                            <p class="text-xs text-slate-400 font-bold">
+                                                Harga
+                                            </p>
+
+                                            <p class="font-black text-blue-600">
+                                                Rp {{ number_format($p->harga,0,',','.') }}
+                                            </p>
                                         </div>
+
+                                        <div class="text-right">
+                                            <p class="text-xs text-slate-400 font-bold">
+                                                Kapasitas
+                                            </p>
+
+                                            <p class="font-bold text-slate-700">
+                                                {{ $p->kapasitas ?? 0 }} Orang
+                                            </p>
+                                        </div>
+
                                     </div>
-                                @endforeach
-                            </div>
+
+                                </div>
+
+                            @endforeach
+
                         </div>
-                    @endforeach
-                @endif
+
+                    </div>
+
+                @endforeach
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
 <style>
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    input[type="date"]::-webkit-calendar-picker-indicator,
-    input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
-    input[type="date"]::-webkit-calendar-picker-indicator:hover,
-    input[type="time"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
-    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
 </style>
 
 <script>
-    let statePackages = {};
-    let stateFasilitas = {};
+
+    let statePackages = @json(
+        isset($booking)
+            ? $booking->items
+                ->groupBy('hari')
+                ->map(function($items) {
+                    return $items->map(function($item) {
+                        return [
+                            'id' => $item->paket_wisata_id,
+                            'nama' => $item->paketWisata->nama_paket ?? '-',
+                            'qty' => $item->qty,
+                            'harga' => $item->harga,
+                            'kapasitas' => $item->paketWisata->kapasitas ?? 0,
+                        ];
+                    });
+                })
+            : []
+    );
+
+    let stateFasilitas = @json(
+        isset($booking)
+            ? $booking->fasilitas
+                ->groupBy('hari')
+                ->map(function($items) {
+                    $result = [];
+
+                    foreach($items as $item) {
+                        $result[$item->fasilitas_id] = $item->qty;
+                    }
+
+                    return $result;
+                })
+            : []
+    );
     let targetHariAktif = 0;
     let activeFasCategory = {};
+
     const allFasilitas = @json($fasilitas);
 
-    @if(isset($booking))
-        @foreach($booking->items as $item)
-            @php $hariIdx = (int) $item->hari; @endphp
-            if (!statePackages[{{ $hariIdx }}]) statePackages[{{ $hariIdx }}] = [];
-            statePackages[{{ $hariIdx }}].push({ id: {{ $item->paket_wisata_id }}, nama: "{!! addslashes(optional($item->paketWisata)->nama_paket ?? 'Paket Terpilih') !!}", qty: {{ (int) $item->qty }}, harga: {{ optional($item->paketWisata)->harga ?? 0 }}, kapasitas: "{{ optional($item->paketWisata)->kapasitas ?? 0 }}" });
-        @endforeach
-        @foreach($booking->fasilitas as $f)
-            @php $hariIdxFas = isset($f->hari) ? (int) $f->hari : 0; @endphp
-            if (!stateFasilitas[{{ $hariIdxFas }}]) stateFasilitas[{{ $hariIdxFas }}] = {};
-            stateFasilitas[{{ $hariIdxFas }}][{{ $f->fasilitas_id }}] = {{ (int) $f->qty }};
-        @endforeach
-    @endif
+    // [PERBAIKAN 1]: Memastikan perhitungan hari selalu menghasilkan minimal 1
+    function hitungMalam()
+    {
+        const checkin = document.getElementById('tanggal_checkin').value;
+        const checkout = document.getElementById('tanggal_checkout').value;
 
-    function renderTabs() {
-        const jmlMalam = parseInt(document.getElementById('lama_menginap').value) || 1;
+        if(checkin && checkout)
+        {
+            const tgl1 = new Date(checkin);
+            const tgl2 = new Date(checkout);
+
+            let selisih = Math.ceil((tgl2 - tgl1) / (1000 * 60 * 60 * 24));
+
+            // Jika tanggal checkout sama dengan tanggal checkin, atau mundur, paksa jadi 1 malam
+            if(selisih < 1)
+            {
+                selisih = 1;
+            }
+
+            document.getElementById('lama_menginap').value = selisih;
+            renderTabs();
+        }
+    }
+
+    function renderTabs()
+    {
+        // [PERBAIKAN 2]: Safety check saat membaca input jumlah malam
+        let jmlMalam = parseInt(document.getElementById('lama_menginap').value);
+        if(isNaN(jmlMalam) || jmlMalam < 1) {
+            jmlMalam = 1;
+            document.getElementById('lama_menginap').value = 1;
+        }
+
         const tanggalCheckin = document.getElementById('tanggal_checkin').value;
+
         const containerTab = document.getElementById('container-tab');
         const containerKonten = document.getElementById('container-konten-hari');
         const hiddenInputs = document.getElementById('hidden-inputs');
 
         containerTab.innerHTML = '';
         containerKonten.innerHTML = '';
-        if (targetHariAktif >= jmlMalam) targetHariAktif = 0;
 
-        for (let i = 0; i < jmlMalam; i++) {
+        // [PERBAIKAN 3]: Safety render, memastikan tab tidak error jika hari dikurangi
+        if (targetHariAktif >= jmlMalam) {
+            targetHariAktif = Math.max(0, jmlMalam - 1);
+        }
+
+        for(let i = 0; i < jmlMalam; i++)
+        {
             let labelTgl = '';
-            if (tanggalCheckin) {
+
+            if(tanggalCheckin)
+            {
                 let d = new Date(tanggalCheckin);
                 d.setDate(d.getDate() + i);
-                labelTgl = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+
+                labelTgl = d.toLocaleDateString('id-ID', {
+                    day:'numeric',
+                    month:'short'
+                });
             }
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = `px-6 py-4 rounded-2xl flex flex-col items-center min-w-[120px] transition-all border-2 shrink-0 ${i === targetHariAktif ? 'border-blue-600 bg-blue-50 text-blue-600 shadow-sm' : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'}`;
-            btn.innerHTML = `<span class="text-[10px] font-black uppercase tracking-tighter">HARI ${i + 1}</span><span class="text-sm font-bold">${labelTgl}</span>`;
-            btn.onclick = () => { targetHariAktif = i; renderTabs(); };
-            containerTab.appendChild(btn);
-        }
 
-        let html = `<div class="mt-4">
-            <div class="flex justify-between items-center mb-6 gap-4">
-                <h3 class="font-bold text-slate-800 text-lg">Paket Malam ${targetHariAktif + 1}</h3>
-                <button type="button" onclick="bukaModal(${targetHariAktif})" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md active:scale-95 flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Tambah Paket
+            containerTab.innerHTML += `
+                <button
+                    type="button"
+                    onclick="gantiHari(${i})"
+                    class="px-6 py-4 rounded-2xl border-2 min-w-[190px] shrink-0 transition
+                    ${i === targetHariAktif
+                        ? 'border-blue-600 bg-blue-50 text-blue-700'
+                        : 'border-slate-200 bg-white text-slate-500'}
+                    "
+                >
+                    <div class="text-xs font-black uppercase">
+                        Hari ${i+1}
+                    </div>
+
+                    <div class="text-sm font-bold mt-1">
+                        ${labelTgl}
+                    </div>
+
+                    <div class="text-xs mt-2 opacity-70">
+                        Sampai malam ke-${i+1}
+                    </div>
                 </button>
-            </div>`;
-
-        if (statePackages[targetHariAktif]?.length > 0) {
-            statePackages[targetHariAktif].forEach((p, idx) => {
-                html += `<div class="bg-white border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shadow-sm">
-                    <div class="flex-1">
-                        <p class="font-bold text-slate-800 text-base mb-2.5">${p.nama}</p>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl">Rp ${Number(p.harga).toLocaleString('id-ID')}</span>
-                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl">Kapasitas: ${p.kapasitas} Org</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
-                        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-2xl">
-                            <button type="button" onclick="ubahQtyPaket(${targetHariAktif}, ${idx}, -1)" class="w-11 h-11 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition active:scale-95">-</button>
-                            <span class="font-bold text-slate-700 w-8 text-center text-sm">${p.qty}</span>
-                            <button type="button" onclick="ubahQtyPaket(${targetHariAktif}, ${idx}, 1)" class="w-11 h-11 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition active:scale-95">+</button>
-                        </div>
-                        <button type="button" onclick="hapusPaket(${targetHariAktif}, ${idx})" class="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 font-bold text-xs transition duration-200 active:scale-95">Hapus</button>
-                    </div>
-                </div>`;
-            });
-        } else {
-            html += `<div class="p-6 border-2 border-dashed border-slate-100 rounded-2xl text-center text-slate-400 text-sm mb-8">Belum ada paket</div>`;
+            `;
         }
 
-        // --- INI BAGIAN KODE ANDA YANG SUDAH TERINTEGRASI ---
+        let html = `
+            <div class="mb-10">
+
+                <div class="flex justify-between items-center mb-6">
+
+                    <div>
+                        <h3 class="font-bold text-xl text-slate-800">
+                            Paket Hari ${targetHariAktif + 1}
+                        </h3>
+
+                        <p class="text-sm text-slate-400 mt-1">
+                            Pilih paket yang digunakan pada hari ini
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onclick="bukaModal(${targetHariAktif})"
+                        class="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                    >
+                        Tambah Paket
+                    </button>
+
+                </div>
+        `;
+
+        if(statePackages[targetHariAktif]?.length > 0)
+        {
+            statePackages[targetHariAktif].forEach((p, idx) => {
+
+                html += `
+                    <div class="border border-slate-200 rounded-3xl p-5 mb-5">
+
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-lg mb-2">
+                                    ${p.nama}
+                                </h4>
+
+                                <div class="flex flex-wrap gap-3">
+
+                                    <span class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-2 rounded-xl">
+                                        Rp ${Number(p.harga).toLocaleString('id-ID')}
+                                    </span>
+
+                                    <span class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl">
+                                        Kapasitas ${p.kapasitas} Orang
+                                    </span>
+
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4">
+
+                                <div class="flex items-center gap-2">
+
+                                    <button
+                                        type="button"
+                                        onclick="ubahQtyPaket(${targetHariAktif}, ${idx}, -1)"
+                                        class="w-10 h-10 rounded-xl border"
+                                    >
+                                        -
+                                    </button>
+
+                                    <span class="font-bold w-8 text-center">
+                                        ${p.qty}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        onclick="ubahQtyPaket(${targetHariAktif}, ${idx}, 1)"
+                                        class="w-10 h-10 rounded-xl border"
+                                    >
+                                        +
+                                    </button>
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onclick="hapusPaket(${targetHariAktif}, ${idx})"
+                                    class="px-4 py-2 rounded-xl bg-red-50 text-red-600 font-bold text-sm"
+                                >
+                                    Hapus
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+            });
+        }
+        else
+        {
+            html += `
+                <div class="border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center text-slate-400">
+                    Belum ada paket dipilih
+                </div>
+            `;
+        }
+
         let groupedFas = {};
+
         allFasilitas.forEach(f => {
-            let cat = f.kategori_fasilitas?.nama_kategori || f.kategori?.nama_kategori || 'Lainnya';
-            if (!groupedFas[cat]) groupedFas[cat] = [];
+
+            let cat = f.kategori?.nama_kategori || 'Lainnya';
+
+            if(!groupedFas[cat])
+            {
+                groupedFas[cat] = [];
+            }
+
             groupedFas[cat].push(f);
         });
+
         let cats = Object.keys(groupedFas);
+
         html += `
-        <div class="mt-10 pt-8 border-t border-slate-100">
-            <div class="flex items-center justify-between mb-6 gap-4">
-                <div>
-                    <h3 class="font-bold text-slate-800 text-lg">Fasilitas Tambahan</h3>
-                    <p class="text-sm text-slate-400 mt-1">Pilih fasilitas berdasarkan kategori</p>
+            <div class="mt-14 pt-10 border-t border-slate-100">
+
+                <div class="mb-6">
+
+                    <h3 class="font-bold text-xl text-slate-800">
+                        Fasilitas Tambahan
+                    </h3>
+
+                    <p class="text-sm text-slate-400 mt-2">
+                        Fasilitas dihitung per malam menginap
+                    </p>
+
                 </div>
-            </div>`;
-        if (cats.length > 0) {
+        `;
+
+        if(cats.length > 0)
+        {
             let curIdx = activeFasCategory[targetHariAktif] || 0;
-            if (curIdx >= cats.length) curIdx = 0;
-            html += `<div class="flex gap-3 overflow-x-auto hide-scrollbar mb-7 pb-1">`;
+
+            html += `<div class="flex gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">`;
+
             cats.forEach((c, idx) => {
+
                 html += `
-                    <button type="button" onclick="changeFasCat(${targetHariAktif}, ${idx})" class="px-5 h-11 rounded-2xl text-sm font-bold border transition-all shrink-0 ${idx === curIdx ? 'bg-slate-800 border-slate-800 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'}">
+                    <button
+                        type="button"
+                        onclick="changeFasCat(${targetHariAktif}, ${idx})"
+                        class="px-5 py-3 rounded-2xl text-sm font-bold border shrink-0 transition
+                        ${idx === curIdx
+                            ? 'bg-yellow-400 border-yellow-400 text-slate-900'
+                            : 'bg-yellow-50 border-yellow-200 text-yellow-700'}
+                        "
+                    >
                         ${c}
-                    </button>`;
+                    </button>
+                `;
             });
-            html += `</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
-            groupedFas[cats[curIdx]].forEach(f => {
-                let qty = stateFasilitas[targetHariAktif]?.[f.id] || 0;
-                html += `
-                    <div class="rounded-3xl border p-5 flex items-center justify-between gap-4 transition-all ${qty > 0 ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200 hover:border-slate-300'}">
-                        <div class="flex-1 min-w-0">
-                            <p class="font-bold text-slate-800 text-sm leading-relaxed">${f.nama_fasilitas}</p>
-                            <p class="text-xs text-slate-500 mt-1">Rp ${Number(f.harga).toLocaleString('id-ID')}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button type="button" onclick="ubahQtyFas(${targetHariAktif}, ${f.id}, -1)" class="w-11 h-11 rounded-2xl flex items-center justify-center bg-white border border-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-50 transition active:scale-95">-</button>
-                            <span class="w-8 text-center font-bold text-sm text-slate-700">${qty}</span>
-                            <button type="button" onclick="ubahQtyFas(${targetHariAktif}, ${f.id}, 1)" class="w-11 h-11 rounded-2xl flex items-center justify-center bg-white border border-slate-200 text-slate-700 font-bold text-lg hover:bg-slate-50 transition active:scale-95">+</button>
-                        </div>
-                    </div>`;
-            });
+
             html += `</div>`;
-        } else {
-            html += `<p class="text-slate-400 text-sm">Tidak ada fasilitas tersedia.</p>`;
+
+            html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-5">`;
+
+            groupedFas[cats[curIdx]].forEach(f => {
+
+                let qty = stateFasilitas[targetHariAktif]?.[f.id] || 0;
+
+                html += `
+                    <div class="border rounded-3xl p-5 flex justify-between items-center gap-5
+                    ${qty > 0
+                        ? 'border-blue-200 bg-blue-50'
+                        : 'border-slate-200 bg-white'}
+                    ">
+
+                        <div>
+                            <h4 class="font-bold text-slate-800 mb-2">
+                                ${f.nama_fasilitas}
+                            </h4>
+
+                            <p class="text-sm text-slate-500">
+                                Rp ${Number(f.harga).toLocaleString('id-ID')} / malam
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+
+                            <button
+                                type="button"
+                                onclick="ubahQtyFas(${targetHariAktif}, ${f.id}, -1)"
+                                class="w-10 h-10 rounded-xl border"
+                            >
+                                -
+                            </button>
+
+                            <span class="font-bold w-8 text-center">
+                                ${qty}
+                            </span>
+
+                            <button
+                                type="button"
+                                onclick="ubahQtyFas(${targetHariAktif}, ${f.id}, 1)"
+                                class="w-10 h-10 rounded-xl border"
+                            >
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
         }
-        html += `</div></div>`;
-        // --- SELESAI BAGIAN KODE ANDA ---
+
+        html += `</div>`;
 
         containerKonten.innerHTML = html;
+
         let hiddenHtml = '';
-        for (let h in statePackages) {
+
+        // [PERBAIKAN 4]: Safety State - Filter data hanya pada hari yang aktif/valid saat di submit
+        for(let h in statePackages)
+        {
+            if (parseInt(h) >= jmlMalam) continue; // Jangan proses data untuk hari yg sudah dihapus
+
             statePackages[h].forEach(p => {
-                hiddenHtml += `<input type="hidden" name="paket[${h}][]" value="${p.id}">`;
-                hiddenHtml += `<input type="hidden" name="paket_qty[${h}][${p.id}]" value="${p.qty}">`;
+
+                hiddenHtml += `
+                    <input type="hidden" name="paket[${h}][]" value="${p.id}">
+                `;
+
+                hiddenHtml += `
+                    <input type="hidden" name="paket_qty[${h}][${p.id}]" value="${p.qty}">
+                `;
             });
         }
-        let aggregatedFas = {};
-        for (let h in stateFasilitas) {
-            for (let fId in stateFasilitas[h]) {
-                if (!aggregatedFas[fId]) aggregatedFas[fId] = 0;
-                aggregatedFas[fId] += stateFasilitas[h][fId];
+
+        for(let h in stateFasilitas)
+        {
+            if (parseInt(h) >= jmlMalam) continue; // Jangan proses data untuk hari yg sudah dihapus
+
+            for(let fId in stateFasilitas[h])
+            {
+                hiddenHtml += `
+                    <input type="hidden" name="fasilitas[${h}][${fId}]"
+                    value="${stateFasilitas[h][fId]}">
+                `;
             }
         }
-        for (let fId in aggregatedFas) {
-            if (aggregatedFas[fId] > 0) hiddenHtml += `<input type="hidden" name="fasilitas[${fId}]" value="${aggregatedFas[fId]}">`;
-        }
+
         hiddenInputs.innerHTML = hiddenHtml;
     }
 
-    window.changeFasCat = (h, i) => { activeFasCategory[h] = i; renderTabs(); };
-    window.ubahQtyFas = (h, id, v) => { if(!stateFasilitas[h]) stateFasilitas[h] = {}; stateFasilitas[h][id] = Math.max(0, (stateFasilitas[h][id] || 0) + v); renderTabs(); };
-    window.ubahQtyPaket = (h, i, v) => { statePackages[h][i].qty = Math.max(1, statePackages[h][i].qty + v); renderTabs(); };
-    window.hapusPaket = (h, i) => { statePackages[h].splice(i, 1); renderTabs(); };
-    window.bukaModal = (h) => { targetHariAktif = h; document.getElementById('modal-pilih-paket').classList.remove('hidden'); document.body.style.overflow = 'hidden'; };
-    window.tutupModal = () => { document.getElementById('modal-pilih-paket').classList.add('hidden'); document.body.style.overflow = ''; };
+    function gantiHari(i)
+    {
+        targetHariAktif = i;
+        renderTabs();
+    }
+
+    function changeFasCat(h, i)
+    {
+        activeFasCategory[h] = i;
+        renderTabs();
+    }
+
+    function ubahQtyFas(h, id, v)
+    {
+        if(!stateFasilitas[h])
+        {
+            stateFasilitas[h] = {};
+        }
+
+        stateFasilitas[h][id] = Math.max(0, (stateFasilitas[h][id] || 0) + v);
+
+        renderTabs();
+    }
+
+    function ubahQtyPaket(h, i, v)
+    {
+        statePackages[h][i].qty = Math.max(1, statePackages[h][i].qty + v);
+
+        renderTabs();
+    }
+
+    function hapusPaket(h, i)
+    {
+        statePackages[h].splice(i, 1);
+
+        renderTabs();
+    }
+
+    function bukaModal(h)
+    {
+        targetHariAktif = h;
+
+        document.getElementById('modal-pilih-paket').classList.remove('hidden');
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function tutupModal()
+    {
+        document.getElementById('modal-pilih-paket').classList.add('hidden');
+
+        document.body.style.overflow = '';
+    }
+
     document.getElementById('btn-close-modal').onclick = tutupModal;
 
     document.querySelectorAll('.item-paket-modal').forEach(el => {
+
         el.onclick = () => {
-            if(!statePackages[targetHariAktif]) statePackages[targetHariAktif] = [];
-            statePackages[targetHariAktif].push({ id: el.dataset.id, nama: el.dataset.nama, qty: 1, harga: el.dataset.harga, kapasitas: el.dataset.kapasitas });
-            tutupModal(); renderTabs();
+
+            if(!statePackages[targetHariAktif])
+            {
+                statePackages[targetHariAktif] = [];
+            }
+
+            statePackages[targetHariAktif].push({
+                id: el.dataset.id,
+                nama: el.dataset.nama,
+                qty: 1,
+                harga: el.dataset.harga,
+                kapasitas: el.dataset.kapasitas
+            });
+
+            tutupModal();
+
+            renderTabs();
         };
     });
 
-    document.getElementById('btn-tambah-p').onclick = () => { document.getElementById('jumlah_pengunjung').value++; };
-    document.getElementById('btn-kurang-p').onclick = () => { let i = document.getElementById('jumlah_pengunjung'); if(i.value > 1) i.value--; };
-    document.getElementById('tanggal_checkin').onchange = renderTabs;
-    document.getElementById('lama_menginap').oninput = renderTabs;
+    document.getElementById('btn-tambah-p').onclick = () => {
+        document.getElementById('jumlah_pengunjung').value++;
+    };
+
+    document.getElementById('btn-kurang-p').onclick = () => {
+
+        let i = document.getElementById('jumlah_pengunjung');
+
+        if(i.value > 1)
+        {
+            i.value--;
+        }
+    };
+
+    document.getElementById('btn-tambah-malam').onclick = () => {
+
+        let input = document.getElementById('lama_menginap');
+
+        input.value = parseInt(input.value) + 1;
+
+        updateCheckout();
+
+        renderTabs();
+    };
+
+    document.getElementById('btn-kurang-malam').onclick = () => {
+
+        let input = document.getElementById('lama_menginap');
+
+        if(parseInt(input.value) > 1)
+        {
+            input.value = parseInt(input.value) - 1;
+
+            updateCheckout();
+
+            renderTabs();
+        }
+    };
+
+    document.getElementById('tanggal_checkin').onchange = hitungMalam;
+    document.getElementById('tanggal_checkout').onchange = hitungMalam;
 
     renderTabs();
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const checkin = document.getElementById('tanggal_checkin');
+const malam = document.getElementById('lama_menginap');
+const checkout = document.getElementById('tanggal_checkout');
+
+function updateCheckout()
+{
+    if (!checkin.value || !malam.value) return;
+
+    let tanggal = new Date(checkin.value);
+
+    tanggal.setDate(
+        tanggal.getDate() + parseInt(malam.value)
+    );
+
+    checkout.value = tanggal.toISOString().split('T')[0];
+}
+
+checkin.addEventListener('change', updateCheckout);
+
+malam.addEventListener('input', () => {
+
+    let value = parseInt(malam.value);
+
+    if(isNaN(value) || value < 1)
+    {
+        malam.value = 1;
+    }
+
+    updateCheckout();
+
+    renderTabs();
+});
+
+updateCheckout();
+
 </script>
+
 @endsection

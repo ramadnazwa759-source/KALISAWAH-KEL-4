@@ -14,6 +14,10 @@ class BookingItem extends Model
 
         'paket_wisata_id',
 
+        // TAMBAHAN
+        'hari',
+        'tanggal',
+
         'qty',
 
         'harga',
@@ -21,7 +25,12 @@ class BookingItem extends Model
         'subtotal'
     ];
 
-    // RELASI KE BOOKING
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI KE BOOKING
+    |--------------------------------------------------------------------------
+    */
+
     public function booking()
     {
         return $this->belongsTo(
@@ -30,7 +39,12 @@ class BookingItem extends Model
         );
     }
 
-    // RELASI KE PAKET WISATA
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI KE PAKET WISATA
+    |--------------------------------------------------------------------------
+    */
+
     public function paketWisata()
     {
         return $this->belongsTo(

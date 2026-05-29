@@ -143,10 +143,10 @@
                 <h2 class="text-3xl md:text-4xl font-black text-dark-navy mb-6">Sudah Paham Caranya?</h2>
                 <p class="text-gray-600 mb-10 max-w-lg mx-auto">Jangan tunda lagi, amankan jadwal petualanganmu sekarang juga di Kalisawah Adventure!</p>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="{{ route('home') }}#paket-seru" class="bg-primary text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 hover:bg-hover-primary hover:-translate-y-1 active:scale-95 transition-all uppercase tracking-widest">
+                    <a href="{{ route('landing-page.home') }}#paket-seru" class="bg-primary text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-primary/20 hover:bg-hover-primary hover:-translate-y-1 active:scale-95 transition-all uppercase tracking-widest">
                         Pilih Paket
                     </a>
-                    <a href="{{ route('home') }}#pencarian-booking" class="bg-white text-primary border-2 border-primary px-10 py-4 rounded-2xl font-black hover:bg-blue-50 hover:-translate-y-1 active:scale-95 transition-all uppercase tracking-widest">
+                    <a href="{{ route('landing-page.home') }}#pencarian-booking" class="bg-white text-primary border-2 border-primary px-10 py-4 rounded-2xl font-black hover:bg-blue-50 hover:-translate-y-1 active:scale-95 transition-all uppercase tracking-widest">
                         Cari Booking
                     </a>
                 </div>

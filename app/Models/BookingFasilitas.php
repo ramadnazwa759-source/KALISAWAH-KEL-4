@@ -14,6 +14,10 @@ class BookingFasilitas extends Model
 
         'fasilitas_id',
 
+        // TAMBAHAN
+        'hari',
+        'tanggal',
+
         'qty',
 
         'harga',
@@ -21,7 +25,12 @@ class BookingFasilitas extends Model
         'subtotal'
     ];
 
-    // RELASI KE BOOKING
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI KE BOOKING
+    |--------------------------------------------------------------------------
+    */
+
     public function booking()
     {
         return $this->belongsTo(
@@ -30,7 +39,12 @@ class BookingFasilitas extends Model
         );
     }
 
-    // RELASI KE FASILITAS
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI KE FASILITAS
+    |--------------------------------------------------------------------------
+    */
+
     public function fasilitas()
     {
         return $this->belongsTo(

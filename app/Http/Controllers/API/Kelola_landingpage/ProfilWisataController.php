@@ -4,14 +4,16 @@ namespace App\Http\Controllers\API\Kelola_landingpage;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProfilWisata;
+use App\Models\KategoriPaket;
+use App\Models\Berita;
 use Illuminate\Http\Request;
 
 class ProfilWisataController extends Controller
 {
     public function index()
     {
-        $categories = \App\Models\KategoriPaket::all();
-        $kabars = \App\Models\Berita::latest('tanggal')->take(3)->get();
+        $categories = KategoriPaket::all();
+        $kabars = Berita::latest('tanggal')->take(3)->get();
         
         // AMBIL DATA LOGO INSTANSI DARI TABEL client_logos
         $experiences = \DB::table('client_logos')->get();
@@ -173,4 +175,19 @@ class ProfilWisataController extends Controller
         ProfilWisata::destroy($id);
         return redirect()->back();
     }
+
+    public function showKategori($slug)
+    {
+        $kategori = \App\Models\KategoriPaket::where('slug', $slug)->firstOrFail();
+
+        $pakets = \App\Models\PaketWisata::with('fasilitas')
+            ->where('kategori_paket_id', $kategori->id)
+            ->get();
+
+        return view(
+            'pengunjung.halaman-paket.detail-paket',
+            compact('kategori', 'pakets')
+        );
+    }
+
 }

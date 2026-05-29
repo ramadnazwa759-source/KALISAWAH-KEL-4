@@ -260,71 +260,134 @@
         </div>
     </section>
 
+
     <section id="pilih-paket" class="py-24 px-6 bg-slate-100/50 border-t border-slate-200/40">
         <div class="max-w-7xl mx-auto space-y-20">
+
             <div class="text-center max-w-3xl mx-auto space-y-3">
-                <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">Our Packages</span>
-                <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Pilih Paket Seru Kamu</h2>
+                <span class="text-primary font-extrabold text-xs uppercase tracking-widest block">
+                    Our Packages
+                </span>
+
+                <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+                    Pilih Paket Seru Kamu
+                </h2>
+
                 <div class="w-16 h-1.5 bg-primary mx-auto rounded-full"></div>
             </div>
 
+            {{-- GRID PAKET --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
                 @forelse($categories as $category)
-                    <div class="bg-white rounded-[32px] overflow-hidden shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300 flex flex-col h-full border border-slate-200/40 group">
-                        <div class="relative h-56 overflow-hidden shrink-0 bg-slate-100">
+
+                    <div class="bg-white rounded-[32px] overflow-hidden shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300 flex flex-col border border-slate-200/40 group h-full">
+
+                        {{-- IMAGE --}}
+                        <div class="relative h-56 overflow-hidden bg-slate-100">
+
                             @if($category->gambar)
-                                <img src="{{ asset('storage/' . $category->gambar) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="{{ $category->nama_kategori }}">
+                                <img
+                                    src="{{ asset('storage/' . $category->gambar) }}"
+                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    alt="{{ $category->nama_kategori }}"
+                                >
                             @else
-                                 <img src="https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=500" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Rafting Default">
+                                <img
+                                    src="https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=500"
+                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    alt="Default Image"
+                                >
                             @endif
+
                             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                         </div>
 
-                        <div class="p-8 flex flex-col flex-grow justify-between bg-gradient-to-b from-white to-slate-50/40">
+                        {{-- CONTENT --}}
+                        <div class="p-8 flex flex-col flex-1">
+
                             <div class="space-y-3">
+
                                 <h3 class="text-lg font-extrabold text-slate-900 group-hover:text-primary transition-colors duration-300 tracking-tight">
                                     {{ $category->nama_kategori }}
                                 </h3>
-                                <p class="text-slate-500 text-xs leading-relaxed line-clamp-3 font-normal">
-                                    {{ $category->deskripsi ?? 'Nikmati momen liburan seru yang dirancang khusus demi kenyamanan Anda.' }}
+
+                                <p class="text-slate-500 text-sm leading-relaxed line-clamp-3">
+                                    {{ $category->deskripsi ?? 'Nikmati pengalaman wisata terbaik bersama Kalisawah Adventure.' }}
                                 </p>
+
                             </div>
-                            
-                            <div class="pt-8">
-                                <a href="{{ route('kategori.detail', $category->id) }}" class="w-full flex items-center justify-center bg-slate-900 hover:bg-primary text-white text-xs font-extrabold py-4 px-4 rounded-2xl transition-all duration-300 uppercase tracking-widest shadow-button-dark hover:shadow-button-solid">
+
+                            {{-- BUTTON --}}
+                            <div class="mt-auto pt-8">
+
+
+                                <a href="{{ route('kategori.detail', $category->slug ?? Str::slug($category->nama_kategori)) }}"
+                                    class="inline-flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-hover text-white font-extrabold py-4 px-6 rounded-2xl transition-all duration-300 shadow-button-solid text-xs uppercase tracking-widest group/button"
+                                >
                                     Lihat Pilihan Paket
+
+                                    <i class="fa-solid fa-arrow-right text-[11px] transition-transform duration-300 group-hover/button:translate-x-1"></i>
                                 </a>
+
                             </div>
+
                         </div>
                     </div>
+
                 @empty
+
                     <div class="col-span-full text-center py-16 bg-white rounded-3xl text-slate-400 text-sm font-semibold border border-slate-200/60 shadow-premium">
                         Belum ada kategori paket aktif saat ini.
                     </div>
+
                 @endforelse
+
             </div>
 
+            {{-- EXPERIENCE --}}
             <div class="pt-20 border-t border-slate-200">
+
                 <div class="text-center space-y-2 mb-12">
-                    <h3 class="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">Experience</h3>
+                    <h3 class="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">
+                        Experience
+                    </h3>
+
                     <div class="w-8 h-1 bg-primary mx-auto rounded-full"></div>
                 </div>
-                <div class="flex flex-wrap items-center justify-center gap-16 opacity-75 select-none transition-all duration-500">
+
+                <div class="flex flex-wrap items-center justify-center gap-10 md:gap-16 opacity-75 select-none transition-all duration-500">
+
                     @forelse($experiences as $exp)
+
                         @php
                             $logoPath = $exp->logo_image_path ?? ($exp->logo ?? null);
                             $companyName = $exp->company_name ?? ($exp->nama_instansi ?? 'Instansi');
                         @endphp
-                        <div class="h-16 w-40 flex items-center justify-center bg-white p-3 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 hover:scale-105">
-                            <img src="{{ asset('storage/' . $logoPath) }}" alt="{{ $companyName }}" class="max-h-full max-w-full object-contain" title="{{ $companyName }}">
+
+                        <div class="h-16 w-40 flex items-center justify-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 hover:scale-105">
+
+                            <img
+                                src="{{ asset('storage/' . $logoPath) }}"
+                                alt="{{ $companyName }}"
+                                class="max-h-full max-w-full object-contain"
+                                title="{{ $companyName }}"
+                            >
+
                         </div>
+
                     @empty
+
                         <div class="col-span-full text-center py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
                             Belum ada logo mitra instansi yang diunggah.
                         </div>
+
                     @endforelse
+
                 </div>
+
             </div>
+
         </div>
     </section>
 
