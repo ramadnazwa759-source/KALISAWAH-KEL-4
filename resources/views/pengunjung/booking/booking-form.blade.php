@@ -36,6 +36,7 @@
             id="form-reservasi"
         >
             @csrf
+
             @if(isset($booking))
                 @method('PUT')
             @endif
@@ -143,7 +144,7 @@
                     {{-- JUMLAH MALAM --}}
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">
-                            Jumlah Malam (Menginap)
+                            Jumlah Malam
                         </label>
 
                         <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl h-14 px-2">
@@ -163,9 +164,7 @@
                                 min="1"
                                 value="{{ old('jumlah_malam', $booking->jumlah_malam ?? 1) }}"
                                 class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold"
-                                readonly
                             >
-
 
                             <button
                                 type="button"
@@ -200,7 +199,6 @@
                                 id="jumlah_pengunjung"
                                 value="{{ old('jumlah_pengunjung', $booking->jumlah_pengunjung ?? 1) }}"
                                 class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold"
-                                readonly
                             >
 
                             <button
@@ -282,10 +280,11 @@
             </div>
 
         </form>
+
     </div>
 </div>
 
-{{-- MODAL --}}
+{{-- MODAL PAKET --}}
 <div id="modal-pilih-paket" class="fixed inset-0 z-[999] hidden overflow-y-auto">
 
     <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
@@ -391,47 +390,86 @@
     }
 </style>
 
+@php
+
+$statePackages = [];
+$stateFasilitas = [];
+
+if(isset($booking))
+{
+    foreach($booking->items->groupBy('hari') as $hari => $items)
+    {
+        foreach($items as $item)
+        {
+            $statePackages[$hari][] = [
+                'id' => $item->paket_wisata_id,
+                'nama' => $item->paketWisata->nama_paket ?? '-',
+                'qty' => $item->qty,
+                'harga' => $item->harga,
+                'kapasitas' => $item->paketWisata->kapasitas ?? 0,
+            ];
+        }
+    }
+
+    foreach($booking->fasilitas->groupBy('hari') as $hari => $items)
+    {
+        foreach($items as $item)
+        {
+            $stateFasilitas[$hari][$item->fasilitas_id] = $item->qty;
+        }
+    }
+}
+
+@endphp
+
 <script>
 
-    let statePackages = @json(
-        isset($booking)
-            ? $booking->items
-                ->groupBy('hari')
-                ->map(function($items) {
-                    return $items->map(function($item) {
-                        return [
-                            'id' => $item->paket_wisata_id,
-                            'nama' => $item->paketWisata->nama_paket ?? '-',
-                            'qty' => $item->qty,
-                            'harga' => $item->harga,
-                            'kapasitas' => $item->paketWisata->kapasitas ?? 0,
-                        ];
-                    });
-                })
-            : []
-    );
+    @php
 
-    let stateFasilitas = @json(
-        isset($booking)
-            ? $booking->fasilitas
-                ->groupBy('hari')
-                ->map(function($items) {
-                    $result = [];
+        $statePackages = [];
 
-                    foreach($items as $item) {
-                        $result[$item->fasilitas_id] = $item->qty;
-                    }
+        if(isset($booking))
+        {
+            foreach($booking->items->groupBy('hari') as $hari => $items)
+            {
+                foreach($items as $item)
+                {
+                    $statePackages[$hari][] = [
+                        'id' => $item->paket_wisata_id,
+                        'nama' => $item->paketWisata->nama_paket ?? '-',
+                        'qty' => $item->qty,
+                        'harga' => $item->harga,
+                        'kapasitas' => $item->paketWisata->kapasitas ?? 0,
+                    ];
+                }
+            }
+        }
 
-                    return $result;
-                })
-            : []
-    );
+        $stateFasilitas = [];
+
+        if(isset($booking))
+        {
+            foreach($booking->fasilitas->groupBy('hari') as $hari => $items)
+            {
+                foreach($items as $item)
+                {
+                    $stateFasilitas[$hari][$item->fasilitas_id] = $item->qty;
+                }
+            }
+        }
+
+    @endphp
+
+    let statePackages = @json($statePackages);
+
+    let stateFasilitas = @json($stateFasilitas);
+
     let targetHariAktif = 0;
+
     let activeFasCategory = {};
 
     const allFasilitas = @json($fasilitas);
 
-    // [PERBAIKAN 1]: Memastikan perhitungan hari selalu menghasilkan minimal 1
     function hitungMalam()
     {
         const checkin = document.getElementById('tanggal_checkin').value;
@@ -442,49 +480,80 @@
             const tgl1 = new Date(checkin);
             const tgl2 = new Date(checkout);
 
-            let selisih = Math.ceil((tgl2 - tgl1) / (1000 * 60 * 60 * 24));
+            let selisih = Math.ceil(
+                (tgl2 - tgl1) / (1000 * 60 * 60 * 24)
+            );
 
-            // Jika tanggal checkout sama dengan tanggal checkin, atau mundur, paksa jadi 1 malam
-            if(selisih < 1)
+            if(selisih < 0)
             {
-                selisih = 1;
+                selisih = 0;
             }
 
             document.getElementById('lama_menginap').value = selisih;
+
             renderTabs();
+        }
+    }
+
+    function updateCheckout()
+    {
+        const checkin = document.getElementById('tanggal_checkin').value;
+        const malam = parseInt(
+            document.getElementById('lama_menginap').value
+        );
+
+        if(checkin !== '' && !isNaN(malam))
+        {
+            let tanggal = new Date(checkin);
+
+            tanggal.setDate(tanggal.getDate() + malam);
+
+            document.getElementById('tanggal_checkout').value =
+                tanggal.toISOString().split('T')[0];
         }
     }
 
     function renderTabs()
     {
-        // [PERBAIKAN 2]: Safety check saat membaca input jumlah malam
-        let jmlMalam = parseInt(document.getElementById('lama_menginap').value);
-        if(isNaN(jmlMalam) || jmlMalam < 1) {
-            jmlMalam = 1;
-            document.getElementById('lama_menginap').value = 1;
+        let jmlMalam = parseInt(
+            document.getElementById('lama_menginap').value
+        );
+
+        if(isNaN(jmlMalam) || jmlMalam < 0)
+        {
+            jmlMalam = 0;
         }
 
-        const tanggalCheckin = document.getElementById('tanggal_checkin').value;
+        const totalHari = jmlMalam === 0 ? 1 : jmlMalam;
 
-        const containerTab = document.getElementById('container-tab');
-        const containerKonten = document.getElementById('container-konten-hari');
-        const hiddenInputs = document.getElementById('hidden-inputs');
+        const tanggalCheckin =
+            document.getElementById('tanggal_checkin').value;
+
+        const containerTab =
+            document.getElementById('container-tab');
+
+        const containerKonten =
+            document.getElementById('container-konten-hari');
+
+        const hiddenInputs =
+            document.getElementById('hidden-inputs');
 
         containerTab.innerHTML = '';
         containerKonten.innerHTML = '';
 
-        // [PERBAIKAN 3]: Safety render, memastikan tab tidak error jika hari dikurangi
-        if (targetHariAktif >= jmlMalam) {
-            targetHariAktif = Math.max(0, jmlMalam - 1);
+        if(targetHariAktif >= totalHari)
+        {
+            targetHariAktif = totalHari - 1;
         }
 
-        for(let i = 0; i < jmlMalam; i++)
+        for(let i = 0; i < totalHari; i++)
         {
             let labelTgl = '';
 
             if(tanggalCheckin)
             {
                 let d = new Date(tanggalCheckin);
+
                 d.setDate(d.getDate() + i);
 
                 labelTgl = d.toLocaleDateString('id-ID', {
@@ -498,13 +567,15 @@
                     type="button"
                     onclick="gantiHari(${i})"
                     class="px-6 py-4 rounded-2xl border-2 min-w-[190px] shrink-0 transition
-                    ${i === targetHariAktif
+                    ${
+                        i === targetHariAktif
                         ? 'border-blue-600 bg-blue-50 text-blue-700'
-                        : 'border-slate-200 bg-white text-slate-500'}
-                    "
+                        : 'border-slate-200 bg-white text-slate-500'
+                    }"
                 >
+
                     <div class="text-xs font-black uppercase">
-                        Hari ${i+1}
+                        Hari ${i + 1}
                     </div>
 
                     <div class="text-sm font-bold mt-1">
@@ -512,13 +583,19 @@
                     </div>
 
                     <div class="text-xs mt-2 opacity-70">
-                        Sampai malam ke-${i+1}
+                        ${
+                            jmlMalam === 0
+                            ? 'Tidak Menginap'
+                            : 'Sampai malam ke-' + (i + 1)
+                        }
                     </div>
+
                 </button>
             `;
         }
 
         let html = `
+
             <div class="mb-10">
 
                 <div class="flex justify-between items-center mb-6">
@@ -549,11 +626,13 @@
             statePackages[targetHariAktif].forEach((p, idx) => {
 
                 html += `
+
                     <div class="border border-slate-200 rounded-3xl p-5 mb-5">
 
                         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
 
                             <div>
+
                                 <h4 class="font-bold text-slate-800 text-lg mb-2">
                                     ${p.nama}
                                 </h4>
@@ -569,6 +648,7 @@
                                     </span>
 
                                 </div>
+
                             </div>
 
                             <div class="flex items-center gap-4">
@@ -639,6 +719,7 @@
         let cats = Object.keys(groupedFas);
 
         html += `
+
             <div class="mt-14 pt-10 border-t border-slate-100">
 
                 <div class="mb-6">
@@ -656,9 +737,12 @@
 
         if(cats.length > 0)
         {
-            let curIdx = activeFasCategory[targetHariAktif] || 0;
+            let curIdx =
+                activeFasCategory[targetHariAktif] || 0;
 
-            html += `<div class="flex gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">`;
+            html += `
+                <div class="flex gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">
+            `;
 
             cats.forEach((c, idx) => {
 
@@ -667,10 +751,11 @@
                         type="button"
                         onclick="changeFasCat(${targetHariAktif}, ${idx})"
                         class="px-5 py-3 rounded-2xl text-sm font-bold border shrink-0 transition
-                        ${idx === curIdx
+                        ${
+                            idx === curIdx
                             ? 'bg-yellow-400 border-yellow-400 text-slate-900'
-                            : 'bg-yellow-50 border-yellow-200 text-yellow-700'}
-                        "
+                            : 'bg-white border-slate-200 text-slate-600'
+                        }"
                     >
                         ${c}
                     </button>
@@ -679,20 +764,25 @@
 
             html += `</div>`;
 
-            html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-5">`;
+            html += `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            `;
 
             groupedFas[cats[curIdx]].forEach(f => {
 
-                let qty = stateFasilitas[targetHariAktif]?.[f.id] || 0;
+                let qty =
+                    stateFasilitas[targetHariAktif]?.[f.id] || 0;
 
                 html += `
                     <div class="border rounded-3xl p-5 flex justify-between items-center gap-5
-                    ${qty > 0
+                    ${
+                        qty > 0
                         ? 'border-blue-200 bg-blue-50'
-                        : 'border-slate-200 bg-white'}
-                    ">
+                        : 'border-slate-200 bg-white'
+                    }">
 
                         <div>
+
                             <h4 class="font-bold text-slate-800 mb-2">
                                 ${f.nama_fasilitas}
                             </h4>
@@ -700,6 +790,7 @@
                             <p class="text-sm text-slate-500">
                                 Rp ${Number(f.harga).toLocaleString('id-ID')} / malam
                             </p>
+
                         </div>
 
                         <div class="flex items-center gap-2">
@@ -739,32 +830,32 @@
 
         let hiddenHtml = '';
 
-        // [PERBAIKAN 4]: Safety State - Filter data hanya pada hari yang aktif/valid saat di submit
         for(let h in statePackages)
         {
-            if (parseInt(h) >= jmlMalam) continue; // Jangan proses data untuk hari yg sudah dihapus
-
             statePackages[h].forEach(p => {
 
                 hiddenHtml += `
-                    <input type="hidden" name="paket[${h}][]" value="${p.id}">
+                    <input type="hidden"
+                        name="paket[${h}][]"
+                        value="${p.id}">
                 `;
 
                 hiddenHtml += `
-                    <input type="hidden" name="paket_qty[${h}][${p.id}]" value="${p.qty}">
+                    <input type="hidden"
+                        name="paket_qty[${h}][${p.id}]"
+                        value="${p.qty}">
                 `;
             });
         }
 
         for(let h in stateFasilitas)
         {
-            if (parseInt(h) >= jmlMalam) continue; // Jangan proses data untuk hari yg sudah dihapus
-
             for(let fId in stateFasilitas[h])
             {
                 hiddenHtml += `
-                    <input type="hidden" name="fasilitas[${h}][${fId}]"
-                    value="${stateFasilitas[h][fId]}">
+                    <input type="hidden"
+                        name="fasilitas[${h}][${fId}]"
+                        value="${stateFasilitas[h][fId]}">
                 `;
             }
         }
@@ -775,12 +866,14 @@
     function gantiHari(i)
     {
         targetHariAktif = i;
+
         renderTabs();
     }
 
     function changeFasCat(h, i)
     {
         activeFasCategory[h] = i;
+
         renderTabs();
     }
 
@@ -791,14 +884,20 @@
             stateFasilitas[h] = {};
         }
 
-        stateFasilitas[h][id] = Math.max(0, (stateFasilitas[h][id] || 0) + v);
+        stateFasilitas[h][id] = Math.max(
+            0,
+            (stateFasilitas[h][id] || 0) + v
+        );
 
         renderTabs();
     }
 
     function ubahQtyPaket(h, i, v)
     {
-        statePackages[h][i].qty = Math.max(1, statePackages[h][i].qty + v);
+        statePackages[h][i].qty = Math.max(
+            1,
+            statePackages[h][i].qty + v
+        );
 
         renderTabs();
     }
@@ -814,21 +913,27 @@
     {
         targetHariAktif = h;
 
-        document.getElementById('modal-pilih-paket').classList.remove('hidden');
+        document
+            .getElementById('modal-pilih-paket')
+            .classList.remove('hidden');
 
         document.body.style.overflow = 'hidden';
     }
 
     function tutupModal()
     {
-        document.getElementById('modal-pilih-paket').classList.add('hidden');
+        document
+            .getElementById('modal-pilih-paket')
+            .classList.add('hidden');
 
         document.body.style.overflow = '';
     }
 
-    document.getElementById('btn-close-modal').onclick = tutupModal;
+    document.getElementById('btn-close-modal').onclick =
+        tutupModal;
 
-    document.querySelectorAll('.item-paket-modal').forEach(el => {
+    document.querySelectorAll('.item-paket-modal')
+        .forEach(el => {
 
         el.onclick = () => {
 
@@ -867,9 +972,10 @@
 
     document.getElementById('btn-tambah-malam').onclick = () => {
 
-        let input = document.getElementById('lama_menginap');
+        let input =
+            document.getElementById('lama_menginap');
 
-        input.value = parseInt(input.value) + 1;
+        input.value = parseInt(input.value || 0) + 1;
 
         updateCheckout();
 
@@ -878,9 +984,10 @@
 
     document.getElementById('btn-kurang-malam').onclick = () => {
 
-        let input = document.getElementById('lama_menginap');
+        let input =
+            document.getElementById('lama_menginap');
 
-        if(parseInt(input.value) > 1)
+        if(parseInt(input.value) > 0)
         {
             input.value = parseInt(input.value) - 1;
 
@@ -890,47 +997,13 @@
         }
     };
 
-    document.getElementById('tanggal_checkin').onchange = hitungMalam;
-    document.getElementById('tanggal_checkout').onchange = hitungMalam;
+    document.getElementById('tanggal_checkin')
+        .addEventListener('change', hitungMalam);
+
+    document.getElementById('tanggal_checkout')
+        .addEventListener('change', hitungMalam);
 
     renderTabs();
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-    const checkin = document.getElementById('tanggal_checkin');
-const malam = document.getElementById('lama_menginap');
-const checkout = document.getElementById('tanggal_checkout');
-
-function updateCheckout()
-{
-    if (!checkin.value || !malam.value) return;
-
-    let tanggal = new Date(checkin.value);
-
-    tanggal.setDate(
-        tanggal.getDate() + parseInt(malam.value)
-    );
-
-    checkout.value = tanggal.toISOString().split('T')[0];
-}
-
-checkin.addEventListener('change', updateCheckout);
-
-malam.addEventListener('input', () => {
-
-    let value = parseInt(malam.value);
-
-    if(isNaN(value) || value < 1)
-    {
-        malam.value = 1;
-    }
-
-    updateCheckout();
-
-    renderTabs();
-});
-
-updateCheckout();
 
 </script>
 
