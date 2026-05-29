@@ -24,6 +24,9 @@ use App\Http\Controllers\API\Kelola_fasilitas\FasilitasController;
 use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 
+// Pengeluaran Operasional
+use App\Http\Controllers\API\Kelola_pengeluaran\KategoriPengeluaranController;
+use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController;
 
 
 Route::get('/admin/login', function () {
@@ -81,4 +84,7 @@ Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
     // Pembayaran
     Route::resource('pembayaran', PembayaranAdminController::class);
 
+    // Pengeluaran Operasional
+    Route::resource('kategori-pengeluaran', KategoriPengeluaranController::class);
+    Route::resource('pengeluaran', PengeluaranOperasionalController::class);
 });

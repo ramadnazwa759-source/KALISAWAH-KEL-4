@@ -5,10 +5,11 @@ namespace App\Http\Controllers\API\Kelola_landingpage\paket;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\KategoriPaket;
-use Illuminate\Support\Facades\Storage; // untuk hapus & simpan file gambar
+use Illuminate\Support\Facades\Storage;
 
 class KategoriPaketController extends Controller
 {
+<<<<<<< HEAD
 
     // MENAMPILKAN SEMUA DATA
     public function index()
@@ -23,108 +24,174 @@ class KategoriPaketController extends Controller
         // 'compact' digunakan untuk melempar data agar bisa dibaca oleh @foreach
         return view('admin.layanan.kategoriPaket.index', compact('kategoris'));
 
+=======
+    /**
+     * Menampilkan semua kategori paket
+     */
+    public function index()
+    {
+        return response()->json([
+            'success' => true,
+            'data' => KategoriPaket::all()
+        ]);
+>>>>>>> e97c2c2188fc6e4fafeedbb9efc1480778ecdf6b
     }
 
-    // MENAMPILKAN 1 DATA BERDASARKAN ID
+    /**
+     * Menampilkan detail kategori berdasarkan ID
+     */
     public function show($id)
     {
-        // cari data berdasarkan id
         $data = KategoriPaket::find($id);
 
-        // jika tidak ditemukan kirim error 404
         if (!$data) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
         }
 
-        // jika ada tampilkan datanya
-        return response()->json($data, 200);
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
-    // MENAMBAH DATA BARU + UPLOAD GAMBAR
+    /**
+     * Menambahkan kategori paket
+     */
     public function store(Request $request)
     {
-        // validasi input dari Postman
-        $request->validate([
+        $validated = $request->validate([
             'nama_kategori' => 'required|string|max:255',
             'deskripsi'     => 'nullable|string',
-            'gambar'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
+<<<<<<< HEAD
         $path = null;
 
         // jika ada file gambar yang dikirim
+=======
+        /**
+         * Upload gambar ke private storage
+         */
+>>>>>>> e97c2c2188fc6e4fafeedbb9efc1480778ecdf6b
         if ($request->hasFile('gambar')) {
-            // simpan file ke storage/public/kategori_paket
-            $path = $request->file('gambar')->store('kategori_paket', 'public');
+            $validated['gambar'] = $request->file('gambar')->store(
+                'private/kategori_paket',
+                'local'
+            );
         }
 
-        // simpan data ke database
-        $data = KategoriPaket::create([
-            'nama_kategori' => $request->nama_kategori,
-            'deskripsi'     => $request->deskripsi,
-            'gambar'        => $path
-        ]);
+        $data = KategoriPaket::create($validated);
 
+<<<<<<< HEAD
         // kirim response berhasil
         return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil ditambah!');
     }
 
 
     // UPDATE DATA + GANTI GAMBAR
-    public function update(Request $request, $id)
-    {
-        // cari data berdasarkan id
-        $data = KategoriPaket::find($id);
-
-        // jika tidak ada kirim 404
-        if (!$data) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
-        }
-
-        // validasi input
-        $request->validate([
-            'nama_kategori' => 'required|string|max:255',
-            'deskripsi'     => 'nullable|string',
-            'gambar'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
-
-        // jika upload gambar baru
-        if ($request->hasFile('gambar')) {
-
-            // hapus gambar lama dari storage
-            if ($data->gambar) {
-                Storage::disk('public')->delete($data->gambar);
-            }
-
-            // simpan gambar baru
-            $data->gambar = $request->file('gambar')->store('kategori_paket', 'public');
-        }
-
-        // update data selain gambar
-        $data->update($request->only('nama_kategori','deskripsi'));
-
-        return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil diperbarui!');
+=======
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori paket berhasil ditambahkan',
+            'data'    => $data
+        ], 201);
     }
 
-    // MENGHAPUS DATA + GAMBARs}
-    public function destroy($id)
+    /**
+     * Update kategori paket
+     */
+>>>>>>> e97c2c2188fc6e4fafeedbb9efc1480778ecdf6b
+    public function update(Request $request, $id)
     {
-        // cari data
         $data = KategoriPaket::find($id);
 
-        // jika tidak ada
         if (!$data) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
         }
 
-        // hapus gambar dari storage jika ada
-        if ($data->gambar) {
-            Storage::disk('public')->delete($data->gambar);
+        $validated = $request->validate([
+            'nama_kategori' => 'required|string|max:255',
+            'deskripsi'     => 'nullable|string',
+            'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        /**
+         * Jika ada gambar baru
+         */
+        if ($request->hasFile('gambar')) {
+
+            /**
+             * Hapus gambar lama
+             */
+            if (
+                $data->gambar &&
+                Storage::disk('local')->exists($data->gambar)
+            ) {
+                Storage::disk('local')->delete($data->gambar);
+            }
+
+            /**
+             * Simpan gambar baru
+             */
+            $validated['gambar'] = $request->file('gambar')->store(
+                'private/kategori_paket',
+                'local'
+            );
         }
 
-        // hapus data dari database
+        $data->update($validated);
+
+<<<<<<< HEAD
+        return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil diperbarui!');
+=======
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori paket berhasil diperbarui',
+            'data'    => $data->fresh()
+        ]);
+>>>>>>> e97c2c2188fc6e4fafeedbb9efc1480778ecdf6b
+    }
+
+    /**
+     * Hapus kategori paket
+     */
+    public function destroy($id)
+    {
+        $data = KategoriPaket::find($id);
+
+        if (!$data) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        /**
+         * Hapus file gambar dari storage
+         */
+        if (
+            $data->gambar &&
+            Storage::disk('local')->exists($data->gambar)
+        ) {
+            Storage::disk('local')->delete($data->gambar);
+        }
+
         $data->delete();
 
+<<<<<<< HEAD
         return redirect()->route('admin.kategori-paket.index')->with('success', 'Kategori berhasil dihapus!');
+=======
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori paket berhasil dihapus'
+        ]);
+>>>>>>> e97c2c2188fc6e4fafeedbb9efc1480778ecdf6b
     }
 }

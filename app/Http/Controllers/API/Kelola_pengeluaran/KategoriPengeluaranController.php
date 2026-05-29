@@ -11,7 +11,10 @@ class KategoriPengeluaranController extends Controller
     // Tampilkan semua kategori
     public function index()
     {
-        return response()->json(KategoriPengeluaran::all(), 200);
+        // return response()->json(KategoriPengeluaran::all(), 200);
+        return view('admin.pengeluaran.kategori_pengeluaran', [
+            'kategoriPengeluaran' => KategoriPengeluaran::all()
+        ]);
     }
 
     // Simpan kategori baru
@@ -25,7 +28,8 @@ class KategoriPengeluaranController extends Controller
             'nama_kategori' => $request->nama_kategori
         ]);
 
-        return response()->json($kategori, 201);
+        // return response()->json($kategori, 201);
+        return redirect()->route('admin.kategori-pengeluaran.index')->with('success', 'Kategori berhasil ditambahkan');
     }
 
     // Detail kategori
@@ -37,7 +41,8 @@ class KategoriPengeluaranController extends Controller
             return response()->json(['error' => 'Tidak ditemukan'], 404);
         }
 
-        return response()->json($kategori, 200);
+        // return response()->json($kategori, 200);
+        return view('admin.pengeluaran.detail_kategori_pengeluaran', [ 'kategori' => $kategori ]);
     }
 
     // 🔹 Update kategori
@@ -46,7 +51,8 @@ class KategoriPengeluaranController extends Controller
         $kategori = KategoriPengeluaran::find($id);
 
         if (!$kategori) {
-            return response()->json(['error' => 'Tidak ditemukan'], 404);
+            // return response()->json(['error' => 'Tidak ditemukan'], 404);
+            return redirect()->route('admin.kategori-pengeluaran.index')->with('error', 'Kategori tidak ditemukan');
         }
 
         $request->validate([
@@ -57,7 +63,8 @@ class KategoriPengeluaranController extends Controller
             'nama_kategori' => $request->nama_kategori
         ]);
 
-        return response()->json($kategori, 200);
+        // return response()->json($kategori, 200);
+        return redirect()->route('admin.kategori-pengeluaran.index')->with('success', 'Kategori berhasil diperbarui');
     }
 
     // 🔹 Hapus kategori
@@ -66,13 +73,15 @@ class KategoriPengeluaranController extends Controller
         $kategori = KategoriPengeluaran::find($id);
 
         if (!$kategori) {
-            return response()->json(['error' => 'Tidak ditemukan'], 404);
+            // return response()->json(['error' => 'Tidak ditemukan'], 404);
+            return redirect()->route('admin.kategori-pengeluaran.index')->with('error', 'Kategori tidak ditemukan');
         }
 
         $kategori->delete();
 
-        return response()->json([
-        'message' => 'Data berhasil dihapus'
-    ], 200);
+    //     return response()->json([
+    //     'message' => 'Data berhasil dihapus'
+    // ], 200);
+        return redirect()->route('admin.kategori-pengeluaran.index')->with('success', 'Kategori berhasil dihapus');
     }
 }

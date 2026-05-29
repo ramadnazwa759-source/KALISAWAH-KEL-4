@@ -10,10 +10,17 @@ class PengeluaranOperasionalController extends Controller
 {
     public function index()
     {
-        return response()->json(
-            PengeluaranOperasional::with('kategori')->get(),
-            200
-        );
+        // return response()->json(
+        //     PengeluaranOperasional::with('kategori')->get(),
+        //     200
+        // );
+
+        // return view('admin.pengeluaran.pengeluaran_operasional', ['pengeluaranOperasional' => PengeluaranOperasional::with('kategori')->get()]);
+
+        return view('admin.pengeluaran.pengeluaran_operasional', [
+        'pengeluaranOperasional' => PengeluaranOperasional::with('kategori')->get(),
+        'kategori'               => \App\Models\KategoriPengeluaran::all()
+    ]);
     }
 
     private function validateData(Request $request)
@@ -41,7 +48,8 @@ class PengeluaranOperasionalController extends Controller
 
         $result = PengeluaranOperasional::create($data);
 
-        return response()->json($result, 201);
+        // return response()->json($result, 201);
+        return redirect()->route('admin.pengeluaran.index')->with('success', 'Data berhasil ditambahkan');
     }
 
     public function show($id)
@@ -73,7 +81,8 @@ class PengeluaranOperasionalController extends Controller
 
         $item->update($data);
 
-        return response()->json($item, 200);
+        // return response()->json($item, 200);
+        return redirect()->route('admin.pengeluaran.index')->with('success', 'Data berhasil diupdate');
     }
 
     public function destroy($id)
@@ -86,8 +95,10 @@ class PengeluaranOperasionalController extends Controller
 
         $data->delete();
 
-        return response()->json([
-            'message' => 'Data berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Data berhasil dihapus'
+        // ], 200);
+
+        return redirect()->route('admin.pengeluaran.index')->with('success', 'Data berhasil dihapus');
     }
 }

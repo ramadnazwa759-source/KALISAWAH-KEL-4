@@ -10,6 +10,8 @@ use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController
 use App\Http\Controllers\API\Kelola_landingpage\berita\BeritaController;
 use App\Http\Controllers\API\Kelola_landingpage\experience\ClientLogosController;
 use App\Http\Controllers\API\Kelola_landingpage\hero_section\LandingSettingsController;
+use App\Http\Controllers\API\TestimoniController;
+use App\Http\Controllers\Api\DashboardController;
 
 
 use App\Http\Controllers\API\Kelola_landingpage\paket\KategoriPaketController;
@@ -59,6 +61,8 @@ use App\Http\Controllers\API\Booking_pengunjung\BookingController;
         'detail'
     ]);
 
+    Route::get('dashboard', [App\Http\Controllers\Api\DashboardController::class, 'index']);
+
 
 
     // ROUTE PROTECTED //
@@ -84,6 +88,8 @@ use App\Http\Controllers\API\Booking_pengunjung\BookingController;
         Route::apiResource('berita', BeritaController::class);
         Route::apiResource('client-logos', ClientLogosController::class);
         Route::apiResource('landing-settings', LandingSettingsController::class);
+        Route::apiResource('testimoni', TestimoniController::class);
+
 
         // proses dan pengelolaan booking
         Route::apiResource('bookings', AdminBookingController::class);
