@@ -108,6 +108,10 @@
                             <div class="col-md-4"><label class="form-label small fw-semibold">Jam</label><input type="time" name="jam" class="form-control" required></div>
                             <div class="col-md-4"><label class="form-label small fw-semibold">Jumlah Pengunjung</label><input type="number" name="jumlah_pengunjung" class="form-control" min="1" value="0" oninput="calculateTotal()" required></div>
                         </div>
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6"><label class="form-label small fw-semibold">Check-Out</label><input type="date" name="tanggal_checkout" class="form-control"></div>
+                            <div class="col-md-6"><label class="form-label small fw-semibold">Jumlah Malam</label><input type="number" name="jumlah_malam" class="form-control" min="1" value="1"></div>
+                        </div>
                     </div>
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -266,6 +270,8 @@
                     <div class="mb-3"><label class="form-label small fw-semibold">Tanggal Reschedule</label><input type="date" name="tanggal_reschedule" class="form-control" value="{{ $b->tanggal_reschedule }}"></div>
                     <div class="mb-3"><label class="form-label small fw-semibold">Alasan Reschedule</label><input type="text" name="alasan_reschedule" class="form-control" value="{{ $b->alasan_reschedule }}"></div>
                     <div class="mb-3"><label class="form-label small fw-semibold">Jumlah Reschedule</label><input type="number" name="jumlah_reschedule" class="form-control" value="{{ $b->jumlah_reschedule }}"></div>
+                    <div class="mb-3"><label class="form-label small fw-semibold">Check-Out</label><input type="date" name="tanggal_checkout" class="form-control" value="{{ $b->tanggal_selesai }}"></div>
+                    <div class="mb-3"><label class="form-label small fw-semibold">Jumlah Malam</label><input type="number" name="jumlah_malam" class="form-control" min="1" value="{{ $b->jumlah_malam ?? 1 }}"></div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4"><button type="submit" class="btn btn-warning w-100 text-white">Update Data</button></div>
             </div>

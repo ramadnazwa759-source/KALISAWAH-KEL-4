@@ -14,6 +14,7 @@ use App\Models\PaketWisata;
 use App\Models\Fasilitas;
 
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AdminBookingController extends Controller
@@ -79,6 +80,13 @@ class AdminBookingController extends Controller
 
             'catatan' =>
                 'nullable|string',
+
+            // optional checkout / multi-day
+            'tanggal_checkout' =>
+                'nullable|date',
+
+            'jumlah_malam' =>
+                'nullable|integer|min:1',
 
             // paket wisata
             'paket' =>
@@ -260,6 +268,16 @@ class AdminBookingController extends Controller
             $statusBooking = 'pending';
             $statusPembayaran = 'belum_bayar';
 
+                // =====================================
+                // HANDLE OPTIONAL CHECKOUT / NIGHTS
+                // =====================================
+                $tanggalSelesai = null;
+                if ($request->filled('tanggal_checkout')) {
+                    $tanggalSelesai = Carbon::parse($request->tanggal_checkout)->toDateString();
+                }
+
+                $jumlahMalam = (int) ($request->jumlah_malam ?? 1);
+
             // =====================================
             // JIKA ADA PEMBAYARAN
             // =====================================
@@ -316,8 +334,13 @@ class AdminBookingController extends Controller
                 'subtotal_tiket_tambahan' =>
                     $subtotalTiketTambahan,
 
+
                 'catatan' =>
                     $request->catatan,
+
+                // multi-day fields
+                'tanggal_selesai' => $tanggalSelesai,
+                'jumlah_malam' => $jumlahMalam,
 
                 'total_harga' =>
                     $totalHarga,
@@ -537,7 +560,13 @@ class AdminBookingController extends Controller
                 'nullable|numeric|min:0',
 
             'catatan' =>
-                'nullable|string'
+                'nullable|string',
+
+            'tanggal_checkout' =>
+                'nullable|date',
+
+            'jumlah_malam' =>
+                'nullable|integer|min:1'
         ]);
 
         DB::beginTransaction();
@@ -622,7 +651,11 @@ class AdminBookingController extends Controller
                     $diskonManual,
 
                 'total_harga_final' =>
-                    $totalHargaFinal
+                    $totalHargaFinal,
+
+                // allow admin to update multi-day fields
+                'tanggal_selesai' => $request->tanggal_checkout ?? $booking->tanggal_selesai,
+                'jumlah_malam' => $request->jumlah_malam ?? $booking->jumlah_malam
             ]);
 
             DB::commit();

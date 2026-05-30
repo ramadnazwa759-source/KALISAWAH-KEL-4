@@ -22,4 +22,10 @@
         <button type="submit" class="px-4 py-2 bg-primary text-white rounded">Upload Bukti</button>
     </form>
 </div>
-@endsection
+    <script>
+        try {
+            localStorage.removeItem('booking_form_draft_v1');
+        } catch(e) { }
+    </script>
+
+    @endsection

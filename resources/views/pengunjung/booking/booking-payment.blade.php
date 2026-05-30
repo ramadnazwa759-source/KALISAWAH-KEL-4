@@ -71,7 +71,7 @@
         </div>
 
         {{-- FORM PEMBAYARAN --}}
-        <form method="POST" action="{{ route('pengunjung.booking.payment.update', $booking->id) }}">
+        <form method="POST" action="{{ route('pengunjung.booking.update-payment', $booking->id) }}">
             @csrf
 
             <div class="bg-white border rounded-3xl p-8 shadow-sm space-y-8">

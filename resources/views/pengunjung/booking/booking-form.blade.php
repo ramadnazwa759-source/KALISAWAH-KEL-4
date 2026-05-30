@@ -470,6 +470,68 @@ if(isset($booking))
 
     const allFasilitas = @json($fasilitas);
 
+    // persistence
+    const STORAGE_KEY = 'booking_form_draft_v1';
+    let isEditing = @json(isset($booking));
+
+    function saveDraft()
+    {
+        try {
+            if(isEditing) return;
+
+            const form = document.getElementById('form-reservasi');
+
+            const data = {
+                nama_pemesan: form.elements['nama_pemesan']?.value || '',
+                no_hp: form.elements['no_hp']?.value || '',
+                tanggal_kunjungan: form.elements['tanggal_kunjungan']?.value || '',
+                tanggal_checkout: form.elements['tanggal_checkout']?.value || '',
+                jam: form.elements['jam']?.value || '',
+                jumlah_malam: form.elements['jumlah_malam']?.value || document.getElementById('lama_menginap')?.value || '',
+                jumlah_pengunjung: form.elements['jumlah_pengunjung']?.value || '',
+                statePackages: statePackages || {},
+                stateFasilitas: stateFasilitas || {},
+                activeFasCategory: activeFasCategory || {},
+                targetHariAktif: targetHariAktif || 0
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+        catch(e) {
+            console && console.warn && console.warn('saveDraft error', e);
+        }
+    }
+
+    function loadDraft()
+    {
+        try {
+            if(isEditing) return;
+
+            const s = localStorage.getItem(STORAGE_KEY);
+
+            if(!s) return;
+
+            const d = JSON.parse(s);
+
+            const form = document.getElementById('form-reservasi');
+
+            if(d.nama_pemesan) form.elements['nama_pemesan'].value = d.nama_pemesan;
+            if(d.no_hp) form.elements['no_hp'].value = d.no_hp;
+            if(d.tanggal_kunjungan) document.getElementById('tanggal_checkin').value = d.tanggal_kunjungan;
+            if(d.tanggal_checkout) document.getElementById('tanggal_checkout').value = d.tanggal_checkout;
+            if(d.jam) form.elements['jam'].value = d.jam;
+            if(d.jumlah_malam) document.getElementById('lama_menginap').value = d.jumlah_malam;
+            if(d.jumlah_pengunjung) form.elements['jumlah_pengunjung'].value = d.jumlah_pengunjung;
+
+            if(d.statePackages) statePackages = d.statePackages;
+            if(d.stateFasilitas) stateFasilitas = d.stateFasilitas;
+            if(d.activeFasCategory) activeFasCategory = d.activeFasCategory;
+            if(typeof d.targetHariAktif !== 'undefined') targetHariAktif = d.targetHariAktif;
+
+        }
+        catch(e){ console && console.warn && console.warn('loadDraft error', e); }
+    }
+
     function hitungMalam()
     {
         const checkin = document.getElementById('tanggal_checkin').value;
@@ -861,6 +923,8 @@ if(isset($booking))
         }
 
         hiddenInputs.innerHTML = hiddenHtml;
+        // persist after any render
+        saveDraft();
     }
 
     function gantiHari(i)
@@ -1003,7 +1067,19 @@ if(isset($booking))
     document.getElementById('tanggal_checkout')
         .addEventListener('change', hitungMalam);
 
+    // restore draft (if any) then render
+    loadDraft();
     renderTabs();
+
+    // save on form input changes
+    document.querySelectorAll('#form-reservasi input, #form-reservasi select, #form-reservasi textarea')
+        .forEach(el => {
+            el.addEventListener('input', saveDraft);
+            el.addEventListener('change', saveDraft);
+        });
+
+    // also save before submit
+    document.getElementById('form-reservasi').addEventListener('submit', saveDraft);
 
 </script>
 
