@@ -155,7 +155,7 @@
                         <div class="d-flex align-items-center gap-2 mb-3"><div class="step-icon">4</div><h6 class="fw-bold text-primary mb-0">Informasi Pembayaran</h6></div>
                         <div class="row g-3">
                             <div class="col-md-6"><label class="form-label small fw-semibold">Metode</label><select name="metode_pembayaran" class="form-select"><option value="cash">Cash</option><option value="transfer">Transfer</option></select></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Tipe</label><select name="tipe_pembayaran" class="form-select"><option value="dp">DP</option><option value="pelunasan">Pelunasan</option></select></div>
+                            <div class="col-md-6"><label class="form-label small fw-semibold">Tipe</label><select name="tipe_pembayaran" class="form-select"><option value="dp">DP</option><option value="lunas">Pelunasan</option></select></div>
                             <div class="col-md-6"><label class="form-label small fw-semibold">Nominal Bayar</label><input type="number" name="nominal_bayar" class="form-control" required></div>
                             <div class="col-md-6"><label class="form-label small fw-semibold">Bukti Pembayaran</label><input type="file" name="bukti_pembayaran" class="form-control" accept="image/*"></div>
                         </div>

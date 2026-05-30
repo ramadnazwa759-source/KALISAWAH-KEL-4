@@ -203,7 +203,7 @@ class PembayaranAdminController extends Controller
                 'required|exists:booking,id',
 
             'tipe_pembayaran' =>
-                'required|in:dp,pelunasan',
+                'required|in:dp,lunas',
 
             'metode_pembayaran' =>
                 'required|in:transfer,cash,qris',

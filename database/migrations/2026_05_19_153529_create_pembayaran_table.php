@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->enum('tipe_pembayaran', [
                 'dp',
-                'pelunasan'
+                'lunas'
             ]);
 
             $table->enum('metode_pembayaran', [

@@ -117,7 +117,7 @@ class AdminBookingController extends Controller
                 'nullable|in:cash,transfer',
 
             'tipe_pembayaran' =>
-                'nullable|in:dp,pelunasan',
+                'nullable|in:dp,lunas',
 
             'nominal_bayar' =>
                 'nullable|numeric|min:0',

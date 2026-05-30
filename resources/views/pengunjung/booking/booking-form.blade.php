@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    $draftBooking = $draftBooking ?? session('temp_booking_data') ?? [];
+@endphp
+
 @section('content')
 
 <div class="container mx-auto px-4 pt-32 md:pt-40 pb-40">
@@ -63,7 +67,7 @@
                         <input
                             type="text"
                             name="nama_pemesan"
-                            value="{{ old('nama_pemesan', $booking->nama_pemesan ?? '') }}"
+                            value="{{ old('nama_pemesan', isset($booking) ? $booking->nama_pemesan : ($draftBooking['nama_pemesan'] ?? '')) }}"
                             class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
                             placeholder="Masukkan nama pemesan"
                             required
@@ -78,7 +82,7 @@
                         <input
                             type="text"
                             name="no_hp"
-                            value="{{ old('no_hp', $booking->no_hp ?? '') }}"
+                            value="{{ old('no_hp', isset($booking) ? $booking->no_hp : ($draftBooking['no_hp'] ?? '')) }}"
                             class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
                             placeholder="08xxxxxxxxxx"
                             required
@@ -100,7 +104,7 @@
                             type="date"
                             name="tanggal_kunjungan"
                             id="tanggal_checkin"
-                            value="{{ old('tanggal_kunjungan', $booking->tanggal_kunjungan ?? '') }}"
+                            value="{{ old('tanggal_kunjungan', isset($booking) ? $booking->tanggal_kunjungan : ($draftBooking['tanggal_kunjungan'] ?? '')) }}"
                             class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
                             required
                         >
@@ -116,11 +120,7 @@
                             type="date"
                             name="tanggal_checkout"
                             id="tanggal_checkout"
-                            value="{{ old('tanggal_checkout',
-                                isset($booking->tanggal_selesai)
-                                    ? \Carbon\Carbon::parse($booking->tanggal_selesai)->format('Y-m-d')
-                                    : ''
-                            ) }}"
+                            value="{{ old('tanggal_checkout', isset($booking) ? (\Carbon\Carbon::parse($booking->tanggal_selesai)->format('Y-m-d')) : ($draftBooking['tanggal_checkout'] ?? '')) }}"
                             class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
                             required
                         >
@@ -135,7 +135,7 @@
                         <input
                             type="time"
                             name="jam"
-                            value="{{ old('jam', isset($booking) ? \Carbon\Carbon::parse($booking->jam)->format('H:i') : '') }}"
+                            value="{{ old('jam', isset($booking) ? \Carbon\Carbon::parse($booking->jam)->format('H:i') : ($draftBooking['jam'] ?? '')) }}"
                             class="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-blue-500 outline-none"
                             required
                         >
@@ -162,7 +162,7 @@
                                 name="jumlah_malam"
                                 id="lama_menginap"
                                 min="1"
-                                value="{{ old('jumlah_malam', $booking->jumlah_malam ?? 1) }}"
+                                value="{{ old('jumlah_malam', isset($booking) ? $booking->jumlah_malam : ($draftBooking['jumlah_malam'] ?? 1)) }}"
                                 class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold"
                             >
 
@@ -197,7 +197,7 @@
                                 type="number"
                                 name="jumlah_pengunjung"
                                 id="jumlah_pengunjung"
-                                value="{{ old('jumlah_pengunjung', $booking->jumlah_pengunjung ?? 1) }}"
+                                value="{{ old('jumlah_pengunjung', isset($booking) ? $booking->jumlah_pengunjung : ($draftBooking['jumlah_pengunjung'] ?? 1)) }}"
                                 class="w-16 text-center bg-transparent border-none focus:ring-0 font-bold"
                             >
 
@@ -469,10 +469,103 @@ if(isset($booking))
     let activeFasCategory = {};
 
     const allFasilitas = @json($fasilitas);
+    const allPaket = @json($paket);
+    const SERVER_DRAFT = @json($draftBooking ?? []);
+    const OLD_DRAFT = {
+        nama_pemesan: @json(old('nama_pemesan')),
+        no_hp: @json(old('no_hp')),
+        tanggal_kunjungan: @json(old('tanggal_kunjungan')),
+        tanggal_checkout: @json(old('tanggal_checkout')),
+        jam: @json(old('jam')),
+        jumlah_malam: @json(old('jumlah_malam')),
+        jumlah_pengunjung: @json(old('jumlah_pengunjung')),
+        paket: @json(old('paket', [])),
+        paket_qty: @json(old('paket_qty', [])),
+        fasilitas: @json(old('fasilitas', [])),
+        lahan: @json(old('lahan', [])),
+    };
 
     // persistence
     const STORAGE_KEY = 'booking_form_draft_v1';
     let isEditing = @json(isset($booking));
+
+    function isNonEmptyObject(value) {
+        return value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length > 0;
+    }
+
+    function applyDraftToState(draft) {
+        if (!draft || typeof draft !== 'object') {
+            return;
+        }
+
+        statePackages = {};
+        stateFasilitas = {};
+
+        if (draft.paket && typeof draft.paket === 'object') {
+            Object.entries(draft.paket).forEach(([hari, paketIds]) => {
+                if (!Array.isArray(paketIds)) {
+                    return;
+                }
+
+                paketIds.forEach(paketId => {
+                    if (!statePackages[hari]) {
+                        statePackages[hari] = [];
+                    }
+
+                    const qty = Number(draft.paket_qty?.[hari]?.[paketId] ?? 1) || 1;
+                    const paket = allPaket.find(p => String(p.id) === String(paketId));
+
+                    statePackages[hari].push({
+                        id: paketId,
+                        nama: paket?.nama_paket ?? 'Paket',
+                        qty: qty,
+                        harga: paket?.harga ?? 0,
+                        kapasitas: paket?.kapasitas ?? 0,
+                    });
+                });
+            });
+        }
+
+        if (draft.fasilitas && typeof draft.fasilitas === 'object') {
+            Object.entries(draft.fasilitas).forEach(([hari, fasList]) => {
+                if (!stateFasilitas[hari]) {
+                    stateFasilitas[hari] = {};
+                }
+
+                if (typeof fasList === 'object') {
+                    Object.entries(fasList).forEach(([fasId, qty]) => {
+                        stateFasilitas[hari][fasId] = Number(qty) || 0;
+                    });
+                }
+            });
+        }
+
+        if (draft.lahan && typeof draft.lahan === 'object') {
+            Object.entries(draft.lahan).forEach(([hari, fasId]) => {
+                if (!fasId) {
+                    return;
+                }
+
+                if (!stateFasilitas[hari]) {
+                    stateFasilitas[hari] = {};
+                }
+
+                stateFasilitas[hari][fasId] = 1;
+            });
+        }
+    }
+
+    function buildServerDraft() {
+        if (isNonEmptyObject(OLD_DRAFT.paket) || isNonEmptyObject(OLD_DRAFT.fasilitas) || OLD_DRAFT.nama_pemesan) {
+            return OLD_DRAFT;
+        }
+
+        if (isNonEmptyObject(SERVER_DRAFT)) {
+            return SERVER_DRAFT;
+        }
+
+        return null;
+    }
 
     function saveDraft()
     {
@@ -507,12 +600,29 @@ if(isset($booking))
         try {
             if(isEditing) return;
 
+            const draft = buildServerDraft();
+
+            if (draft) {
+                const form = document.getElementById('form-reservasi');
+
+                if (draft.nama_pemesan) form.elements['nama_pemesan'].value = draft.nama_pemesan;
+                if (draft.no_hp) form.elements['no_hp'].value = draft.no_hp;
+                if (draft.tanggal_kunjungan) document.getElementById('tanggal_checkin').value = draft.tanggal_kunjungan;
+                if (draft.tanggal_checkout) document.getElementById('tanggal_checkout').value = draft.tanggal_checkout;
+                if (draft.jam) form.elements['jam'].value = draft.jam;
+                if (draft.jumlah_malam) document.getElementById('lama_menginap').value = draft.jumlah_malam;
+                if (draft.jumlah_pengunjung) form.elements['jumlah_pengunjung'].value = draft.jumlah_pengunjung;
+
+                applyDraftToState(draft);
+                saveDraft();
+                return;
+            }
+
             const s = localStorage.getItem(STORAGE_KEY);
 
             if(!s) return;
 
             const d = JSON.parse(s);
-
             const form = document.getElementById('form-reservasi');
 
             if(d.nama_pemesan) form.elements['nama_pemesan'].value = d.nama_pemesan;

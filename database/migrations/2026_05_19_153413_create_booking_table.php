@@ -25,7 +25,7 @@ return new class extends Migration
         $table->decimal('diskon_manual', 12, 2)->default(0);
         $table->decimal('total_harga_final', 12, 2)->default(0);
         $table->enum('status_booking', ['pending', 'dikonfirmasi', 'selesai', 'dibatalkan'])->default('pending');
-        $table->enum('status_pembayaran', ['belum_bayar', 'dp', 'lunas'])->default('belum_bayar');
+        $table->enum('status_pembayaran', ['belum_bayar', 'dp', 'lunas', 'menunggu_verifikasi'])->default('belum_bayar');
         $table->date('tanggal_reschedule')->nullable();
         $table->text('alasan_reschedule')->nullable();
         $table->integer('jumlah_reschedule')->default(0);
