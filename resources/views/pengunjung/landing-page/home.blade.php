@@ -151,7 +151,8 @@
                 </div>
             </div>
             
-            <form action="{{ route('landing-page.home') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+            <form action="{{ route('cari.booking.proses') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                @csrf
                 <div class="space-y-2.5">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block">Nama Pemesan</label>
                     <div class="relative group">

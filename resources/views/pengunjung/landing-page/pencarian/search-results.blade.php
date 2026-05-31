@@ -1,203 +1,346 @@
 @extends('layouts.app')
 
-@section('title', 'Hasil Pencarian Booking - Kalisawah Adventure')
+@section('title', 'Tracking Booking')
 
 @section('content')
-    <!-- HEADER SECTION (Text Only) -->
-    <section class="pt-36 md:pt-44 pb-16 px-6 bg-white border-b border-gray-100 text-center">
-        <div class="max-w-[850px] mx-auto space-y-4 mb-4">
-            <h1 class="text-3xl md:text-5xl font-black text-dark-navy uppercase tracking-widest leading-tight">Hasil Pencarian Booking</h1>
-            <div class="w-16 h-1.5 bg-secondary mx-auto rounded-full"></div>
+
+@php
+    $booking = $booking ?? null;
+
+    $latestPembayaran = null;
+
+    if ($booking && isset($booking->pembayaran)) {
+
+        if ($booking->pembayaran instanceof \Illuminate\Support\Collection) {
+            $latestPembayaran = $booking->pembayaran
+                ->sortByDesc('created_at')
+                ->first();
+        } else {
+            $latestPembayaran = $booking->pembayaran;
+        }
+    }
+@endphp
+
+<section class="pt-40 pb-20 bg-slate-50 min-h-screen">
+
+    <div class="max-w-6xl mx-auto px-6">
+
+        <div class="text-center mb-12">
+
+            <h1 class="text-4xl font-black text-slate-900">
+                Hasil Pencarian Booking
+            </h1>
+
+            <p class="text-slate-500 mt-3">
+                Status reservasi Anda di Kalisawah Adventure
+            </p>
+
         </div>
-    </section>
 
-    <!-- RESULTS SECTION -->
-    <section class="py-20 px-6 bg-[#F8FAFC]">
-        <div class="max-w-[1000px] mx-auto">
-            
-            <div id="results-container">
-                <!-- Loading State -->
-                <div id="loading" class="text-center py-20">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                    <p class="mt-4 text-gray-500 font-bold uppercase tracking-widest text-sm">Mencari data...</p>
+        @if(!$booking)
+
+            <div class="bg-white rounded-3xl p-16 shadow text-center">
+
+                <div class="text-7xl text-red-400 mb-6">
+                    <i class="fa-solid fa-circle-xmark"></i>
                 </div>
 
-                <!-- Not Found State -->
-                <div id="not-found" class="hidden text-center py-20 px-6">
-                    <div class="text-gray-200 text-8xl mb-8">
-                        <i class="fa-solid fa-file-circle-xmark"></i>
-                    </div>
-                    <h2 class="text-3xl font-black text-dark-navy mb-4">Data Tidak Ditemukan</h2>
-                    <p class="text-gray-500 mb-10 max-w-md mx-auto font-medium text-lg leading-relaxed">
-                        Maaf, kami tidak dapat menemukan data reservasi dengan informasi tersebut. Periksa kembali nomor HP, nama, dan tanggal booking Anda.
-                    </p>
-                    <a href="{{ route('landing-page.home') }}" class="inline-flex items-center gap-3 bg-primary text-white px-12 py-4 rounded-xl font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:bg-hover-primary transition-all active:scale-[0.95]">
-                        <i class="fa-solid fa-rotate-left"></i> Kembali Ke Beranda
-                    </a>
-                </div>
+                <h2 class="text-2xl font-black mb-3">
+                    Data Tidak Ditemukan
+                </h2>
 
-                <!-- Results List -->
-                <div id="found-list" class="hidden">
-                    <!-- Table will be injected here -->
-                </div>
+                <p class="text-slate-500 mb-8">
+                    Pastikan nama, nomor WhatsApp dan tanggal kunjungan sesuai data booking.
+                </p>
+
+                <a href="{{ route('landing-page.home') }}"
+                   class="bg-primary text-white px-8 py-4 rounded-2xl font-bold">
+                    Kembali
+                </a>
+
             </div>
-        </div>
-    </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const phone = urlParams.get('phone');
-            const date = urlParams.get('date');
-            const name = urlParams.get('name');
+        @else
 
-            // Normalisasi function
-            const normalizePhone = (num) => {
-                if (!num) return '';
-                let cleaned = num.toString().replace(/\D/g, '').trim(); 
-                // Handle format 62 -> 0
-                if (cleaned.startsWith('62')) {
-                    cleaned = '0' + cleaned.substring(2);
-                }
-                
-                // Jika tidak diawali 0, tambahkan 0 di depan
-                if (cleaned.length > 0 && !cleaned.startsWith('0')) {
-                    cleaned = '0' + cleaned;
-                }
-                return cleaned;
-            };
+            <div class="bg-white rounded-[32px] shadow overflow-hidden">
 
-            const normalizedPhoneInput = normalizePhone(phone);
-            const normalizedNameInput = name ? name.trim().toLowerCase() : '';
-            const normalizedDateInput = date ? date.trim() : '';
+                {{-- HEADER --}}
+                <div class="bg-primary text-white p-8">
 
-            setTimeout(() => {
-                const loadingEl = document.getElementById('loading');
-                if (loadingEl) loadingEl.classList.add('hidden');
-                
-                const bookingData = localStorage.getItem('booking_data');
-                
-                if (bookingData) {
-                    const data = JSON.parse(bookingData);
-                    
-                    // Normalisasi data dari storage
-                    const normalizedPhoneStorage = normalizePhone(data.no_hp);
-                    const normalizedNameStorage = data.nama_pemesan ? data.nama_pemesan.trim().toLowerCase() : '';
-                    const normalizedDateStorage = data.tanggal_kunjungan ? data.tanggal_kunjungan.trim() : '';
+                    <div class="flex flex-wrap gap-6 justify-between">
 
-                    // Match logic
-                    const isMatchPhone = normalizedPhoneInput && normalizedPhoneStorage === normalizedPhoneInput;
-                    const isMatchName = normalizedNameInput && normalizedNameStorage.includes(normalizedNameInput);
-                    const isMatchDate = normalizedDateInput && normalizedDateStorage === normalizedDateInput;
+                        <div>
 
-                    if (isMatchPhone || isMatchName || isMatchDate) {
-                        renderResults(data);
-                    } else {
-                        showNotFound();
-                    }
-                } else {
-                    showNotFound();
-                }
-            }, 1000);
-        });
+                            <p class="text-sm opacity-80">
+                                Kode Booking
+                            </p>
 
-        function renderResults(data) {
-            const container = document.getElementById('found-list');
-            container.classList.remove('hidden');
+                            <h2 class="text-3xl font-black">
+                                {{ $booking->kode_booking ?? '-' }}
+                            </h2>
 
-            const formatIDR = (val) => 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
+                        </div>
 
-            // Derived/Mocked values to match reference UI requirements
-            const bookingCode = data.kode_booking || 'KLS-BYQ' + Math.floor(1000 + Math.random() * 9000);
-            const pengunjung = parseInt(data.total_pengunjung) || 0;
-            const tambahan = Math.max(0, pengunjung - 5); 
-            
-            // Assume total from data or use a representative mock for UI
-            const finalTotal = data.total_harga || 70000;
-            const originalTotal = finalTotal + (finalTotal * 0.15); // +15% for line-through mock
+                        <div>
 
-            const tableHtml = `
-                <div class="bg-white rounded-[32px] shadow-sm overflow-hidden border border-gray-100">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-gray-100">
-                                    <th class="px-6 py-5 text-[11px] font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">NO</th>
-                                    <th class="px-6 py-5 text-[11px] font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">KODE BOOKING</th>
-                                    <th class="px-6 py-5 text-[11px] font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">PEMESAN</th>
-                                    <th class="px-6 py-5 text-[11px] font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">TANGGAL & JAM</th>
-                                    <th class="px-6 py-5 text-[11px] font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">PENGUNJUNG</th>
-                                    <th class="px-6 py-5 text-[11px] font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">TOTAL</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-all duration-200 group">
-                                    <td class="px-6 py-8 text-sm font-bold text-gray-400 group-hover:text-dark-navy transition-colors">01</td>
-                                    <td class="px-6 py-8">
-                                        <span class="bg-blue-50 text-blue-600 rounded-full px-4 py-1.5 font-bold text-xs uppercase tracking-wider">
-                                            ${bookingCode}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-8">
-                                        <div class="flex flex-col">
-                                            <span class="text-dark-navy font-bold text-[15px]">${data.nama_pemesan || '-'}</span>
-                                            <span class="text-gray-400 text-[11px] mt-1 font-medium italic">${data.no_hp || '-'}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-8">
-                                        <div class="flex flex-col gap-2">
-                                            <div class="flex items-center gap-2 text-gray-500">
-                                                <i class="fa-regular fa-calendar-days text-[12px] text-gray-400 group-hover:text-primary transition-colors"></i>
-                                                <span class="text-xs font-bold">${formatDate(data.tanggal_kunjungan)}</span>
-                                            </div>
-                                            <div class="flex items-center gap-2 text-gray-500">
-                                                <i class="fa-regular fa-clock text-[12px] text-gray-400 group-hover:text-primary transition-colors"></i>
-                                                <span class="text-xs font-bold">${data.jam || '08:00'} WIB</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-8">
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-dark-navy font-black text-sm">${pengunjung} Orang</span>
-                                            ${tambahan > 0 ? `
-                                                <span class="bg-pink-100 text-pink-500 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-tighter">
-                                                    +${tambahan} Tambahan
-                                                </span>
-                                            ` : ''}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-8">
-                                        <div class="flex flex-col items-start">
-                                            <span class="text-gray-400 text-[10px] line-through font-bold mb-1">${formatIDR(originalTotal)}</span>
-                                            <span class="text-green-500 font-black text-xl tracking-tight">${formatIDR(finalTotal)}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                            <p class="text-sm opacity-80">
+                                Status Booking
+                            </p>
+
+                            <span class="inline-block mt-2 px-5 py-2 rounded-full bg-yellow-400 text-slate-900 font-bold">
+                                {{ strtoupper($booking->status_booking ?? 'PENDING') }}
+                            </span>
+
+                        </div>
+
                     </div>
+
                 </div>
 
-                <!-- FOOTER BACK BUTTON -->
-                <div class="mt-12 flex justify-center">
-                    <a href="javascript:history.back()" 
-                        class="h-[55px] px-12 rounded-2xl border-2 border-gray-100 bg-white text-gray-400 font-black text-xs flex items-center justify-center hover:bg-gray-50 hover:text-dark-navy hover:border-gray-200 transition-all active:scale-[0.95] shadow-sm uppercase tracking-[0.2em] gap-3">
-                        <i class="fa-solid fa-arrow-left"></i> Kembali
-                    </a>
+                {{-- CONTENT --}}
+                <div class="p-8">
+
+                    <div class="grid md:grid-cols-2 gap-8">
+
+                        {{-- DATA PEMESAN --}}
+                        <div>
+
+                            <h3 class="font-black text-xl mb-5">
+                                Data Pemesan
+                            </h3>
+
+                            <div class="space-y-4">
+
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Nama Pemesan
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ $booking->nama_pemesan }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        WhatsApp
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ $booking->no_hp }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Tanggal Kunjungan
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ \Carbon\Carbon::parse($booking->tanggal_kunjungan)->translatedFormat('d F Y') }}
+                                    </p>
+                                </div>
+
+                                @if($booking->jam)
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Jam Kunjungan
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ $booking->jam }}
+                                    </p>
+                                </div>
+                                @endif
+
+                            </div>
+
+                        </div>
+
+                        {{-- INFO BOOKING --}}
+                        <div>
+
+                            <h3 class="font-black text-xl mb-5">
+                                Informasi Booking
+                            </h3>
+
+                            <div class="space-y-4">
+
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Total Pengunjung
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ $booking->jumlah_pengunjung ?? 0 }} Orang
+                                    </p>
+                                </div>
+
+                                @if($booking->jumlah_tiket_tambahan)
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Tiket Tambahan
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ $booking->jumlah_tiket_tambahan }} Orang
+                                    </p>
+                                </div>
+                                @endif
+
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Total Harga
+                                    </label>
+
+                                    <p class="text-2xl font-black text-green-600">
+                                        Rp {{ number_format($booking->total_harga_final ?? $booking->total_harga ?? 0, 0, ',', '.') }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Status Pembayaran
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ $latestPembayaran->status_pembayaran ?? 'Belum Ada Pembayaran' }}
+                                    </p>
+                                </div>
+
+                                @if($latestPembayaran && $latestPembayaran->status_verifikasi)
+                                <div>
+                                    <label class="text-slate-400 text-sm">
+                                        Status Verifikasi
+                                    </label>
+
+                                    <p class="font-bold">
+                                        {{ strtoupper($latestPembayaran->status_verifikasi) }}
+                                    </p>
+                                </div>
+                                @endif
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <hr class="my-10">
+
+                    {{-- PAKET --}}
+                    <h3 class="font-black text-xl mb-6">
+                        Paket Yang Dipesan
+                    </h3>
+
+                    <div class="space-y-4">
+
+                        @forelse($booking->items ?? [] as $item)
+
+                            <div class="border rounded-2xl p-5">
+
+                                <div class="flex justify-between items-center">
+
+                                    <div>
+
+                                        <h4 class="font-bold">
+                                            {{ $item->paketWisata->nama_paket ?? '-' }}
+                                        </h4>
+
+                                        <p class="text-slate-500 text-sm">
+                                            Qty : {{ $item->qty ?? 1 }}
+                                        </p>
+
+                                    </div>
+
+                                    <div class="font-black text-primary">
+                                        Rp {{ number_format($item->subtotal ?? 0,0,',','.') }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @empty
+
+                            <div class="border rounded-2xl p-5 text-center text-slate-500">
+                                Tidak ada paket ditemukan.
+                            </div>
+
+                        @endforelse
+
+                    </div>
+
+                    {{-- FASILITAS --}}
+                    @if(isset($booking->fasilitas) && count($booking->fasilitas) > 0)
+
+                        <hr class="my-10">
+
+                        <h3 class="font-black text-xl mb-6">
+                            Fasilitas Tambahan
+                        </h3>
+
+                        <div class="space-y-4">
+
+                            @foreach($booking->fasilitas as $fasilitas)
+
+                                <div class="border rounded-2xl p-5 flex justify-between">
+
+                                    <div>
+                                        <h4 class="font-bold">
+                                            {{ $fasilitas->fasilitas->nama_fasilitas ?? '-' }}
+                                        </h4>
+                                    </div>
+
+                                    <div class="font-black text-primary">
+                                        Rp {{ number_format($fasilitas->subtotal ?? 0,0,',','.') }}
+                                    </div>
+
+                                </div>
+
+                            @endforeach
+
+                        </div>
+
+                    @endif
+
+                    {{-- CATATAN ADMIN --}}
+                    @if($latestPembayaran && $latestPembayaran->catatan)
+
+                        <hr class="my-10">
+
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
+
+                            <h3 class="font-black mb-3">
+                                Catatan Admin
+                            </h3>
+
+                            <p class="text-slate-700">
+                                {{ $latestPembayaran->catatan }}
+                            </p>
+
+                        </div>
+
+                    @endif
+
+                    {{-- TOMBOL --}}
+                    <div class="mt-12 text-center">
+
+                        <a href="{{ route('landing-page.home') }}"
+                           class="bg-slate-900 hover:bg-primary text-white px-10 py-4 rounded-2xl font-bold transition">
+                            Kembali ke Beranda
+                        </a>
+
+                    </div>
+
                 </div>
-            `;
-            
-            container.innerHTML = tableHtml;
-        }
 
-        function showNotFound() {
-            document.getElementById('not-found').classList.remove('hidden');
-        }
+            </div>
 
-        function formatDate(dateStr) {
-            if(!dateStr) return '-';
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateStr).toLocaleDateString('id-ID', options);
-        }
-    </script>
+        @endif
+
+    </div>
+
+</section>
+
 @endsection

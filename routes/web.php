@@ -13,6 +13,7 @@ use App\Http\Controllers\API\Kelola_fasilitas\{KategoriFasilitasController, Fasi
 use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 use App\Http\Controllers\API\Booking_pengunjung\PengunjungBookingController;
+use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
 
 /* 1. SEKTOR ADMIN */
 Route::get('/admin/login', function () { return view('auth.login'); })->name('login');
@@ -89,10 +90,17 @@ Route::get('/kabar', function () {
 Route::get('/testimoni', function () {
     return view('pengunjung.landing-page.testimoni.review');
 })->name('testimoni.create');
-Route::get('/cari-booking', function () {
-    return view('pengunjung.landing-page.pencarian.search-results');
-})->name('cari.booking');
 
 // DETAIL KATEGORI PAKET
 Route::get('/kategori/{slug}', [ProfilWisataController::class, 'showKategori'])
     ->name('kategori.detail');
+
+// TRACKING BOOKING
+Route::get('/cari-booking', function () {
+    return view('pengunjung.landing-page.pencarian.search-results');
+})->name('cari.booking');
+
+Route::post(
+    '/cari-booking',
+    [TrackingBookingController::class, 'tracking']
+)->name('cari.booking.proses');
