@@ -20,9 +20,9 @@ class KategoriPaket extends Model
         'nama_kategori',
         'slug',
         'deskripsi',
-        'gambar',
+        'tagline',
         'hero_image',
-        'tagline'
+        'gambar'
     ];
 
     /*
