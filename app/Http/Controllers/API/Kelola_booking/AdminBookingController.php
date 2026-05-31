@@ -25,8 +25,8 @@ class AdminBookingController extends Controller
     public function index()
     {
         $data = Booking::with([
-            'bookingItem.paketWisata',
-            'bookingFasilitas.fasilitas',
+            'items.paketWisata',
+            'fasilitas.fasilitas',
             'pembayaran'
         ])->latest()->get();
 
@@ -41,8 +41,8 @@ class AdminBookingController extends Controller
     public function show($id)
     {
         $booking = Booking::with([
-            'bookingItem.paketWisata',
-            'bookingFasilitas.fasilitas',
+            'items.paketWisata',
+            'fasilitas.fasilitas',
             'pembayaran'
         ])->find($id);
 
