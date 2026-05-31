@@ -22,7 +22,7 @@ class KategoriPaket extends Model
         'deskripsi',
         'tagline',
         'hero_image',
-        'gambar'
+        'gambar',
     ];
 
     /*

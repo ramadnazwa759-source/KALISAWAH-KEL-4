@@ -16,14 +16,14 @@ class KategoriPaketController extends Controller
     |--------------------------------------------------------------------------
     */
     public function index()
-{
-    $kategoris = KategoriPaket::orderBy('id', 'desc')->paginate(6);
+    {
+        $kategoris = KategoriPaket::orderBy('id', 'desc')->paginate(6);
 
-    return view(
-        'admin.layanan.kategoriPaket.index',
-        compact('kategoris')
-    );
-}
+        return view(
+            'admin.layanan.kategoriPaket.index',
+            compact('kategoris')
+        );
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -52,11 +52,10 @@ class KategoriPaketController extends Controller
     {
         $validated = $request->validate([
             'nama_kategori' => 'required|string|max:255',
-            'deskripsi'     => 'nullable|string',
             'tagline'       => 'nullable|string|max:255',
-
+            'deskripsi'     => 'nullable|string',
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'hero_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'hero_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
 
         /*
@@ -128,11 +127,10 @@ class KategoriPaketController extends Controller
 
         $validated = $request->validate([
             'nama_kategori' => 'required|string|max:255',
-            'deskripsi'     => 'nullable|string',
             'tagline'       => 'nullable|string|max:255',
-
+            'deskripsi'     => 'nullable|string',
             'gambar'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'hero_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'hero_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         /*

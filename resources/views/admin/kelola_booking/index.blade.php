@@ -40,7 +40,6 @@
                             <th>Kunjungan</th>
                             <th>Orang</th>
                             <th>Total</th>
-                            <th>Pembayaran</th>
                             <th>Status</th>
                             <th class="text-center pe-3">Action</th>
                         </tr>
@@ -61,23 +60,12 @@
                             <td>{{ $b->jumlah_pengunjung }}</td>
                             <td class="fw-bold text-dark">Rp {{ number_format($b->total_harga_final,0,',','.') }}</td>
                             <td>
-                                <div class="text-success fw-bold">Rp {{ number_format($b->nominal_bayar ?? 0, 0,',','.') }}</div>
-                                <div class="text-danger small">Kurang: Rp {{ number_format(max(0, $b->total_harga_final - ($b->nominal_bayar ?? 0)), 0,',','.') }}</div>
-                            </td>
-                            <td>
                                 <span class="badge bg-warning text-dark mb-1">{{ ucfirst($b->status_booking) }}</span><br>
                                 <span class="badge bg-danger">{{ ucfirst($b->status_pembayaran) }}</span>
                             </td>
                             <td class="text-center pe-3">
-                                <button type="button" class="btn btn-sm btn-info text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-warning text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalEditBooking{{ $b->id }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <a href="{{ url('/admin/pembayaran?booking_id='.$b->id.'&nominal_bayar='.max(0, $b->total_harga_final - ($b->nominal_bayar ?? 0)).'&nama_pemesan='.urlencode($b->nama_pemesan)) }}" class="btn btn-sm btn-success text-white rounded-3">
-                                <i class="fas fa-money-bill"></i>
-                                 </a>
+                                <button type="button" class="btn btn-sm btn-info text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}"><i class="fas fa-eye"></i></button>
+                                <button type="button" class="btn btn-sm btn-warning text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalEditBooking{{ $b->id }}"><i class="fas fa-edit"></i></button>
                             </td>
                         </tr>
                         @endforeach
@@ -88,7 +76,6 @@
     </div>
 </div>
 
-{{-- MODAL TAMBAH BOOKING --}}
 <div class="modal fade" id="modalTambahBooking" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <form action="{{ url('/admin/booking-admin') }}" method="POST" class="w-100" enctype="multipart/form-data">
@@ -104,15 +91,14 @@
                         <div class="row g-3">
                             <div class="col-md-6"><label class="form-label small fw-semibold">Nama Pemesan</label><input type="text" name="nama_pemesan" class="form-control" required></div>
                             <div class="col-md-6"><label class="form-label small fw-semibold">No HP</label><input type="text" name="no_hp" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small fw-semibold">Tanggal</label><input type="date" name="tanggal_kunjungan" class="form-control" required></div>
+                            <div class="col-md-4"><label class="form-label small fw-semibold">Tanggal Kunjungan</label><input type="date" name="tanggal_kunjungan" class="form-control" required></div>
+                            <div class="col-md-4"><label class="form-label small fw-semibold">Tanggal Selesai</label><input type="date" name="tanggal_selesai" class="form-control" required></div>
                             <div class="col-md-4"><label class="form-label small fw-semibold">Jam</label><input type="time" name="jam" class="form-control" required></div>
                             <div class="col-md-4"><label class="form-label small fw-semibold">Jumlah Pengunjung</label><input type="number" name="jumlah_pengunjung" class="form-control" min="1" value="0" oninput="calculateTotal()" required></div>
-                        </div>
-                        <div class="row g-3 mt-3">
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Check-Out</label><input type="date" name="tanggal_checkout" class="form-control"></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Jumlah Malam</label><input type="number" name="jumlah_malam" class="form-control" min="1" value="1"></div>
+                            <div class="col-md-4"><label class="form-label small fw-semibold">Catatan</label><input type="text" name="catatan" class="form-control"></div>
                         </div>
                     </div>
+
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center gap-2"><div class="step-icon">2</div><h6 class="fw-bold text-primary mb-0">Paket Wisata</h6></div>
@@ -132,6 +118,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center gap-2"><div class="step-icon">3</div><h6 class="fw-bold text-primary mb-0">Fasilitas Tambahan</h6></div>
@@ -140,7 +127,7 @@
                         <div id="fasilitas-container">
                             <div class="row g-2 mb-2">
                                 <div class="col-8">
-                                    <select name="fasilitas[0][fasilitas_id]" class="form-select" onchange="calculateTotal()">
+                                    <select name="fasilitas[0][id]" class="form-select" onchange="calculateTotal()">
                                         <option value="">-- Pilih Fasilitas --</option>
                                         @foreach(\App\Models\Fasilitas::all() as $f)
                                             <option value="{{ $f->id }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }} (Rp {{ number_format($f->harga, 0, ',', '.') }})</option>
@@ -151,19 +138,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <div class="d-flex align-items-center gap-2 mb-3"><div class="step-icon">4</div><h6 class="fw-bold text-primary mb-0">Informasi Pembayaran</h6></div>
-                        <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Metode</label><select name="metode_pembayaran" class="form-select"><option value="cash">Cash</option><option value="transfer">Transfer</option></select></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Tipe</label><select name="tipe_pembayaran" class="form-select"><option value="dp">DP</option><option value="lunas">Pelunasan</option></select></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Nominal Bayar</label><input type="number" name="nominal_bayar" class="form-control" required></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Bukti Pembayaran</label><input type="file" name="bukti_pembayaran" class="form-control" accept="image/*"></div>
-                        </div>
-                    </div>
+
                     <div class="row g-2">
-                        <div class="col-md-4"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Kapasitas</small><span id="disp-kapasitas" class="fw-bold fs-5 text-dark">0</span></div></div>
-                        <div class="col-md-4"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Tiket Tambahan</small><span id="disp-tiket" class="fw-bold fs-5 text-dark">0</span></div></div>
-                        <div class="col-md-4"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Total Estimasi</small><span id="disp-total" class="fw-bold text-primary fs-5">Rp 0</span></div></div>
+                        <div class="col-md-6"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Kapasitas</small><span id="disp-kapasitas" class="fw-bold fs-5 text-dark">0</span></div></div>
+                        <div class="col-md-6"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Total Estimasi</small><span id="disp-total" class="fw-bold text-primary fs-5">Rp 0</span></div></div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4"><button type="submit" class="btn btn-primary w-100">Simpan Booking</button></div>
@@ -172,83 +150,35 @@
     </div>
 </div>
 
-{{-- MODALS SHOW & EDIT (DITAMBAHKAN SESUAI KEBUTUHAN ANDA SEBELUMNYA) --}}
 @foreach($data as $b)
 <div class="modal fade" id="modalShowBooking{{ $b->id }}" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content shadow-lg p-4">
             <div class="modal-header border-0 pb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div style="background:#EFF6FF; color:#2563EB; width: 45px; height: 45px; display:flex; align-items:center; justify-content:center; border-radius:12px;">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <div>
-                        <h5 class="fw-bold mb-0">Detail Booking</h5>
-                        <p class="text-muted mb-0 small">{{ $b->kode_booking }}</p>
-                    </div>
-                </div>
-                <div class="ms-auto d-flex gap-2">
-                    <span class="badge bg-success-subtle text-success badge-status">{{ ucfirst($b->status_booking) }}</span>
-                    <span class="badge bg-danger-subtle text-danger badge-status">{{ strtoupper($b->status_pembayaran) }}</span>
-                </div>
+                <h5 class="fw-bold">Detail {{ $b->kode_booking }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body py-2">
+            <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-user me-2"></i>Informasi Pemesan</h6>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Nama Pemesan</span><span class="fw-bold">{{ $b->nama_pemesan }}</span></div>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">No HP</span><span class="fw-bold">{{ $b->no_hp }}</span></div>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Tanggal Kunjungan</span><span class="fw-bold">{{ \Carbon\Carbon::parse($b->tanggal_kunjungan)->format('d M Y') }}</span></div>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Jam Kunjungan</span><span class="fw-bold">{{ $b->jam }}</span></div>
-                            <div class="d-flex justify-content-between"><span class="text-muted small">Jumlah Orang</span><span class="fw-bold">{{ $b->jumlah_pengunjung }}</span></div>
+                            <p class="mb-1 text-muted small">Pemesan</p>
+                            <h6 class="fw-bold">{{ $b->nama_pemesan }} ({{ $b->no_hp }})</h6>
+                            <p class="mb-1 text-muted small mt-3">Kunjungan</p>
+                            <h6 class="fw-bold">{{ $b->tanggal_kunjungan }} - {{ $b->tanggal_selesai }}</h6>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-box me-2"></i>Paket Wisata</h6>
-                            @foreach(($b->bookingItem ?? []) as $dp)
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">{{ $dp->paketWisata->nama_paket ?? '-' }} (x{{ $dp->qty }})</span>
-                                <span class="fw-bold">Rp {{ number_format($dp->subtotal ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>Fasilitas Tambahan</h6>
-                            @forelse(($b->bookingFasilitas ?? []) as $df)
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">{{ $df->fasilitas->nama_fasilitas ?? '-' }} (x{{ $df->qty }})</span>
-                                <span class="fw-bold">Rp {{ number_format($df->subtotal ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            @empty
-                            <span class="text-muted small">-</span>
-                            @endforelse
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-wallet me-2"></i>Ringkasan Biaya</h6>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Total Harga (Sebelum Diskon)</span><span class="fw-bold">Rp {{ number_format($b->total_harga_final + ($b->diskon_manual ?? 0), 0, ',', '.') }}</span></div>
-                            <div class="d-flex justify-content-between mb-2 text-danger"><span class="small">Diskon Manual</span><span class="fw-bold">- Rp {{ number_format($b->diskon_manual ?? 0, 0, ',', '.') }}</span></div>
-                            <hr class="my-2 border-dashed">
-                            <div class="d-flex justify-content-between"><span class="text-muted small">Total Harga (Setelah Diskon)</span><span class="fw-bold text-primary">Rp {{ number_format($b->total_harga_final, 0, ',', '.') }}</span></div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="card-detail d-flex align-items-center">
-                            <div class="me-4"><i class="fas fa-credit-card text-primary fs-4"></i></div>
-                            <div class="flex-grow-1">
-                                <div class="text-muted small">Metode Bayar</div>
-                                <div class="fw-bold">{{ ucfirst($b->metode_pembayaran) }}</div>
-                            </div>
+                            <p class="mb-1 text-muted small">Total Harga Final</p>
+                            <h4 class="fw-bold text-primary">Rp {{ number_format($b->total_harga_final, 0, ',', '.') }}</h4>
+                            <p class="mb-1 text-muted small mt-3">Status</p>
+                            <span class="badge bg-warning text-dark">{{ $b->status_booking }}</span>
+                            <span class="badge bg-success">{{ $b->status_pembayaran }}</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-3"><button type="button" class="btn btn-light w-100 rounded-3 py-2" data-bs-dismiss="modal">Tutup</button></div>
         </div>
     </div>
 </div>
@@ -259,19 +189,20 @@
             @csrf @method('PUT')
             <div class="modal-content shadow-lg">
                 <div class="modal-header border-bottom px-4 py-3">
-                    <h5 class="fw-bold mb-0">Edit Booking: {{ $b->kode_booking }}</h5>
+                    <h5 class="fw-bold mb-0">Edit: {{ $b->kode_booking }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body px-4 py-4">
-                    <div class="mb-3"><label class="small text-muted d-block">Nama Pemesan</label><div class="fw-bold text-dark">{{ $b->nama_pemesan }}</div></div>
-                    <div class="mb-3"><label class="small text-muted d-block">Total Harga</label><div class="fw-bold text-success">Rp {{ number_format($b->total_harga_final,0,',','.') }}</div></div>
-                    <hr>
                     <div class="mb-3"><label class="form-label small fw-semibold">Diskon Manual</label><input type="number" name="diskon_manual" class="form-control" value="{{ $b->diskon_manual }}"></div>
                     <div class="mb-3"><label class="form-label small fw-semibold">Tanggal Reschedule</label><input type="date" name="tanggal_reschedule" class="form-control" value="{{ $b->tanggal_reschedule }}"></div>
                     <div class="mb-3"><label class="form-label small fw-semibold">Alasan Reschedule</label><input type="text" name="alasan_reschedule" class="form-control" value="{{ $b->alasan_reschedule }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Jumlah Reschedule</label><input type="number" name="jumlah_reschedule" class="form-control" value="{{ $b->jumlah_reschedule }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Check-Out</label><input type="date" name="tanggal_checkout" class="form-control" value="{{ $b->tanggal_selesai }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Jumlah Malam</label><input type="number" name="jumlah_malam" class="form-control" min="1" value="{{ $b->jumlah_malam ?? 1 }}"></div>
+                    <div class="mb-3"><label class="form-label small fw-semibold">Status Booking</label>
+                        <select name="status_booking" class="form-select">
+                            <option value="pending" {{ $b->status_booking == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="confirmed" {{ $b->status_booking == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                            <option value="cancelled" {{ $b->status_booking == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4"><button type="submit" class="btn btn-warning w-100 text-white">Update Data</button></div>
             </div>
@@ -281,15 +212,19 @@
 @endforeach
 
 <script>
-    let pIdx = 1; let fIdx = 1;
+    let pIdx = 1;
+    let fIdx = 1;
+
     function addPaket() {
-        let html = `<div class="row g-2 mb-2"><div class="col-8"><select name="paket[${pIdx}][paket_wisata_id]" class="form-select" onchange="calculateTotal()"><option value="">-- Pilih Paket --</option>@foreach(\App\Models\PaketWisata::all() as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-kapasitas="{{ $p->kapasitas }}">{{ $p->nama_paket }} (Rp {{ number_format($p->harga, 0, ',', '.') }} | Kap: {{ $p->kapasitas }})</option>@endforeach</select></div><div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="paket[${pIdx}][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div></div>`;
+        let html = `<div class="row g-2 mb-2"><div class="col-8"><select name="paket[${pIdx}][paket_wisata_id]" class="form-select" onchange="calculateTotal()"><option value="">-- Pilih Paket --</option>@foreach(\App\Models\PaketWisata::all() as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-kapasitas="{{ $p->kapasitas }}">{{ $p->nama_paket }} (Rp {{ number_format($p->harga, 0, ',', '.') }})</option>@endforeach</select></div><div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="paket[${pIdx}][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div></div>`;
         document.getElementById('paket-container').insertAdjacentHTML('beforeend', html); pIdx++;
     }
+
     function addFasilitas() {
-        let html = `<div class="row g-2 mb-2"><div class="col-8"><select name="fasilitas[${fIdx}][fasilitas_id]" class="form-select" onchange="calculateTotal()"><option value="">-- Pilih Fasilitas --</option>@foreach(\App\Models\Fasilitas::all() as $f)<option value="{{ $f->id }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }} (Rp {{ number_format($f->harga, 0, ',', '.') }})</option>@endforeach</select></div><div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="fasilitas[${fIdx}][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div></div>`;
+        let html = `<div class="row g-2 mb-2"><div class="col-8"><select name="fasilitas[${fIdx}][id]" class="form-select" onchange="calculateTotal()"><option value="">-- Pilih Fasilitas --</option>@foreach(\App\Models\Fasilitas::all() as $f)<option value="{{ $f->id }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }} (Rp {{ number_format($f->harga, 0, ',', '.') }})</option>@endforeach</select></div><div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="fasilitas[${fIdx}][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div></div>`;
         document.getElementById('fasilitas-container').insertAdjacentHTML('beforeend', html); fIdx++;
     }
+
     function changeQty(btn, val, allowDelete = false) {
         let input = btn.parentElement.querySelector('input');
         let newVal = parseInt(input.value) + val;
@@ -297,9 +232,9 @@
         else { input.value = newVal; }
         calculateTotal();
     }
+
     function calculateTotal() {
         let total = 0; let totalKapasitas = 0;
-        let pengunjung = parseInt(document.querySelector('input[name="jumlah_pengunjung"]').value) || 0;
         document.querySelectorAll('#paket-container .row').forEach(row => {
             let sel = row.querySelector('select'); let qty = parseInt(row.querySelector('input').value) || 0;
             if(sel.value) {
@@ -310,18 +245,14 @@
         });
         document.querySelectorAll('#fasilitas-container .row').forEach(row => {
             let sel = row.querySelector('select'); let qty = parseInt(row.querySelector('input').value) || 0;
-            if(sel.value) { total += (parseInt(sel.options[sel.selectedIndex].getAttribute('data-harga')) * qty); }
+            if(sel.value) {
+                let opt = sel.options[sel.selectedIndex];
+                total += (parseInt(opt.getAttribute('data-harga')) * qty);
+            }
         });
-        let selisih = Math.max(0, pengunjung - totalKapasitas);
-        total += (selisih * 25000);
         document.getElementById('disp-kapasitas').innerText = totalKapasitas;
-        document.getElementById('disp-tiket').innerText = selisih;
         document.getElementById('disp-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
     }
-    $(document).ready(function() {
-        $('#bookingTable').DataTable({
-            "ordering": false
-        });
-    });
+    $(document).ready(function() { $('#bookingTable').DataTable({"ordering": false}); });
 </script>
 @endsection
