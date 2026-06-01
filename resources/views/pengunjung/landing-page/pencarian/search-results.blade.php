@@ -25,6 +25,22 @@
 
     <div class="max-w-6xl mx-auto px-6">
 
+    @if(session('success'))
+
+    <div class="mb-8 bg-green-50 border border-green-200 rounded-2xl p-5">
+
+        <div class="font-bold text-green-700">
+            ✓ Berhasil
+        </div>
+
+        <p class="text-green-600 mt-1">
+            {{ session('success') }}
+        </p>
+
+    </div>
+
+    @endif
+
         <div class="text-center mb-12">
 
             <h1 class="text-4xl font-black text-slate-900">
@@ -123,16 +139,6 @@
 
                                 <div>
                                     <label class="text-slate-400 text-sm">
-                                        WhatsApp
-                                    </label>
-
-                                    <p class="font-bold">
-                                        {{ $booking->no_hp }}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <label class="text-slate-400 text-sm">
                                         Tanggal Kunjungan
                                     </label>
 
@@ -204,11 +210,108 @@
                                     </label>
 
                                     <p class="font-bold">
-                                        {{ $latestPembayaran->status_pembayaran ?? 'Belum Ada Pembayaran' }}
+                                        {{ strtoupper($latestPembayaran->status_verifikasi ?? 'PENDING') }}
                                     </p>
                                 </div>
 
-                                @if($latestPembayaran && $latestPembayaran->status_verifikasi)
+                                @if($latestPembayaran)
+
+                                <div>
+
+                                    <label class="text-slate-400 text-sm">
+                                        Bukti Pembayaran
+                                    </label>
+
+                                    @if(
+                                        !empty($latestPembayaran->bukti_pembayaran)
+                                        && $latestPembayaran->status_verifikasi == 'pending'
+                                    )
+
+                                        <div class="mt-2 p-4 rounded-xl bg-green-50 border border-green-200">
+
+                                            <div class="font-bold text-green-700">
+                                                ✓ Bukti pembayaran sudah diupload
+                                            </div>
+
+                                            <p class="text-sm text-green-600 mt-1">
+                                                Pembayaran sedang menunggu konfirmasi admin.
+                                            </p>
+
+                                        </div>
+
+                                    @elseif(
+                                        !empty($latestPembayaran->bukti_pembayaran)
+                                        && $latestPembayaran->status_verifikasi == 'valid'
+                                    )
+
+                                        <div class="mt-2 p-4 rounded-xl bg-green-50 border border-green-200">
+
+                                            <div class="font-bold text-green-700">
+                                                ✓ Pembayaran telah diverifikasi admin
+                                            </div>
+
+                                            <p class="text-sm text-green-600 mt-1">
+                                                Bukti pembayaran telah diterima.
+                                            </p>
+
+                                        </div>
+
+                                    @elseif(
+                                        $latestPembayaran->status_verifikasi == 'ditolak'
+                                    )
+
+                                        <div class="mt-2 p-4 rounded-xl bg-red-50 border border-red-200">
+
+                                            <div class="font-bold text-red-700">
+                                                ✕ Bukti pembayaran ditolak
+                                            </div>
+
+                                            <p class="text-sm text-red-600 mt-1">
+                                                Silakan upload ulang bukti pembayaran yang sesuai.
+                                            </p>
+
+                                        </div>
+
+                                    @else
+
+                                        <div class="mt-2 p-4 rounded-xl bg-yellow-50 border border-yellow-200">
+
+                                            <div class="font-bold text-yellow-700">
+                                                ⚠ Bukti pembayaran belum diupload
+                                            </div>
+
+                                            <p class="text-sm text-yellow-700 mt-1">
+                                                Silakan upload bukti pembayaran DP agar booking dapat diproses admin.
+                                            </p>
+
+                                        </div>
+
+                                    @endif
+
+                                </div>
+
+                                @if(!empty($latestPembayaran->bukti_pembayaran))
+
+                                <div>
+
+                                    <label class="text-slate-400 text-sm">
+                                        Bukti Yang Diupload
+                                    </label>
+
+                                    <div class="mt-2">
+
+                                        <img
+                                            src="{{ Storage::url($latestPembayaran->bukti_pembayaran) }}"
+                                            alt="Bukti Pembayaran"
+                                            class="w-64 rounded-xl border shadow"
+                                        >
+
+                                    </div>
+
+                                </div>
+
+                                @endif
+
                                 <div>
                                     <label class="text-slate-400 text-sm">
                                         Status Verifikasi
@@ -301,6 +404,72 @@
                             @endforeach
 
                         </div>
+
+                    @endif
+
+                    @if(
+                        !$latestPembayaran ||
+                        empty($latestPembayaran->bukti_pembayaran) ||
+                        $latestPembayaran->status_verifikasi == 'ditolak'
+                    )
+
+                    <hr class="my-10">
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-3xl p-8">
+
+                        <h3 class="text-xl font-black mb-3">
+                            Upload Bukti Pembayaran DP
+                        </h3>
+
+                        @if(
+                            $latestPembayaran &&
+                            $latestPembayaran->status_verifikasi == 'ditolak'
+                        )
+
+                            <p class="text-red-600 mb-6">
+                                Bukti pembayaran sebelumnya ditolak admin.
+                                Silakan upload ulang bukti pembayaran yang lebih jelas dan sesuai.
+                            </p>
+
+                        @else
+
+                            <p class="text-slate-600 mb-6">
+                                Booking Anda belum memiliki bukti pembayaran.
+                                Silakan upload bukti transfer DP untuk diproses admin.
+                            </p>
+
+                        @endif
+
+                        <form
+                            action="{{ route('booking.upload-bukti', $booking->id) }}"
+                            method="POST"
+                            enctype="multipart/form-data"
+                        >
+                            @csrf
+
+                            <input
+                                type="file"
+                                name="bukti_pembayaran"
+                                accept=".jpg,.jpeg,.png,.webp"
+                                required
+                                class="w-full border rounded-xl p-3"
+                            >
+
+                            <p class="text-xs text-slate-500 mt-2">
+                                Format: JPG, JPEG, PNG, WEBP.
+                                Maksimal 2 MB.
+                            </p>
+
+                            <button
+                                type="submit"
+                                class="mt-5 bg-primary text-white px-8 py-3 rounded-xl font-bold"
+                            >
+                                Upload Bukti Pembayaran
+                            </button>
+
+                        </form>
+
+                    </div>
 
                     @endif
 

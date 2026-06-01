@@ -138,6 +138,23 @@
                     </p>
                 </div>
 
+                {{-- INFO REKENING (BARU) --}}
+                <div class="bg-green-50 border border-green-200 rounded-2xl p-5">
+                    <h4 class="font-bold text-green-800 mb-3">
+                        Informasi Rekening Pembayaran
+                    </h4>
+
+                    <div class="text-sm text-green-900 space-y-1">
+                        <p><span class="font-semibold">Bank:</span> BCA</p>
+                        <p><span class="font-semibold">Nomor Rekening:</span> 1234567890</p>
+                        <p><span class="font-semibold">Atas Nama:</span> Kalisawah Adventure</p>
+                    </div>
+
+                    <div class="mt-3 text-xs text-green-700 font-medium">
+                        ⚠ Mohon dicatat: Pastikan transfer sesuai nominal dan sertakan kode booking pada keterangan transfer.
+                    </div>
+                </div>
+
                 {{-- TOTAL BAYAR --}}
                 <div class="bg-slate-50 border rounded-2xl p-5">
 
