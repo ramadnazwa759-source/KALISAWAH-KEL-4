@@ -6,34 +6,56 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
 
     public function login(Request $request)
-{
-    $user = User::where('email',$request->email)->first();
+    {
+        $key = Str::lower($request->email).'|'.$request->ip();
 
-    if(!$user){
+        // Maksimal 3 kali percobaan
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+
+            $seconds = RateLimiter::availableIn($key);
+
+            return response()->json([
+                'message' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik."
+            ], 429);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+
+            RateLimiter::hit($key, 300); // blok selama 5 menit
+
+            return response()->json([
+                "message" => "User tidak ditemukan"
+            ], 404);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+
+            RateLimiter::hit($key, 300);
+
+            return response()->json([
+                "message" => "Password salah"
+            ], 401);
+        }
+
+        // Login berhasil → reset hit counter
+        RateLimiter::clear($key);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            "message"=>"User tidak ditemukan"
-        ],404);
+            "message" => "Login berhasil",
+            "user" => $user,
+            "token" => $token
+        ]);
     }
-
-    if(!Hash::check($request->password,$user->password)){
-        return response()->json([
-            "message"=>"Password salah"
-        ],401);
-    }
-
-    $token = $user->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        "message"=>"Login berhasil",
-        "user"=>$user,
-        "token"=>$token
-    ]);
-}
 
     public function logout(Request $request)
     {

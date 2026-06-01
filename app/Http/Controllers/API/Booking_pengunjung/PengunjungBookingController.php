@@ -68,12 +68,19 @@ class PengunjungBookingController extends Controller
     {
         $request->validate([
             'nama_pemesan' => 'required|string',
-            'no_hp' => 'required',
+            'no_hp' => [
+                'required',
+                'digits_between:10,13',
+                'regex:/^08[0-9]+$/'
+            ],
             'tanggal_kunjungan' => 'required|date',
             'tanggal_checkout' => 'required|date',
             'jumlah_pengunjung' => 'required|integer|min:1',
             'jumlah_malam' => 'required|integer|min:1',
             'jam' => 'required'
+        ], [
+            'no_hp.regex' => 'Nomor HP harus diawali 08 dan hanya boleh berisi angka.',
+            'no_hp.digits_between' => 'Nomor HP harus terdiri dari 10 sampai 13 digit.'
         ]);
 
         $input = $request->all();

@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     // middleware alias (hanya untuk admin)
     $middleware->alias([
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'pemilik' => \App\Http\Middleware\PemilikMiddleware::class,
     ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

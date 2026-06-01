@@ -17,6 +17,7 @@ use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
 
 /* 1. SEKTOR ADMIN */
 Route::get('/admin/login', function () { return view('auth.login'); })->name('login');
+
 Route::post('/admin/login', function (Request $request) {
     if (Auth::attempt($request->only('email', 'password'))) {
         $request->session()->regenerate();
@@ -25,8 +26,9 @@ Route::post('/admin/login', function (Request $request) {
     return back()->with('error', 'Email atau password salah');
 });
 
-Route::prefix('admin')->middleware('auth')->as('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::post('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
