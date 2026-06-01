@@ -62,7 +62,7 @@
 
             <h2 class="font-bold text-xl mb-6">Upload Bukti Pembayaran</h2>
 
-            <form action="{{ route('pengunjung.booking.upload-bukti', $booking->id) }}"
+            <form action="{{ route('booking.upload-bukti', $booking->id) }}"
                   method="POST"
                   enctype="multipart/form-data">
 

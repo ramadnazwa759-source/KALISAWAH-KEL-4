@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Booking_pengunjung;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Models\Pembayaran;
 
 class TrackingBookingController extends Controller
 {
@@ -136,4 +137,68 @@ class TrackingBookingController extends Controller
             ]
         ]);
     }
+
+    public function uploadBukti(Request $request, $id)
+{
+    $request->validate([
+        'bukti_pembayaran' => [
+            'required',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048'
+        ]
+    ]);
+
+    $booking = Booking::findOrFail($id);
+
+    $path = $request
+        ->file('bukti_pembayaran')
+        ->store('bukti-pembayaran', 'public');
+
+    $pembayaran = Pembayaran::where(
+        'booking_id',
+        $booking->id
+    )->latest()->first();
+
+    if ($pembayaran) {
+
+        // hapus file lama jika ada
+        if (
+            $pembayaran->bukti_pembayaran &&
+            Storage::disk('public')->exists(
+                $pembayaran->bukti_pembayaran
+            )
+        ) {
+            Storage::disk('public')->delete(
+                $pembayaran->bukti_pembayaran
+            );
+        }
+
+        $pembayaran->update([
+            'bukti_pembayaran' => $path,
+            'status_verifikasi' => 'pending',
+            'tanggal_pembayaran' => now()
+        ]);
+
+    } else {
+
+        Pembayaran::create([
+            'booking_id' => $booking->id,
+            'tipe_pembayaran' => 'dp',
+            'metode_pembayaran' => 'transfer',
+            'nominal' => $booking->total_harga_final ?? $booking->total_harga,
+            'bukti_pembayaran' => $path,
+            'tanggal_pembayaran' => now(),
+            'status_verifikasi' => 'pending'
+        ]);
+    }
+
+    return view(
+        'pengunjung.landing-page.pencarian.search-results',
+        compact('booking')
+    )->with(
+        'success',
+        'Bukti pembayaran berhasil diupload dan sedang menunggu konfirmasi admin.'
+    );
+}
 }

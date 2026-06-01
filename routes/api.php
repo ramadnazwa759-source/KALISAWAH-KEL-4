@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\AuthController;
 
-use App\Http\Controllers\API\ProfilWisataController;
+use App\Http\Controllers\API\Kelola_landingpage\ProfilWisataController;
 use App\Http\Controllers\API\Kelola_pengeluaran\KategoriPengeluaranController;
 use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController;
 use App\Http\Controllers\API\Kelola_landingpage\berita\BeritaController;
@@ -29,7 +29,7 @@ use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
 use App\Http\Controllers\API\Pembayaran\PembayaranPengunjungController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
-use App\Http\Controllers\API\Booking_pengunjung\BookingController;
+use App\Http\Controllers\API\Booking_pengunjung\PengunjungBookingController;
 
     Route::get('/test', function () {
         return "API WORKING";
@@ -40,7 +40,7 @@ use App\Http\Controllers\API\Booking_pengunjung\BookingController;
     Route::post('/login', [AuthController::class, 'login']);
 
     // untuk booking pengunjung
-    Route::post('/bookings', [BookingController::class, 'store'])->name('api.booking.store');
+    Route::post('/bookings', [PengunjungBookingController::class, 'store'])->name('api.booking.store');
 
     // untuk pembayaran booking pengunjung
     Route::post('/pembayaran', [

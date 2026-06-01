@@ -104,3 +104,8 @@ Route::post(
     '/cari-booking',
     [TrackingBookingController::class, 'tracking']
 )->name('cari.booking.proses');
+
+Route::post(
+    '/booking/{id}/upload-bukti',
+    [TrackingBookingController::class, 'uploadBukti']
+)->name('booking.upload-bukti');
