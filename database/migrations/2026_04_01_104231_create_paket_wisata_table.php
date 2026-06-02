@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('kapasitas');
             $table->string('durasi');
             $table->string('status');
+            $table->string('gambar')->nullable();
         });
     }
 

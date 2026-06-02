@@ -82,7 +82,7 @@
                         <div class="modal fade" id="modalEdit{{ $item->id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                 <div class="modal-content rounded-4 border-0 shadow">
-                                    <form action="{{ route('admin.paket-wisata.update', $item->id) }}" method="POST">
+                                    <form action="{{ route('admin.paket-wisata.update', $item->id) }}" method="POST" enctype="multipart/form-data">
                                         @csrf @method('PUT')
                                         <div class="modal-header border-0 p-4">
                                             <h5 class="modal-title fw-bold">Edit Paket Wisata</h5>
@@ -108,6 +108,13 @@
                                                         <option value="Nonaktif" {{ $item->status == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                                                     </select>
                                                 </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">Gambar Paket</label>
+                                                    @if($item->gambar)
+                                                        <div class="mb-2"><img src="{{ asset('storage/' . $item->gambar) }}" alt="gambar" width="100" class="img-thumbnail"></div>
+                                                    @endif
+                                                    <input type="file" name="gambar" class="form-control" accept="image/*">
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer border-0 p-4"><button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary px-4">Simpan Perubahan</button></div>
@@ -128,7 +135,7 @@
 <div class="modal fade" id="modalTambah" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded-4 border-0 shadow">
-            <form action="{{ route('admin.paket-wisata.store') }}" method="POST">
+            <form action="{{ route('admin.paket-wisata.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header border-0 p-4">
                     <h5 class="modal-title fw-bold">Tambah Paket Wisata</h5>
@@ -151,6 +158,10 @@
                             <select name="status" class="form-select" required>
                                 <option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option>
                             </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Gambar Paket</label>
+                            <input type="file" name="gambar" class="form-control" accept="image/*" required>
                         </div>
                     </div>
                 </div>
@@ -176,7 +187,6 @@
         }
     }
 
-    // Fungsi konfirmasi hapus
     function confirmDelete(id) {
         Swal.fire({
             title: 'Hapus Paket?',

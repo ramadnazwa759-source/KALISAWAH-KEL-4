@@ -14,6 +14,7 @@ return new class extends Migration
         $table->string('nama_pemesan');
         $table->string('no_hp');
         $table->date('tanggal_kunjungan');
+        $table->date('tanggal_selesai')->nullable();
         $table->integer('jumlah_hari')->default(1);
         $table->time('jam');
         $table->integer('jumlah_pengunjung');

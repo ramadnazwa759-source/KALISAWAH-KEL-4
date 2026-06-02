@@ -30,8 +30,6 @@ class AdminBookingController extends Controller
             'pembayaran'
         ])->latest()->get();
 
-        // return response()->json($data, 200);
-
         return view('admin.kelola_booking.index', compact('data'));
     }
 
@@ -82,10 +80,10 @@ class AdminBookingController extends Controller
                 'nullable|string',
 
             // optional checkout / multi-day
-            'tanggal_checkout' =>
+            'tanggal_selesai' =>
                 'nullable|date',
 
-            'jumlah_malam' =>
+            'jumlah_hari' =>
                 'nullable|integer|min:1',
 
             // paket wisata
@@ -268,15 +266,15 @@ class AdminBookingController extends Controller
             $statusBooking = 'pending';
             $statusPembayaran = 'belum_bayar';
 
-                // =====================================
-                // HANDLE OPTIONAL CHECKOUT / NIGHTS
-                // =====================================
-                $tanggalSelesai = null;
-                if ($request->filled('tanggal_checkout')) {
-                    $tanggalSelesai = Carbon::parse($request->tanggal_checkout)->toDateString();
-                }
+            // =====================================
+            // HANDLE OPTIONAL CHECKOUT / NIGHTS
+            // =====================================
+            $tanggalSelesai = null;
+            if ($request->filled('tanggal_selesai')) {
+                $tanggalSelesai = Carbon::parse($request->tanggal_selesai)->toDateString();
+            }
 
-                $jumlahMalam = (int) ($request->jumlah_malam ?? 1);
+            $jumlahHari = (int) ($request->jumlah_hari ?? 1);
 
             // =====================================
             // JIKA ADA PEMBAYARAN
@@ -334,13 +332,12 @@ class AdminBookingController extends Controller
                 'subtotal_tiket_tambahan' =>
                     $subtotalTiketTambahan,
 
-
                 'catatan' =>
                     $request->catatan,
 
                 // multi-day fields
                 'tanggal_selesai' => $tanggalSelesai,
-                'jumlah_malam' => $jumlahMalam,
+                'jumlah_hari' => $jumlahHari,
 
                 'total_harga' =>
                     $totalHarga,
@@ -489,44 +486,12 @@ class AdminBookingController extends Controller
 
             DB::commit();
 
-            // return response()->json([
-
-            //     'message' =>
-            //         'Booking berhasil dibuat',
-
-            //     'booking_id' =>
-            //         $booking->id,
-
-            //     'kode_booking' =>
-            //         $booking->kode_booking,
-
-            //     'total_harga' =>
-            //         $booking->total_harga,
-
-            //     'diskon_manual' =>
-            //         $booking->diskon_manual,
-
-            //     'total_harga_final' =>
-            //         $booking->total_harga_final,
-
-            //     'status_booking' =>
-            //         $booking->status_booking,
-
-            //     'status_pembayaran' =>
-            //         $booking->status_pembayaran
-            // ], 201);
-
             return redirect()->route('admin.booking-admin.index')->with('success', 'Data booking berhasil ditambahkan!');
-
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            // return response()->json([
-            //     'message' => $e->getMessage()
-            // ], 500);
-            dd($e->getMessage());
             return redirect()->route('admin.booking-admin.index')->with('error', 'Error: ' . $e->getMessage());
         }
     }
@@ -537,7 +502,7 @@ class AdminBookingController extends Controller
     public function update(Request $request, $id)
     {
         $booking = Booking::with(
-            'bookingFasilitas.fasilitas'
+            'fasilitas.fasilitas'
         )->find($id);
 
         if (!$booking) {
@@ -554,7 +519,7 @@ class AdminBookingController extends Controller
                 'nullable|in:pending,dikonfirmasi,selesai,dibatalkan',
 
             'status_pembayaran' =>
-                'nullable|in:belum_bayar,dp,lunas',
+                'nullable|in:belum_bayar,dp,lunas,menunggu_verifikasi',
 
             'diskon_manual' =>
                 'nullable|numeric|min:0',
@@ -562,10 +527,10 @@ class AdminBookingController extends Controller
             'catatan' =>
                 'nullable|string',
 
-            'tanggal_checkout' =>
+            'tanggal_selesai' =>
                 'nullable|date',
 
-            'jumlah_malam' =>
+            'jumlah_hari' =>
                 'nullable|integer|min:1'
         ]);
 
@@ -574,42 +539,36 @@ class AdminBookingController extends Controller
         try {
 
             // =====================================
-            // KEMBALIKAN STOK
-            // JIKA BOOKING DIBATALKAN
+            // KEMBALIKAN STOK JIKA BOOKING DIBATALKAN
             // =====================================
             if (
-
-                $booking->status_booking
-                != 'dibatalkan'
-
-                &&
-
-                $request->status_booking
-                == 'dibatalkan'
-
+                $booking->status_booking != 'dibatalkan'
+                && $request->status_booking == 'dibatalkan'
             ) {
+                foreach ($booking->fasilitas as $item) {
+                    $fasilitas = $item->fasilitas;
+                    if ($fasilitas && $fasilitas->tipe_fasilitas == 'sewa') {
+                        $fasilitas->increment('stok', $item->qty);
+                    }
+                }
+            }
 
-                foreach (
-                    $booking->bookingFasilitas
-                    as $item
-                ) {
-
-                    $fasilitas =
-                        $item->fasilitas;
-
-                    if (
-
-                        $fasilitas &&
-
-                        $fasilitas->tipe_fasilitas
-                        == 'sewa'
-
-                    ) {
-
-                        $fasilitas->increment(
-                            'stok',
-                            $item->qty
-                        );
+            // =====================================
+            // KURANGI STOK JIKA STATUS DIBATALKAN DIUBAH KE STATUS LAIN
+            // =====================================
+            if (
+                $booking->status_booking == 'dibatalkan'
+                && $request->status_booking != 'dibatalkan'
+                && $request->status_booking !== null
+            ) {
+                foreach ($booking->fasilitas as $item) {
+                    $fasilitas = $item->fasilitas;
+                    if ($fasilitas && $fasilitas->tipe_fasilitas == 'sewa') {
+                        // Validasi stok sebelum proses
+                        if ($fasilitas->stok < $item->qty) {
+                            throw new \Exception("Stok fasilitas {$fasilitas->nama_fasilitas} tidak cukup.");
+                        }
+                        $fasilitas->decrement('stok', $item->qty);
                     }
                 }
             }
@@ -654,19 +613,11 @@ class AdminBookingController extends Controller
                     $totalHargaFinal,
 
                 // allow admin to update multi-day fields
-                'tanggal_selesai' => $request->tanggal_checkout ?? $booking->tanggal_selesai,
-                'jumlah_malam' => $request->jumlah_malam ?? $booking->jumlah_malam
+                'tanggal_selesai' => $request->tanggal_selesai ?? $booking->tanggal_selesai,
+                'jumlah_hari' => $request->jumlah_hari ?? $booking->jumlah_hari
             ]);
 
             DB::commit();
-
-            // return response()->json([
-
-            //     'message' =>
-            //         'Booking berhasil diupdate',
-
-            //     'data' => $booking
-            // ], 200);
 
             return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil diupdate!');
 
@@ -674,9 +625,6 @@ class AdminBookingController extends Controller
 
             DB::rollBack();
 
-            // return response()->json([
-            //     'message' => $e->getMessage()
-            // ], 500);
             return redirect()->route('admin.booking-admin.index')->with('error', 'Terjadi kesalahan saat mengupdate booking: ' . $e->getMessage());
         }
     }
@@ -687,14 +635,11 @@ class AdminBookingController extends Controller
     public function destroy($id)
     {
         $booking = Booking::with(
-            'bookingFasilitas.fasilitas'
+            'fasilitas.fasilitas'
         )->find($id);
 
         if (!$booking) {
 
-            // return response()->json([
-            //     'message' => 'Booking tidak ditemukan'
-            // ], 404);
             return redirect()->route('admin.booking-admin.index')->with('error', 'Booking tidak ditemukan!');
         }
 
@@ -706,7 +651,7 @@ class AdminBookingController extends Controller
             // KEMBALIKAN STOK
             // =====================================
             foreach (
-                $booking->bookingFasilitas
+                $booking->fasilitas
                 as $item
             ) {
 
@@ -732,9 +677,9 @@ class AdminBookingController extends Controller
             // =====================================
             // HAPUS RELASI
             // =====================================
-            $booking->bookingItem()->delete();
+            $booking->items()->delete();
 
-            $booking->bookingFasilitas()->delete();
+            $booking->fasilitas()->delete();
 
             $booking->pembayaran()->delete();
 
@@ -745,19 +690,12 @@ class AdminBookingController extends Controller
 
             DB::commit();
 
-            //  return response()->json([
-            //     'message' => 'Booking berhasil dihapus'
-            // ], 200);
-
             return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil dihapus!');
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            // return response()->json([
-            //     'message' => $e->getMessage()
-            // ], 500);
             return redirect()->route('admin.booking-admin.index')->with('error', 'Terjadi kesalahan saat menghapus booking: ' . $e->getMessage());
         }
     }

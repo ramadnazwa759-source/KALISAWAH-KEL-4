@@ -11,7 +11,8 @@ class KategoriPengeluaranController extends Controller
     // Tampilkan semua kategori
     public function index()
     {
-        return response()->json(KategoriPengeluaran::all(), 200);
+        // return response()->json(KategoriPengeluaran::all(), 200);
+        return view('admin.kelola_operasional.kategori_pengeluaran', ['data' => KategoriPengeluaran::all()]);
     }
 
     // Simpan kategori baru
@@ -25,7 +26,9 @@ class KategoriPengeluaranController extends Controller
             'nama_kategori' => $request->nama_kategori
         ]);
 
-        return response()->json($kategori, 201);
+        // return response()->json($kategori, 201);
+        return redirect()->back()->with('success', 'Data berhasil disimpan');
+
     }
 
     // Detail kategori
@@ -37,7 +40,8 @@ class KategoriPengeluaranController extends Controller
             return response()->json(['error' => 'Tidak ditemukan'], 404);
         }
 
-        return response()->json($kategori, 200);
+        // return response()->json($kategori, 200);
+        return view('admin.kelola_pengeluaran.detail_kategori_pengeluaran', ['data' => $kategori]);
     }
 
     // 🔹 Update kategori
@@ -57,7 +61,8 @@ class KategoriPengeluaranController extends Controller
             'nama_kategori' => $request->nama_kategori
         ]);
 
-        return response()->json($kategori, 200);
+        // return response()->json($kategori, 200);
+        return redirect()->back()->with('success', 'Data berhasil diperbarui');
     }
 
     // 🔹 Hapus kategori
@@ -71,8 +76,9 @@ class KategoriPengeluaranController extends Controller
 
         $kategori->delete();
 
-        return response()->json([
-        'message' => 'Data berhasil dihapus'
-    ], 200);
+    //     return response()->json([
+    //     'message' => 'Data berhasil dihapus'
+    // ], 200);
+        return redirect()->back()->with('success', 'Data berhasil dihapus');
     }
 }

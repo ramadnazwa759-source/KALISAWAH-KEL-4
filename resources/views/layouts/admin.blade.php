@@ -283,8 +283,6 @@
             <a href="{{ route('admin.jenis-inventaris.index') }}" class="menu-item" style="padding-left:50px;">Jenis Inventaris</a>
             <a href="{{ route('admin.lokasi-penyimpanan.index') }}" class="menu-item" style="padding-left:50px;">Lokasi Penyimpanan</a>
             <a href="{{ route('admin.inventaris-perunit.index') }}" class="menu-item" style="padding-left:50px;">Data Inventaris</a>
-            <a href="/admin/pengeluaran" class="menu-item" style="padding-left:50px;">Pengeluaran</a>
-            <a href="/admin/kategori-pengeluaran" class="menu-item" style="padding-left:50px;">Kategori Pengeluaran</a>
         </div>
     </div>
 
@@ -298,8 +296,8 @@
 
     <div class="submenu">
         <a href="/admin/pemasukan"class="menu-item"style="padding-left:50px;"> Pemasukan </a>
-        <a href="/admin/pengeluaran"class="menu-item"style="padding-left:50px;"> Pengeluaran</a>
-        <a href="/admin/kategori-pengeluaran"class="menu-item"style="padding-left:50px;"> Kategori Pengeluaran</a>
+        <a href="{{ route('admin.kategori-pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Kategori Pengeluaran</a>
+        <a href="{{ route('admin.pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Pengeluaran</a>
     </div>
     </div>
 

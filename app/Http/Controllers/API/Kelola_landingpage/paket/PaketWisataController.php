@@ -44,9 +44,16 @@ class PaketWisataController extends Controller
             'kapasitas' => 'required|integer',
             'durasi' => 'required|string',
             'status' => 'required|string',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $paket = PaketWisata::create($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = $request->file('gambar')->store('paket_wisata', 'public');
+        }
+
+        $paket = PaketWisata::create($data);
 
         return redirect()->route('admin.paket-wisata.index')->with('success', 'Paket berhasil ditambah');
 
@@ -61,7 +68,24 @@ class PaketWisataController extends Controller
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 
-        $paket->update($request->all());
+        $request->validate([
+            'kategori_paket_id' => 'required|exists:kategori_paket,id',
+            'nama_paket' => 'required|string',
+            'deskripsi' => 'required|string',
+            'harga' => 'required|numeric',
+            'kapasitas' => 'required|integer',
+            'durasi' => 'required|string',
+            'status' => 'required|string',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = $request->file('gambar')->store('paket_wisata', 'public');
+        }
+
+        $paket->update($data);
 
         return redirect()->route('admin.paket-wisata.index')->with('success', 'Paket berhasil diedit');
     }
