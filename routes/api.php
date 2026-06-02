@@ -107,3 +107,30 @@ use App\Http\Controllers\API\Booking_pengunjung\PengunjungBookingController;
         Route::apiResource('pengeluaran-operasional', PengeluaranOperasionalController::class);
 
 });
+
+// ROUTE PEMILIK //
+Route::middleware(['auth:sanctum', 'pemilik'])
+    ->prefix('pemilik')
+    ->group(function () {
+
+        Route::get('/dashboard', [
+            DashboardPemilikController::class,
+            'index'
+        ]);
+
+        Route::get('/laporan-pemasukan', [
+            DashboardPemilikController::class,
+            'laporanPemasukan'
+        ]);
+
+        Route::get('/laporan-pengeluaran', [
+            DashboardPemilikController::class,
+            'laporanPengeluaran'
+        ]);
+
+        Route::get('/laporan-booking', [
+            DashboardPemilikController::class,
+            'laporanBooking'
+        ]);
+
+});

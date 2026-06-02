@@ -9,12 +9,12 @@ class AdminMiddleware
 {
     public function handle($request, Closure $next)
 {
-    // ❗ kalau belum login → jangan ganggu
+    // kalau belum login → jangan ganggu
     if (!$request->user()) {
         return $next($request);
     }
 
-    // ❗ kalau sudah login tapi bukan admin
+    // kalau sudah login tapi bukan admin
     if ($request->user()->role !== 'admin') {
         return response()->json([
             'message' => 'Akses hanya untuk admin'
