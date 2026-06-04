@@ -2,82 +2,108 @@
 
 @section('content')
 <style>
-    .modal-content { background: #fff; border-radius: 24px; border: none; }
-    .form-control, .form-select { border: 1px solid #E5E7EB; padding: 10px 14px; border-radius: 12px; }
-    .step-icon { width: 30px; height: 30px; border-radius: 50%; background: #2563EB; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
-    .input-group-qty { display: flex; border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; height: 48px; }
-    .input-group-qty button { border: none; background: #F9FAFB; padding: 0 16px; color: #6B7280; font-weight: bold; transition: 0.3s; }
-    .input-group-qty button:hover { background: #E5E7EB; }
-    .input-group-qty input { border: none; text-align: center; width: 100%; font-weight: 600; }
-    .table-wrap { overflow: auto; border-radius: 16px; }
-    .table thead th { background-color: #f8fafc; padding: 18px 16px !important; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
-    .table tbody td { padding: 18px 16px !important; white-space: nowrap; vertical-align: middle; }
-    .card { border-radius: 16px !important; }
-    table.dataTable.no-footer { border-bottom: none !important; }
-    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter { padding: 1rem; }
-    .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate { padding: 1rem; }
-    .card-detail { border: 1px solid #E5E7EB; border-radius: 16px; padding: 16px; height: 100%; }
-    .badge-status { font-size: 0.85em; padding: 6px 12px; border-radius: 8px; }
+    .modal-content { background: #f8fafc; border-radius: 1.5rem; border: none; }
+    .modal-header { background: white; padding: 1.5rem 2rem; border-bottom: 1px solid #e2e8f0; border-radius: 1.5rem 1.5rem 0 0; }
+    .modal-body { padding: 2rem; }
+
+    .form-section {
+        background: white; border-radius: 1rem; padding: 1.75rem;
+        margin-bottom: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .section-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+    .payment-section { background: #fff7ed; border: 1px solid #fed7aa; }
+    .payment-section .section-title { color: #9a3412; }
+
+    .form-label { font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .form-control, .form-select { background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.6rem 1rem; font-size: 0.95rem; font-weight: 500; transition: all 0.2s; }
+    .form-control:focus, .form-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); background-color: #fff; }
+    
+    .input-group-qty-modern { display: flex; align-items: center; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 3px; width: fit-content; }
+    .btn-qty { width: 34px; height: 34px; border-radius: 0.5rem; background: white; border: 1px solid #cbd5e1; font-weight: bold; color: #334155; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+    .btn-qty:hover { background: #e2e8f0; }
+    .qty-input-modern { border: none !important; background: transparent !important; text-align: center; font-weight: 700; width: 45px; color: #1e293b; }
+
+    .day-tabs { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .day-tab { padding: 10px 20px; background: #f1f5f9; border-radius: 30px; font-size: 0.85rem; font-weight: 700; color: #64748b; cursor: pointer; border: 1px solid #cbd5e1; transition: all 0.2s; }
+    .day-tab:hover { background: #e2e8f0; }
+    .day-tab.active { background: #2563eb; color: white; border-color: #2563eb; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+    
+    .itinerary-panel { display: none; }
+    .itinerary-panel.active { display: block; }
+
+    .item-card { background: #ffffff; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
+    .item-card:hover { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); transform: translateY(-2px); }
+    
+    .item-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transition: all 0.2s; margin-top: 0.5rem; }
+    
+    .summary-card { padding: 1.5rem; border-radius: 1rem; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+    .card-blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+    .card-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .btn-save { background: #2563eb; color: white; font-weight: 700; padding: 1.2rem; border-radius: 1rem; width: 100%; border: none; font-size: 1.1rem; transition: all 0.2s; }
+    .btn-save:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
+    
+    .empty-state-box { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0.75rem; padding: 2rem; text-align: center; color: #64748b; }
+    
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 </style>
 
 <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div><h2 class="fw-bold text-dark mb-1">Daftar Booking Wisata</h2></div>
-        <button type="button" class="btn btn-primary px-4 py-2 rounded-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahBooking">
+        <button type="button" class="btn btn-primary px-4 py-2 rounded-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahBooking">
             <i class="fas fa-plus me-2"></i> Tambah Booking
         </button>
     </div>
 
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-0">
-            <div class="table-wrap">
-                <table class="table table-hover align-middle" id="bookingTable">
-                    <thead class="text-secondary small text-uppercase">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="bookingTable">
+                    <thead class="text-secondary small text-uppercase bg-light">
                         <tr>
-                            <th class="ps-3">No</th>
+                            <th class="ps-4 text-center" style="width: 60px;">No</th>
                             <th>Kode</th>
                             <th>Pemesan</th>
                             <th>Kunjungan</th>
-                            <th>Orang</th>
+                            <th class="text-center">Orang</th>
                             <th>Total</th>
-                            <th>Pembayaran</th>
                             <th>Status</th>
-                            <th class="text-center pe-3">Action</th>
+                            <th class="text-center pe-4" style="width: 140px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($data as $key => $b)
                         <tr>
-                            <td class="ps-3">{{ $key + 1 }}</td>
-                            <td><span class="badge bg-primary px-3 py-2 rounded-3">{{ $b->kode_booking }}</span></td>
+                            <td class="ps-4 text-center fw-medium text-secondary">{{ $key + 1 }}</td>
+                            <td><span class="badge bg-primary px-3 py-2 rounded-3 fw-bold">{{ $b->kode_booking }}</span></td>
                             <td>
-                                <div class="fw-bold">{{ $b->nama_pemesan }}</div>
-                                <small class="text-muted">{{ $b->no_hp }}</small>
+                                <div class="fw-bold text-dark mb-1">{{ $b->nama_pemesan }}</div>
+                                <small class="text-muted d-block"><i class="fab fa-whatsapp text-success me-1"></i>{{ $b->no_hp }}</small>
                             </td>
-                            <td>
-                                <div class="fw-bold">{{ \Carbon\Carbon::parse($b->tanggal_kunjungan)->format('d M Y') }}</div>
-                                <small class="text-muted">{{ $b->jam }}</small>
-                            </td>
-                            <td>{{ $b->jumlah_pengunjung }}</td>
-                            <td class="fw-bold text-dark">Rp {{ number_format($b->total_harga_final,0,',','.') }}</td>
-                            <td>
-                                <div class="text-success fw-bold">Rp {{ number_format($b->nominal_bayar ?? 0, 0,',','.') }}</div>
-                                <div class="text-danger small">Kurang: Rp {{ number_format(max(0, $b->total_harga_final - ($b->nominal_bayar ?? 0)), 0,',','.') }}</div>
-                            </td>
-                            <td>
-                                <span class="badge bg-warning text-dark mb-1">{{ ucfirst($b->status_booking) }}</span><br>
-                                <span class="badge bg-danger">{{ ucfirst($b->status_pembayaran) }}</span>
-                            </td>
-                            <td class="text-center pe-3">
-                                <button type="button" class="btn btn-sm btn-info text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-warning text-white rounded-3" data-bs-toggle="modal" data-bs-target="#modalEditBooking{{ $b->id }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <a href="{{ url('/admin/pembayaran?booking_id='.$b->id.'&nominal_bayar='.max(0, $b->total_harga_final - ($b->nominal_bayar ?? 0)).'&nama_pemesan='.urlencode($b->nama_pemesan)) }}" class="btn btn-sm btn-success text-white rounded-3">
-                                <i class="fas fa-money-bill"></i>
-                                 </a>
+                            <td><div class="fw-bold text-secondary">{{ date('d M Y', strtotime($b->tanggal_kunjungan)) }}</div></td>
+                            <td class="text-center"><span class="badge bg-light text-dark border px-2 py-2">{{ $b->jumlah_pengunjung }} Org</span></td>
+                            <td class="fw-bold text-success">Rp {{ number_format($b->total_harga_final,0,',','.') }}</td>
+                            <td><span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-medium">{{ $b->status_booking }}</span></td>
+                            <td class="text-center pe-4">
+                                <div class="d-inline-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-info text-white rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    
+                                    <a href="{{ url('/admin/booking-admin/'.$b->id.'/edit') }}" class="btn btn-sm btn-warning text-dark rounded-3 shadow-sm px-2.5 py-2">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <form action="{{ url('/admin/booking-admin/'.$b->id) }}" method="POST" id="delete-form-{{ $b->id }}" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="btn btn-sm btn-danger rounded-3 shadow-sm px-2.5 py-2" onclick="confirmDelete({{ $b->id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -88,240 +114,485 @@
     </div>
 </div>
 
-{{-- MODAL TAMBAH BOOKING --}}
 <div class="modal fade" id="modalTambahBooking" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ url('/admin/booking-admin') }}" method="POST" class="w-100" enctype="multipart/form-data">
             @csrf
+            
+            <input type="hidden" name="jumlah_tiket_tambahan" id="hidden_tiket_tambahan" value="0">
+            <input type="hidden" name="harga_tiket_tambahan" value="25000">
+            <input type="hidden" name="subtotal_tiket_tambahan" id="hidden_subtotal_tiket" value="0">
+            <input type="hidden" name="total_harga" id="hidden_total_harga" value="0">
+            <input type="hidden" name="total_harga_final" id="hidden_total_harga_final" value="0">
+
             <div class="modal-content shadow-lg">
-                <div class="modal-header border-bottom px-4 py-3">
-                    <h5 class="fw-bold mb-0">Tambah Booking Baru</h5>
+                <div class="modal-header">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-calendar-plus me-2"></i> Reservasi Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body px-4 py-4">
-                    <div class="mb-4">
-                        <div class="d-flex align-items-center gap-2 mb-3"><div class="step-icon">1</div><h6 class="fw-bold text-primary mb-0">Data Pemesan</h6></div>
-                        <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Nama Pemesan</label><input type="text" name="nama_pemesan" class="form-control" required></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">No HP</label><input type="text" name="no_hp" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small fw-semibold">Tanggal</label><input type="date" name="tanggal_kunjungan" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small fw-semibold">Jam</label><input type="time" name="jam" class="form-control" required></div>
-                            <div class="col-md-4"><label class="form-label small fw-semibold">Jumlah Pengunjung</label><input type="number" name="jumlah_pengunjung" class="form-control" min="1" value="0" oninput="calculateTotal()" required></div>
-                        </div>
-                        <div class="row g-3 mt-3">
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Check-Out</label><input type="date" name="tanggal_checkout" class="form-control"></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Jumlah Malam</label><input type="number" name="jumlah_malam" class="form-control" min="1" value="1"></div>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="d-flex align-items-center gap-2"><div class="step-icon">2</div><h6 class="fw-bold text-primary mb-0">Paket Wisata</h6></div>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addPaket()">+ Tambah Paket</button>
-                        </div>
-                        <div id="paket-container">
-                            <div class="row g-2 mb-2">
-                                <div class="col-8">
-                                    <select name="paket[0][paket_wisata_id]" class="form-select" onchange="calculateTotal()">
-                                        <option value="">-- Pilih Paket --</option>
-                                        @foreach(\App\Models\PaketWisata::all() as $p)
-                                            <option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-kapasitas="{{ $p->kapasitas }}">{{ $p->nama_paket }} (Rp {{ number_format($p->harga, 0, ',', '.') }} | Kap: {{ $p->kapasitas }})</option>
-                                        @endforeach
-                                    </select>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            
+                            <div class="form-section">
+                                <div class="section-title"><i class="fas fa-user-circle"></i> Data Pemesan</div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Lengkap</label>
+                                        <input type="text" name="nama_pemesan" class="form-control" required placeholder="Masukkan nama pemesan">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nomor WhatsApp</label>
+                                        <input type="text" name="no_hp" class="form-control" required placeholder="08xxxxxxxxxx">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Check-In</label>
+                                        <input type="date" name="tanggal_kunjungan" id="tanggal_kunjungan" class="form-control" required onchange="renderItinerary()">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Check-Out</label>
+                                        <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" required onchange="renderItinerary()">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Jam Check-In</label>
+                                        <input type="time" name="jam" class="form-control" value="14:00" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Total Pengunjung</label>
+                                        <div class="input-group-qty-modern w-100">
+                                            <button type="button" class="btn-qty w-25" onclick="changeQtyValue('jml_pengunjung', -1)">-</button>
+                                            <input type="number" name="jumlah_pengunjung" id="jml_pengunjung" class="qty-input-modern w-50" value="1" min="1" onchange="calculateTotal()">
+                                            <button type="button" class="btn-qty w-25" onclick="changeQtyValue('jml_pengunjung', 1)">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label">Catatan Tambahan</label>
+                                        <input type="text" name="catatan" class="form-control" placeholder="Catatan...">
+                                    </div>
                                 </div>
-                                <div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="paket[0][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div>
+                                <div class="mt-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill border border-primary">
+                                        <i class="fas fa-moon me-1"></i> Durasi: <span id="label_jml_malam" class="fw-bold">0</span> Malam
+                                    </span>
+                                    <input type="hidden" name="jumlah_malam" id="jml_malam" value="0">
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="section-title"><i class="fas fa-map-marked-alt"></i> Pemilihan Paket Wisata (Per Hari)</div>
+                                <div id="day-tabs-container" class="day-tabs"></div>
+                                <div id="itinerary-panels-container">
+                                    <div class="empty-state-box">
+                                        <i class="fas fa-calendar-alt fs-2 mb-2 text-muted"></i>
+                                        <p class="mb-0 fw-bold">Silakan pilih tanggal Check-In dan Check-Out terlebih dahulu.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="section-title mb-3"><i class="fas fa-box-open"></i> Fasilitas Tambahan (Per Malam)</div>
+                                
+                                <div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">
+                                    @php $firstFas = true; @endphp
+                                    @foreach($groupedFasilitas as $katName => $items)
+                                        <button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap {{ $firstFas ? 'btn-primary' : 'btn-light text-secondary border' }} fas-tab-btn" onclick="switchFasTab(this, 'fas-pane-{{ Str::slug($katName) }}')">
+                                            {{ $katName }}
+                                        </button>
+                                        @php $firstFas = false; @endphp
+                                    @endforeach
+                                </div>
+
+                                <div class="fas-panes-container mb-4">
+                                    @php $firstFasPane = true; @endphp
+                                    @foreach($groupedFasilitas as $katName => $items)
+                                        <div id="fas-pane-{{ Str::slug($katName) }}" class="fas-pane {{ $firstFasPane ? 'd-block' : 'd-none' }}">
+                                            <div class="row g-2">
+                                                @foreach($items as $f)
+                                                <div class="col-md-6">
+                                                    <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addFasilitasData({{ $f->id }}, '{{ addslashes($f->nama_fasilitas) }}', {{ $f->harga }})">
+                                                        <div class="fw-bold text-dark mb-2">{{ $f->nama_fasilitas }}</div>
+                                                        <div class="text-success fw-bold text-end">Rp {{ number_format($f->harga, 0, ',', '.') }}</div>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        @php $firstFasPane = false; @endphp
+                                    @endforeach
+                                </div>
+                                
+                                <div class="pt-3 border-top">
+                                    <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Fasilitas Terpilih:</h6>
+                                    <div id="fasilitas-container"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="d-flex align-items-center gap-2"><div class="step-icon">3</div><h6 class="fw-bold text-primary mb-0">Fasilitas Tambahan</h6></div>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFasilitas()">+ Tambah Fasilitas</button>
-                        </div>
-                        <div id="fasilitas-container">
-                            <div class="row g-2 mb-2">
-                                <div class="col-8">
-                                    <select name="fasilitas[0][fasilitas_id]" class="form-select" onchange="calculateTotal()">
-                                        <option value="">-- Pilih Fasilitas --</option>
-                                        @foreach(\App\Models\Fasilitas::all() as $f)
-                                            <option value="{{ $f->id }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }} (Rp {{ number_format($f->harga, 0, ',', '.') }})</option>
-                                        @endforeach
+
+                        <div class="col-lg-4">
+                            <div class="form-section payment-section">
+                                <div class="section-title"><i class="fas fa-wallet"></i> Pembayaran Form</div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tipe Pembayaran</label>
+                                    <select name="tipe_pembayaran" class="form-select" required>
+                                        <option value="dp">DP (Down Payment)</option>
+                                        <option value="lunas">Lunas</option>
                                     </select>
                                 </div>
-                                <div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="fasilitas[0][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div>
+                                <div class="mb-3">
+                                    <label class="form-label">Metode</label>
+                                    <select name="metode_pembayaran" class="form-select" required>
+                                        <option value="transfer">Transfer Bank</option>
+                                        <option value="cash">Cash / Tunai</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nominal Bayar (Rp)</label>
+                                    <input type="number" name="nominal" class="form-control" placeholder="0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Diskon Manual (Rp)</label>
+                                    <input type="number" name="diskon_manual" id="diskon_manual" class="form-control" placeholder="0" value="0" oninput="calculateTotal()">
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="summary-card card-blue shadow-sm">
+                                        <small class="d-block mb-1 fw-bold text-uppercase"><i class="fas fa-users"></i> Kapasitas Disediakan /Malam</small>
+                                        <div class="d-flex align-items-baseline gap-2">
+                                            <span id="disp-kapasitas" class="fs-1 fw-bold">0</span> <span class="fw-bold">Orang</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="summary-card card-green shadow-sm">
+                                        <small class="d-block mb-1 fw-bold text-uppercase"><i class="fas fa-calculator"></i> Total Estimasi Biaya</small>
+                                        <span id="disp-total" class="fs-2 fw-bold text-success">Rp 0</span>
+                                        <p class="small mb-0 mt-2 fw-bold text-success">*Otomatis menghitung semua item dan denda over-capacity.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mb-4">
-                        <div class="d-flex align-items-center gap-2 mb-3"><div class="step-icon">4</div><h6 class="fw-bold text-primary mb-0">Informasi Pembayaran</h6></div>
-                        <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Metode</label><select name="metode_pembayaran" class="form-select"><option value="cash">Cash</option><option value="transfer">Transfer</option></select></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Tipe</label><select name="tipe_pembayaran" class="form-select"><option value="dp">DP</option><option value="lunas">Pelunasan</option></select></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Nominal Bayar</label><input type="number" name="nominal_bayar" class="form-control" required></div>
-                            <div class="col-md-6"><label class="form-label small fw-semibold">Bukti Pembayaran</label><input type="file" name="bukti_pembayaran" class="form-control" accept="image/*"></div>
-                        </div>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-md-4"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Kapasitas</small><span id="disp-kapasitas" class="fw-bold fs-5 text-dark">0</span></div></div>
-                        <div class="col-md-4"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Tiket Tambahan</small><span id="disp-tiket" class="fw-bold fs-5 text-dark">0</span></div></div>
-                        <div class="col-md-4"><div class="p-3 text-center rounded-4 border"><small class="text-muted d-block">Total Estimasi</small><span id="disp-total" class="fw-bold text-primary fs-5">Rp 0</span></div></div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 px-4 pb-4"><button type="submit" class="btn btn-primary w-100">Simpan Booking</button></div>
+
+                <div class="modal-footer border-0 bg-light p-4 rounded-bottom-4">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-check-circle me-2"></i> Konfirmasi & Simpan Booking
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 </div>
-
-{{-- MODALS SHOW & EDIT (DITAMBAHKAN SESUAI KEBUTUHAN ANDA SEBELUMNYA) --}}
-@foreach($data as $b)
-<div class="modal fade" id="modalShowBooking{{ $b->id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow-lg p-4">
-            <div class="modal-header border-0 pb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div style="background:#EFF6FF; color:#2563EB; width: 45px; height: 45px; display:flex; align-items:center; justify-content:center; border-radius:12px;">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <div>
-                        <h5 class="fw-bold mb-0">Detail Booking</h5>
-                        <p class="text-muted mb-0 small">{{ $b->kode_booking }}</p>
-                    </div>
-                </div>
-                <div class="ms-auto d-flex gap-2">
-                    <span class="badge bg-success-subtle text-success badge-status">{{ ucfirst($b->status_booking) }}</span>
-                    <span class="badge bg-danger-subtle text-danger badge-status">{{ strtoupper($b->status_pembayaran) }}</span>
-                </div>
-            </div>
-            <div class="modal-body py-2">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-user me-2"></i>Informasi Pemesan</h6>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Nama Pemesan</span><span class="fw-bold">{{ $b->nama_pemesan }}</span></div>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">No HP</span><span class="fw-bold">{{ $b->no_hp }}</span></div>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Tanggal Kunjungan</span><span class="fw-bold">{{ \Carbon\Carbon::parse($b->tanggal_kunjungan)->format('d M Y') }}</span></div>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Jam Kunjungan</span><span class="fw-bold">{{ $b->jam }}</span></div>
-                            <div class="d-flex justify-content-between"><span class="text-muted small">Jumlah Orang</span><span class="fw-bold">{{ $b->jumlah_pengunjung }}</span></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-box me-2"></i>Paket Wisata</h6>
-                            @foreach(($b->bookingItem ?? []) as $dp)
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">{{ $dp->paketWisata->nama_paket ?? '-' }} (x{{ $dp->qty }})</span>
-                                <span class="fw-bold">Rp {{ number_format($dp->subtotal ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>Fasilitas Tambahan</h6>
-                            @forelse(($b->bookingFasilitas ?? []) as $df)
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">{{ $df->fasilitas->nama_fasilitas ?? '-' }} (x{{ $df->qty }})</span>
-                                <span class="fw-bold">Rp {{ number_format($df->subtotal ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            @empty
-                            <span class="text-muted small">-</span>
-                            @endforelse
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card-detail">
-                            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-wallet me-2"></i>Ringkasan Biaya</h6>
-                            <div class="d-flex justify-content-between mb-2"><span class="text-muted small">Total Harga (Sebelum Diskon)</span><span class="fw-bold">Rp {{ number_format($b->total_harga_final + ($b->diskon_manual ?? 0), 0, ',', '.') }}</span></div>
-                            <div class="d-flex justify-content-between mb-2 text-danger"><span class="small">Diskon Manual</span><span class="fw-bold">- Rp {{ number_format($b->diskon_manual ?? 0, 0, ',', '.') }}</span></div>
-                            <hr class="my-2 border-dashed">
-                            <div class="d-flex justify-content-between"><span class="text-muted small">Total Harga (Setelah Diskon)</span><span class="fw-bold text-primary">Rp {{ number_format($b->total_harga_final, 0, ',', '.') }}</span></div>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="card-detail d-flex align-items-center">
-                            <div class="me-4"><i class="fas fa-credit-card text-primary fs-4"></i></div>
-                            <div class="flex-grow-1">
-                                <div class="text-muted small">Metode Bayar</div>
-                                <div class="fw-bold">{{ ucfirst($b->metode_pembayaran) }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 pt-3"><button type="button" class="btn btn-light w-100 rounded-3 py-2" data-bs-dismiss="modal">Tutup</button></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalEditBooking{{ $b->id }}" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <form action="{{ url('/admin/booking-admin/'.$b->id) }}" method="POST" class="w-100">
-            @csrf @method('PUT')
-            <div class="modal-content shadow-lg">
-                <div class="modal-header border-bottom px-4 py-3">
-                    <h5 class="fw-bold mb-0">Edit Booking: {{ $b->kode_booking }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body px-4 py-4">
-                    <div class="mb-3"><label class="small text-muted d-block">Nama Pemesan</label><div class="fw-bold text-dark">{{ $b->nama_pemesan }}</div></div>
-                    <div class="mb-3"><label class="small text-muted d-block">Total Harga</label><div class="fw-bold text-success">Rp {{ number_format($b->total_harga_final,0,',','.') }}</div></div>
-                    <hr>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Diskon Manual</label><input type="number" name="diskon_manual" class="form-control" value="{{ $b->diskon_manual }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Tanggal Reschedule</label><input type="date" name="tanggal_reschedule" class="form-control" value="{{ $b->tanggal_reschedule }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Alasan Reschedule</label><input type="text" name="alasan_reschedule" class="form-control" value="{{ $b->alasan_reschedule }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Jumlah Reschedule</label><input type="number" name="jumlah_reschedule" class="form-control" value="{{ $b->jumlah_reschedule }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Check-Out</label><input type="date" name="tanggal_checkout" class="form-control" value="{{ $b->tanggal_selesai }}"></div>
-                    <div class="mb-3"><label class="form-label small fw-semibold">Jumlah Malam</label><input type="number" name="jumlah_malam" class="form-control" min="1" value="{{ $b->jumlah_malam ?? 1 }}"></div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4"><button type="submit" class="btn btn-warning w-100 text-white">Update Data</button></div>
-            </div>
-        </form>
-    </div>
-</div>
-@endforeach
 
 <script>
-    let pIdx = 1; let fIdx = 1;
-    function addPaket() {
-        let html = `<div class="row g-2 mb-2"><div class="col-8"><select name="paket[${pIdx}][paket_wisata_id]" class="form-select" onchange="calculateTotal()"><option value="">-- Pilih Paket --</option>@foreach(\App\Models\PaketWisata::all() as $p)<option value="{{ $p->id }}" data-harga="{{ $p->harga }}" data-kapasitas="{{ $p->kapasitas }}">{{ $p->nama_paket }} (Rp {{ number_format($p->harga, 0, ',', '.') }} | Kap: {{ $p->kapasitas }})</option>@endforeach</select></div><div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="paket[${pIdx}][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div></div>`;
-        document.getElementById('paket-container').insertAdjacentHTML('beforeend', html); pIdx++;
+    const groupedPaket = {!! json_encode($groupedPaket) !!};
+    let globalPaketIdx = 0; 
+    let fIdx = 0; 
+
+    $(document).ready(function() {
+        if ($.fn.DataTable.isDataTable('#bookingTable')) {
+            $('#bookingTable').DataTable().destroy();
+        }
+        $('#bookingTable').DataTable({"ordering": false});
+    });
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 1500
+        });
+    @endif
+
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data booking ini akan dihapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`delete-form-${id}`).submit();
+            }
+        });
     }
-    function addFasilitas() {
-        let html = `<div class="row g-2 mb-2"><div class="col-8"><select name="fasilitas[${fIdx}][fasilitas_id]" class="form-select" onchange="calculateTotal()"><option value="">-- Pilih Fasilitas --</option>@foreach(\App\Models\Fasilitas::all() as $f)<option value="{{ $f->id }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }} (Rp {{ number_format($f->harga, 0, ',', '.') }})</option>@endforeach</select></div><div class="col-4"><div class="input-group-qty"><button type="button" onclick="changeQty(this, -1, true)">-</button><input type="number" name="fasilitas[${fIdx}][qty]" class="form-control" value="1" min="1" oninput="calculateTotal()"><button type="button" onclick="changeQty(this, 1)">+</button></div></div></div>`;
-        document.getElementById('fasilitas-container').insertAdjacentHTML('beforeend', html); fIdx++;
+
+    function switchFasTab(btnElement, paneId) {
+        document.querySelectorAll('.fas-tab-btn').forEach(btn => {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-light', 'text-secondary', 'border');
+        });
+        btnElement.classList.remove('btn-light', 'text-secondary', 'border');
+        btnElement.classList.add('btn-primary');
+        
+        document.querySelectorAll('.fas-pane').forEach(pane => {
+            pane.classList.remove('d-block');
+            pane.classList.add('d-none');
+        });
+        document.getElementById(paneId).classList.remove('d-none');
+        document.getElementById(paneId).classList.add('d-block');
     }
+
+    function switchCatTab(btnElement, paneId, dayIdx) {
+        document.querySelectorAll(`.cat-btn-${dayIdx}`).forEach(btn => {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-light', 'text-secondary', 'border');
+        });
+        btnElement.classList.remove('btn-light', 'text-secondary', 'border');
+        btnElement.classList.add('btn-primary');
+        
+        document.querySelectorAll(`.cat-pane-${dayIdx}`).forEach(pane => {
+            pane.classList.remove('d-block');
+            pane.classList.add('d-none');
+        });
+        document.getElementById(paneId).classList.remove('d-none');
+        document.getElementById(paneId).classList.add('d-block');
+    }
+
+    function switchTab(idx) {
+        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.itinerary-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`tab-${idx}`).classList.add('active');
+        document.getElementById(`panel-${idx}`).classList.add('active');
+    }
+
+    function renderItinerary() {
+        const ci = document.getElementById('tanggal_kunjungan').value;
+        const co = document.getElementById('tanggal_selesai').value;
+        const tabs = document.getElementById('day-tabs-container');
+        const panels = document.getElementById('itinerary-panels-container');
+
+        if (!ci || !co) {
+            tabs.innerHTML = ''; 
+            panels.innerHTML = `
+                <div class="empty-state-box">
+                    <i class="fas fa-calendar-alt fs-2 mb-2 text-muted"></i>
+                    <p class="mb-0 fw-bold">Silakan pilih tanggal Check-In dan Check-Out terlebih dahulu.</p>
+                </div>`;
+            document.getElementById('jml_malam').value = 0;
+            document.getElementById('label_jml_malam').innerText = 0;
+            calculateTotal();
+            return;
+        }
+
+        const d1 = new Date(ci);
+        const d2 = new Date(co);
+        let totalMalam = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        if (totalMalam < 1) totalMalam = 1;
+
+        document.getElementById('jml_malam').value = totalMalam;
+        document.getElementById('label_jml_malam').innerText = totalMalam;
+
+        tabs.innerHTML = ''; 
+        panels.innerHTML = '';
+
+        for (let i = 0; i < totalMalam; i++) {
+            let cur = new Date(d1); cur.setDate(d1.getDate() + i);
+            let dateStr = cur.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+
+            tabs.insertAdjacentHTML('beforeend', `<div class="day-tab ${i===0?'active':''}" id="tab-${i}" onclick="switchTab(${i})">HARI ${i+1} (${dateStr})</div>`);
+            
+            let tabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">`;
+            let panesHtml = `<div class="tab-content mb-4">`;
+            
+            let isFirstCat = true;
+            for (const katName in groupedPaket) {
+                let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                let activeBtn = isFirstCat ? 'btn-primary' : 'btn-light text-secondary border';
+                let activePane = isFirstCat ? 'd-block' : 'd-none';
+
+                tabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} cat-btn-${i}" onclick="switchCatTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
+
+                let cardsHtml = `<div class="row g-2">`;
+                groupedPaket[katName].forEach(p => {
+                    let formattedHarga = parseInt(p.harga).toLocaleString('id-ID');
+                    let safeNama = p.nama_paket.replace(/'/g, "\\'");
+                    
+                    cardsHtml += `
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addPaketData('${p.id}', '${safeNama}', '${p.harga}', '${p.kapasitas}', ${i})">
+                            <div class="fw-bold text-dark mb-2">${p.nama_paket}</div>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info"><i class="fas fa-users"></i> ${p.kapasitas} Org</span>
+                                <span class="text-success fw-bold">Rp ${formattedHarga}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                cardsHtml += `</div>`;
+                
+                panesHtml += `<div id="pane-${slug}-${i}" class="cat-pane-${i} ${activePane}">${cardsHtml}</div>`;
+                isFirstCat = false;
+            }
+            tabsHtml += `</div>`;
+            panesHtml += `</div>`;
+
+            panels.insertAdjacentHTML('beforeend', `
+                <div class="itinerary-panel ${i===0?'active':''}" id="panel-${i}">
+                    <div class="bg-white border rounded-3 p-3 mb-3 shadow-sm">
+                        ${tabsHtml}
+                        ${panesHtml}
+                        <div class="pt-3 border-top">
+                            <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Paket Terpilih:</h6>
+                            <div id="paket-container-${i}"></div>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+        calculateTotal();
+    }
+
+    function addPaketData(id, nama, harga, kapasitas, dayIdx) {
+        let currentPaketIdx = globalPaketIdx++;
+        let html = `
+        <div class="row g-2 item-row paket-row align-items-center">
+            <div class="col-md-7">
+                <div class="fw-bold text-dark fs-6 mb-1">${nama}</div>
+                <div class="text-muted small">
+                    <span class="badge bg-info text-dark shadow-sm me-2"><i class="fas fa-users"></i> Kapasitas: ${kapasitas} Orang</span>
+                    <span class="fw-bold text-success"><i class="fas fa-tag"></i> Rp ${parseInt(harga).toLocaleString('id-ID')}</span>
+                </div>
+                <input type="hidden" name="paket[${currentPaketIdx}][paket_wisata_id]" value="${id}">
+                <input type="hidden" name="paket[${currentPaketIdx}][hari]" value="${dayIdx + 1}">
+                <input type="hidden" name="paket[${currentPaketIdx}][harga]" value="${harga}">
+                <input type="hidden" class="paket-harga-hidden" value="${harga}">
+                <input type="hidden" class="paket-kapasitas-hidden" value="${kapasitas}">
+            </div>
+            <div class="col-md-4">
+                <div class="input-group-qty-modern mx-auto">
+                    <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
+                    <input type="number" name="paket[${currentPaketIdx}][qty]" class="qty-input-modern qty-input" value="1" min="1" oninput="calculateTotal()">
+                    <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+            <div class="col-md-1 text-end">
+                 <button type="button" class="btn btn-sm btn-danger rounded-3" onclick="this.closest('.paket-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+        
+        document.getElementById(`paket-container-${dayIdx}`).insertAdjacentHTML('beforeend', html);
+        calculateTotal();
+    }
+
+    function addFasilitasData(id, nama, harga) {
+        let html = `
+        <div class="row g-2 item-row fas-row align-items-center">
+            <div class="col-md-7">
+                <div class="fw-bold text-dark fs-6 mb-1">${nama}</div>
+                <div class="text-muted small">
+                    <span class="fw-bold text-success"><i class="fas fa-tag"></i> Rp ${parseInt(harga).toLocaleString('id-ID')} /malam</span>
+                </div>
+                <input type="hidden" name="fasilitas[${fIdx}][fasilitas_id]" value="${id}">
+                <input type="hidden" name="fasilitas[${fIdx}][harga]" value="${harga}">
+                <input type="hidden" class="fas-harga-hidden" value="${harga}">
+            </div>
+            <div class="col-md-4">
+                <div class="input-group-qty-modern mx-auto">
+                    <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
+                    <input type="number" name="fasilitas[${fIdx}][qty]" class="qty-input-modern qty-input" value="1" min="1" oninput="calculateTotal()">
+                    <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
+                </div>
+            </div>
+            <div class="col-md-1 text-end">
+                 <button type="button" class="btn btn-sm btn-danger rounded-3" onclick="this.closest('.fas-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+        
+        document.getElementById('fasilitas-container').insertAdjacentHTML('beforeend', html); 
+        fIdx++;
+        calculateTotal();
+    }
+
+    function changeQtyValue(id, val) {
+        let input = document.getElementById(id);
+        let newVal = parseInt(input.value) + val;
+        if (newVal >= 1) { input.value = newVal; calculateTotal(); }
+    }
+
     function changeQty(btn, val, allowDelete = false) {
         let input = btn.parentElement.querySelector('input');
         let newVal = parseInt(input.value) + val;
-        if (newVal < 1) { if (allowDelete) btn.closest('.row').remove(); else input.value = 1; }
-        else { input.value = newVal; }
+        if (newVal < 1) {
+            if (allowDelete) {
+                btn.closest('.item-row').remove();
+            } else {
+                input.value = 1;
+            }
+        } else {
+            input.value = newVal;
+        }
         calculateTotal();
     }
+
     function calculateTotal() {
-        let total = 0; let totalKapasitas = 0;
-        let pengunjung = parseInt(document.querySelector('input[name="jumlah_pengunjung"]').value) || 0;
-        document.querySelectorAll('#paket-container .row').forEach(row => {
-            let sel = row.querySelector('select'); let qty = parseInt(row.querySelector('input').value) || 0;
-            if(sel.value) {
-                let opt = sel.options[sel.selectedIndex];
-                total += (parseInt(opt.getAttribute('data-harga')) * qty);
-                totalKapasitas += (parseInt(opt.getAttribute('data-kapasitas')) * qty);
+        let totalHargaPaket = 0;
+        let totalKapasitasSemuaMalam = 0;
+        let totalTiketTambahan = 0;
+        let totalBiayaTiketTambahan = 0;
+        const HARGA_TIKET_TAMBAHAN = 25000;
+
+        let jmlPengunjung = parseInt(document.getElementById('jml_pengunjung').value) || 0;
+        let totalMalam = parseInt(document.getElementById('jml_malam').value) || 0;
+
+        document.querySelectorAll('.itinerary-panel').forEach((panel) => {
+            let kapasitasMalamIni = 0;
+            panel.querySelectorAll('.paket-row').forEach(row => {
+                let qty = parseInt(row.querySelector('.qty-input').value) || 0;
+                let harga = parseFloat(row.querySelector('.paket-harga-hidden').value) || 0;
+                let kapasitas = parseInt(row.querySelector('.paket-kapasitas-hidden').value) || 0;
+                
+                totalHargaPaket += (harga * qty);
+                kapasitasMalamIni += (kapasitas * qty);
+            });
+            
+            if (kapasitasMalamIni > 0 && jmlPengunjung > kapasitasMalamIni) {
+                let overCapacity = jmlPengunjung - kapasitasMalamIni;
+                totalTiketTambahan += overCapacity;
+                totalBiayaTiketTambahan += (overCapacity * HARGA_TIKET_TAMBAHAN);
             }
+            totalKapasitasSemuaMalam += kapasitasMalamIni;
         });
-        document.querySelectorAll('#fasilitas-container .row').forEach(row => {
-            let sel = row.querySelector('select'); let qty = parseInt(row.querySelector('input').value) || 0;
-            if(sel.value) { total += (parseInt(sel.options[sel.selectedIndex].getAttribute('data-harga')) * qty); }
+
+        let totalHargaFasilitas = 0;
+        document.querySelectorAll('.fas-row').forEach(row => {
+            let qty = parseInt(row.querySelector('.qty-input').value) || 0;
+            let harga = parseFloat(row.querySelector('.fas-harga-hidden').value) || 0;
+            totalHargaFasilitas += (harga * qty * (totalMalam > 0 ? totalMalam : 1));
         });
-        let selisih = Math.max(0, pengunjung - totalKapasitas);
-        total += (selisih * 25000);
-        document.getElementById('disp-kapasitas').innerText = totalKapasitas;
-        document.getElementById('disp-tiket').innerText = selisih;
-        document.getElementById('disp-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
+
+        let diskonManual = parseFloat(document.getElementById('diskon_manual').value) || 0;
+        let totalHarga = totalHargaPaket + totalHargaFasilitas + totalBiayaTiketTambahan;
+        let totalHargaFinal = totalHarga - diskonManual;
+        
+        if (totalHargaFinal < 0) totalHargaFinal = 0;
+
+        document.getElementById('disp-kapasitas').innerText = totalKapasitasSemuaMalam;
+        document.getElementById('disp-total').innerText = 'Rp ' + totalHargaFinal.toLocaleString('id-ID');
+        document.getElementById('hidden_total_harga').value = totalHarga;
+        document.getElementById('hidden_total_harga_final').value = totalHargaFinal;
+        document.getElementById('hidden_tiket_tambahan').value = totalTiketTambahan;
+        document.getElementById('hidden_subtotal_tiket').value = totalBiayaTiketTambahan;
     }
-    $(document).ready(function() {
-        $('#bookingTable').DataTable({
-            "ordering": false
-        });
-    });
 </script>
 @endsection
