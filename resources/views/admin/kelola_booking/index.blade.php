@@ -2,15 +2,17 @@
 
 @section('content')
 <style>
-    .modal-content { background: #f8fafc; border-radius: 1.5rem; border: none; }
-    .modal-header { background: white; padding: 1.5rem 2rem; border-bottom: 1px solid #e2e8f0; border-radius: 1.5rem 1.5rem 0 0; }
-    .modal-body { padding: 2rem; }
+    .modal-content { background: #f8fafc; border-radius: 1.5rem; border: none; overflow: hidden; }
+    .modal-header { background: white; padding: 1.5rem 2rem; border-bottom: 1px solid #e2e8f0; }
+    .modal-body { padding: 2rem; background: #f8fafc; }
+    .modal-footer { background: white; border-top: 1px solid #e2e8f0; padding: 1.5rem 2rem; }
 
     .form-section {
         background: white; border-radius: 1rem; padding: 1.75rem;
         margin-bottom: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     .section-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+    
     .payment-section { background: #fff7ed; border: 1px solid #fed7aa; }
     .payment-section .section-title { color: #9a3412; }
 
@@ -38,8 +40,7 @@
     
     .summary-card { padding: 1.5rem; border-radius: 1rem; height: 100%; display: flex; flex-direction: column; justify-content: center; }
     .card-blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-    .card-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-    .btn-save { background: #2563eb; color: white; font-weight: 700; padding: 1.2rem; border-radius: 1rem; width: 100%; border: none; font-size: 1.1rem; transition: all 0.2s; }
+    .btn-save { background: #2563eb; color: white; font-weight: 700; padding: 1rem 2rem; border-radius: 0.75rem; border: none; font-size: 1rem; transition: all 0.2s; }
     .btn-save:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
     
     .empty-state-box { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0.75rem; padding: 2rem; text-align: center; color: #64748b; }
@@ -108,9 +109,8 @@
                             <th class="text-end">Harga Awal</th>
                             <th class="text-end">Diskon</th>
                             <th class="text-end">Harga Final</th>
-                            <th class="text-end">Terbayar DP</th>
-                            <th class="text-end">Sisa Bayar</th>
-                            <th class="text-center">Status</th>
+                            <th class="text-center">Status Booking</th>
+                            <th class="text-center">Status Pembayaran</th>
                             <th class="text-center pe-4" style="width: 140px;">Action</th>
                         </tr>
                     </thead>
@@ -120,8 +120,6 @@
                             $hargaAwal = round($b->total_harga);
                             $diskon = round($b->diskon_manual);
                             $hargaFinal = round($b->total_harga_final);
-                            $terbayar = round($b->pembayaran->sum('nominal'));
-                            $sisa = max(0, $hargaFinal - $terbayar);
                         @endphp
                         <tr>
                             <td class="ps-4 text-center fw-medium text-secondary">{{ $key + 1 }}</td>
@@ -135,9 +133,8 @@
                             <td class="text-end fw-bold text-secondary">Rp {{ number_format($hargaAwal,0,',','.') }}</td>
                             <td class="text-end fw-bold text-danger">Rp {{ number_format($diskon,0,',','.') }}</td>
                             <td class="text-end fw-bold text-primary">Rp {{ number_format($hargaFinal,0,',','.') }}</td>
-                            <td class="text-end fw-bold text-success">Rp {{ number_format($terbayar,0,',','.') }}</td>
-                            <td class="text-end fw-bold text-warning">Rp {{ number_format($sisa,0,',','.') }}</td>
                             <td class="text-center"><span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-medium">{{ $b->status_booking }}</span></td>
+                            <td class="text-center"><span class="badge bg-info text-white px-3 py-2 rounded-pill fw-medium">{{ $b->status_pembayaran ?? '-' }}</span></td>
                             <td class="text-center pe-4">
                                 <div class="d-inline-flex gap-2">
                                     <button type="button" class="btn btn-sm btn-info text-white rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
@@ -163,18 +160,8 @@
 </div>
 
 <div class="modal fade" id="modalTambahBooking" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form action="{{ url('/admin/booking-admin') }}" method="POST" class="w-100" enctype="multipart/form-data">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <form action="{{ url('/admin/booking-admin') }}" method="POST" class="w-100 h-100 d-flex flex-column" enctype="multipart/form-data">
             @csrf
             
             <input type="hidden" name="jumlah_tiket_tambahan" id="hidden_tiket_tambahan" value="0">
@@ -183,16 +170,15 @@
             <input type="hidden" name="total_harga" id="hidden_total_harga" value="0">
             <input type="hidden" name="total_harga_final" id="hidden_total_harga_final" value="0">
 
-            <div class="modal-content shadow-lg">
+            <div class="modal-content shadow-lg h-100">
                 <div class="modal-header">
                     <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-calendar-plus me-2"></i> Reservasi Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
-                <div class="modal-body">
-                    <div class="row">
+                <div class="modal-body custom-scrollbar">
+                    <div class="row g-4 align-items-start">
                         <div class="col-lg-8">
-                            
                             <div class="form-section">
                                 <div class="section-title"><i class="fas fa-user-circle"></i> Data Pemesan</div>
                                 <div class="row g-3">
@@ -248,7 +234,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-section">
+                            <div class="form-section mb-0">
                                 <div class="section-title mb-3"><i class="fas fa-box-open"></i> Fasilitas Tambahan (Per Malam)</div>
                                 
                                 <div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">
@@ -288,75 +274,78 @@
                         </div>
 
                         <div class="col-lg-4">
-                            <div class="form-section payment-section">
-                                <div class="section-title"><i class="fas fa-wallet"></i> Pembayaran Form</div>
-                                <div class="mb-3">
-                                    <label class="form-label">Tipe Pembayaran</label>
-                                    <select name="tipe_pembayaran" class="form-select" required>
-                                        <option value="dp">DP (Down Payment)</option>
-                                        <option value="lunas">Lunas</option>
-                                    </select>
+                            <div class="sticky-top">
+                                <div class="form-section payment-section">
+                                    <div class="section-title"><i class="fas fa-wallet"></i> Pembayaran Form</div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipe Pembayaran</label>
+                                        <select name="tipe_pembayaran" class="form-select" required>
+                                            <option value="dp">DP (Down Payment)</option>
+                                            <option value="lunas">Lunas</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Metode</label>
+                                        <select name="metode_pembayaran" class="form-select" required>
+                                            <option value="transfer">Transfer Bank</option>
+                                            <option value="cash">Cash / Tunai</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nominal Bayar (Rp)</label>
+                                        <input type="number" name="nominal" class="form-control" placeholder="0" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Upload Bukti</label>
+                                        <input type="file" name="bukti_pembayaran" class="form-control" accept="image/*" required>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label">Diskon Manual (Rp)</label>
+                                        <input type="number" name="diskon_manual" id="diskon_manual" class="form-control" placeholder="0" value="0" oninput="calculateTotal()">
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Metode</label>
-                                    <select name="metode_pembayaran" class="form-select" required>
-                                        <option value="transfer">Transfer Bank</option>
-                                        <option value="cash">Cash / Tunai</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Nominal Bayar (Rp)</label>
-                                    <input type="number" name="nominal" class="form-control" placeholder="0" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Upload Bukti DP/Pembayaran</label>
-                                    <input type="file" name="bukti_pembayaran" class="form-control" accept="image/*" required>
-                                </div>
-                                <div class="mb-0">
-                                    <label class="form-label">Diskon Manual (Rp)</label>
-                                    <input type="number" name="diskon_manual" id="diskon_manual" class="form-control" placeholder="0" value="0" oninput="calculateTotal()">
-                                </div>
-                            </div>
 
-                            <div class="summary-card card-blue shadow-sm mb-3">
-                                <small class="d-block mb-3 fw-bold text-uppercase"><i class="fas fa-receipt"></i> Rincian Harga</small>
+                                <div class="summary-card card-blue shadow-sm mb-3">
+                                    <small class="d-block mb-3 fw-bold text-uppercase"><i class="fas fa-receipt"></i> Rincian Harga</small>
+                                    
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-secondary">Subtotal Paket Wisata:</span>
+                                        <span id="disp-sub-paket" class="fw-bold text-dark">Rp 0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-secondary">Subtotal Fasilitas:</span>
+                                        <span id="disp-sub-fasilitas" class="fw-bold text-dark">Rp 0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-danger">Tiket Tambahan:</span>
+                                        <span id="disp-sub-tiket" class="fw-bold text-danger">Rp 0</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-primary">Diskon:</span>
+                                        <span id="disp-diskon" class="fw-bold text-primary">- Rp 0</span>
+                                    </div>
+                                    
+                                    <hr class="my-2 border-primary opacity-20">
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <span class="fw-bold text-dark">Total Akhir:</span>
+                                        <span id="disp-total" class="fs-4 fw-bold text-success">Rp 0</span>
+                                    </div>
+                                </div>
                                 
-                                <div class="d-flex justify-content-between mb-2 small">
-                                    <span class="text-secondary">Subtotal Paket Wisata:</span>
-                                    <span id="disp-sub-paket" class="fw-bold text-dark">Rp 0</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2 small">
-                                    <span class="text-secondary">Subtotal Fasilitas:</span>
-                                    <span id="disp-sub-fasilitas" class="fw-bold text-dark">Rp 0</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2 small">
-                                    <span class="text-danger">Tiket Tambahan (Over Kapasitas):</span>
-                                    <span id="disp-sub-tiket" class="fw-bold text-danger">Rp 0</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2 small">
-                                    <span class="text-primary">Diskon:</span>
-                                    <span id="disp-diskon" class="fw-bold text-primary">- Rp 0</span>
-                                </div>
-                                
-                                <hr class="my-2 border-primary opacity-20">
-                                
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <span class="fw-bold text-dark">Total Akhir:</span>
-                                    <span id="disp-total" class="fs-4 fw-bold text-success">Rp 0</span>
-                                </div>
-                            </div>
-                            
-                            <div class="summary-card bg-white border shadow-sm">
-                                <small class="d-block mb-1 fw-bold text-uppercase text-secondary"><i class="fas fa-users"></i> Kapasitas Disediakan /Malam</small>
-                                <div class="d-flex align-items-baseline gap-2">
-                                    <span id="disp-kapasitas" class="fs-2 fw-bold text-dark">0</span> <span class="fw-bold text-secondary">Orang</span>
+                                <div class="summary-card bg-white border shadow-sm">
+                                    <small class="d-block mb-1 fw-bold text-uppercase text-secondary"><i class="fas fa-users"></i> Kapasitas Disediakan /Malam</small>
+                                    <div class="d-flex align-items-baseline gap-2">
+                                        <span id="disp-kapasitas" class="fs-2 fw-bold text-dark">0</span> <span class="fw-bold text-secondary">Orang</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-footer border-0 bg-light p-4 rounded-bottom-4">
+                <div class="modal-footer d-flex justify-content-end">
+                    <button type="button" class="btn btn-light fw-bold px-4 py-2 rounded-3 border me-2" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn-save">
                         <i class="fas fa-check-circle me-2"></i> Konfirmasi & Simpan Booking
                     </button>
@@ -512,42 +501,163 @@
 </div>
 
 <div class="modal fade" id="modalEditBooking{{ $b->id }}" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg rounded-4 border-0">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg rounded-4 border-0 h-100">
             <div class="modal-header">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-edit text-warning me-2"></i> Edit / Reschedule Booking</h5>
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-edit text-warning me-2"></i> Edit Data & Jadwal Reservasi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ url('/admin/booking-admin/'.$b->id) }}" method="POST">
+            <form action="{{ url('/admin/booking-admin/'.$b->id) }}" method="POST" class="h-100 d-flex flex-column w-100">
                 @csrf
                 @method('PUT')
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label">Tanggal Kunjungan (Check-In)</label>
-                        <input type="date" name="tanggal_kunjungan" class="form-control" value="{{ $b->tanggal_kunjungan }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tanggal Selesai (Check-Out)</label>
-                        <input type="date" name="tanggal_selesai" class="form-control" value="{{ $b->tanggal_selesai }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Diskon Manual (Rp)</label>
-                        <input type="number" name="diskon_manual" id="edit_diskon_{{ $b->id }}" class="form-control" value="{{ round($b->diskon_manual) }}" oninput="calcEdit({{ $b->id }}, {{ round($b->total_harga) }})">
-                    </div>
-                    <div class="p-3 bg-light rounded-3 border">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="small text-secondary fw-semibold">Harga Dasar Sistem:</span>
-                            <span class="fw-bold text-dark">Rp {{ number_format(round($b->total_harga), 0, ',', '.') }}</span>
+                
+                <input type="hidden" name="total_harga" id="input_edit_total_{{ $b->id }}" value="{{ round($b->total_harga) }}">
+                <input type="hidden" name="total_harga_final" id="input_edit_final_{{ $b->id }}" value="{{ round($b->total_harga_final) }}">
+
+                <div class="modal-body custom-scrollbar p-4 bg-light">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="bg-white p-4 rounded-3 border shadow-sm h-100">
+                                <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Informasi Utama</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal Check-In</label>
+                                    <input type="date" name="tanggal_kunjungan" id="edit_ci_{{ $b->id }}" class="form-control" value="{{ $b->tanggal_kunjungan }}" required onchange="calcEditTotal({{ $b->id }})">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal Check-Out</label>
+                                    <input type="date" name="tanggal_selesai" id="edit_co_{{ $b->id }}" class="form-control" value="{{ $b->tanggal_selesai }}" required onchange="calcEditTotal({{ $b->id }})">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Diskon Manual (Rp)</label>
+                                    <input type="number" name="diskon_manual" id="edit_diskon_{{ $b->id }}" class="form-control" value="{{ round($b->diskon_manual) }}" oninput="calcEditTotal({{ $b->id }})">
+                                </div>
+                                
+                                <div class="p-3 bg-light rounded-3 border mt-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small text-secondary fw-semibold">Harga Dasar Sistem:</span>
+                                        <span class="fw-bold text-dark">Rp <span id="label_edit_dasar_{{ $b->id }}">{{ number_format(round($b->total_harga), 0, ',', '.') }}</span></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="small text-secondary fw-semibold">Harga Final Tagihan:</span>
+                                        <span class="fw-bold text-success fs-5">Rp <span id="label_edit_final_{{ $b->id }}">{{ number_format(round($b->total_harga_final), 0, ',', '.') }}</span></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="small text-secondary fw-semibold">Harga Final Tagihan:</span>
-                            <span class="fw-bold text-success fs-5">Rp <span id="label_edit_final_{{ $b->id }}">{{ number_format(round($b->total_harga_final), 0, ',', '.') }}</span></span>
+
+                        <div class="col-lg-8">
+                            <div class="bg-white p-4 rounded-3 border shadow-sm mb-4">
+                                <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Manajemen Paket Wisata</h6>
+                                <div id="edit-paket-container-{{ $b->id }}" class="mb-3">
+                                    @foreach($b->items as $item)
+                                    <div class="row g-2 align-items-center mb-2 edit-paket-row-{{ $b->id }} pb-2 border-bottom border-light">
+                                        <div class="col-md-4">
+                                            <div class="fw-bold text-dark">{{ $item->paketWisata->nama_paket ?? 'Paket Terhapus' }}</div>
+                                            <small class="text-success fw-bold">Rp {{ number_format(round($item->harga),0,',','.') }}</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text bg-light">Hari Ke-</span>
+                                                <input type="number" name="paket[{{ $item->id }}][hari]" class="form-control" value="{{ $item->hari }}" min="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text bg-light">Qty</span>
+                                                <input type="number" name="paket[{{ $item->id }}][qty]" class="form-control edit-qty-{{ $b->id }}" value="{{ $item->qty }}" min="1" oninput="calcEditTotal({{ $b->id }})">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-{{ $b->id }}').remove(); calcEditTotal({{ $b->id }})"><i class="fas fa-trash"></i></button>
+                                            <input type="hidden" name="paket[{{ $item->id }}][paket_wisata_id]" value="{{ $item->paket_wisata_id }}">
+                                            <input type="hidden" class="edit-harga-paket-{{ $b->id }}" value="{{ round($item->harga) }}">
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <label class="form-label fw-bold text-primary mb-2 small"><i class="fas fa-plus-circle me-1"></i> Tambah Paket Baru</label>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <select id="add_paket_sel_{{ $b->id }}" class="form-select form-select-sm border">
+                                                <option value="">-- Pilih Paket --</option>
+                                                @foreach($groupedPaket as $kat => $pakets)
+                                                    <optgroup label="{{ $kat }}">
+                                                        @foreach($pakets as $p)
+                                                            <option value="{{ $p->id }}" data-nama="{{ htmlspecialchars($p->nama_paket) }}" data-harga="{{ $p->harga }}">{{ $p->nama_paket }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" id="add_paket_hari_{{ $b->id }}" class="form-control form-control-sm border" placeholder="Untuk Hari Ke-" min="1">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="number" id="add_paket_qty_{{ $b->id }}" class="form-control form-control-sm border" placeholder="Qty" min="1" value="1">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-sm btn-primary w-100" onclick="addEditPaket({{ $b->id }})">Tambah</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-3 border shadow-sm">
+                                <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Manajemen Fasilitas Tambahan</h6>
+                                <div id="edit-fas-container-{{ $b->id }}" class="mb-3">
+                                    @foreach($b->fasilitas as $fas)
+                                    <div class="row g-2 align-items-center mb-2 edit-fas-row-{{ $b->id }} pb-2 border-bottom border-light">
+                                        <div class="col-md-5">
+                                            <div class="fw-bold text-dark">{{ $fas->fasilitas->nama_fasilitas ?? 'Fasilitas Terhapus' }}</div>
+                                            <small class="text-success fw-bold">Rp {{ number_format(round($fas->harga),0,',','.') }} /malam</small>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text bg-light">Qty</span>
+                                                <input type="number" name="fasilitas[{{ $fas->id }}][qty]" class="form-control edit-qty-fas-{{ $b->id }}" value="{{ $fas->qty }}" min="1" oninput="calcEditTotal({{ $b->id }})">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-fas-row-{{ $b->id }}').remove(); calcEditTotal({{ $b->id }})"><i class="fas fa-trash"></i></button>
+                                            <input type="hidden" name="fasilitas[{{ $fas->id }}][fasilitas_id]" value="{{ $fas->fasilitas_id }}">
+                                            <input type="hidden" class="edit-harga-fas-{{ $b->id }}" value="{{ round($fas->harga) }}">
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <label class="form-label fw-bold text-primary mb-2 small"><i class="fas fa-plus-circle me-1"></i> Tambah Fasilitas Baru</label>
+                                    <div class="row g-2">
+                                        <div class="col-md-7">
+                                            <select id="add_fas_sel_{{ $b->id }}" class="form-select form-select-sm border">
+                                                <option value="">-- Pilih Fasilitas --</option>
+                                                @foreach($groupedFasilitas as $kat => $fasItems)
+                                                    <optgroup label="{{ $kat }}">
+                                                        @foreach($fasItems as $f)
+                                                            <option value="{{ $f->id }}" data-nama="{{ htmlspecialchars($f->nama_fasilitas) }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" id="add_fas_qty_{{ $b->id }}" class="form-control form-control-sm border" placeholder="Qty" min="1" value="1">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-sm btn-primary w-100" onclick="addEditFasilitas({{ $b->id }})">Tambah</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-0 py-3 d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-secondary px-4 py-2 rounded-3 fw-bold" data-bs-dismiss="modal">Batal Edit</button>
-                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-bold">Simpan Perubahan</button>
+                <div class="modal-footer bg-white border-top py-3 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light border px-4 py-2 rounded-3 fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-bold"><i class="fas fa-save me-2"></i>Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -559,13 +669,7 @@
     const groupedPaket = {!! json_encode($groupedPaket) !!};
     let globalPaketIdx = 0; 
     let fIdx = 0; 
-
-    function calcEdit(id, hargaAwal) {
-        let val = parseFloat(document.getElementById('edit_diskon_' + id).value) || 0;
-        let final = hargaAwal - val;
-        if (final < 0) final = 0;
-        document.getElementById('label_edit_final_' + id).innerText = final.toLocaleString('id-ID');
-    }
+    let editItemCounter = 9999; 
 
     function switchFasTab(btnElement, paneId) {
         document.querySelectorAll('.fas-tab-btn').forEach(btn => {
@@ -829,6 +933,115 @@
         document.getElementById('hidden_total_harga_final').value = totalHargaFinal;
         document.getElementById('hidden_tiket_tambahan').value = totalTiketTambahan;
         document.getElementById('hidden_subtotal_tiket').value = totalBiayaTiketTambahan;
+    }
+
+    function addEditPaket(bId) {
+        let sel = document.getElementById('add_paket_sel_' + bId);
+        let hari = document.getElementById('add_paket_hari_' + bId).value || 1;
+        let qty = document.getElementById('add_paket_qty_' + bId).value || 1;
+        
+        if(sel.selectedIndex <= 0) return alert('Silakan pilih paket wisata terlebih dahulu.');
+        
+        let opt = sel.options[sel.selectedIndex];
+        let pId = opt.value;
+        let nama = opt.getAttribute('data-nama');
+        let harga = parseFloat(opt.getAttribute('data-harga'));
+        
+        editItemCounter++;
+        let html = `
+        <div class="row g-2 align-items-center mb-2 edit-paket-row-${bId} pb-2 border-bottom border-light">
+            <div class="col-md-4">
+                <div class="fw-bold text-dark">${nama}</div>
+                <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')}</small>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">Hari Ke-</span>
+                    <input type="number" name="paket[${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">Qty</span>
+                    <input type="number" name="paket[${editItemCounter}][qty]" class="form-control edit-qty-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
+                </div>
+            </div>
+            <div class="col-md-2 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
+                <input type="hidden" name="paket[${editItemCounter}][paket_wisata_id]" value="${pId}">
+                <input type="hidden" class="edit-harga-paket-${bId}" value="${harga}">
+            </div>
+        </div>`;
+        
+        document.getElementById('edit-paket-container-' + bId).insertAdjacentHTML('beforeend', html);
+        calcEditTotal(bId);
+    }
+
+    function addEditFasilitas(bId) {
+        let sel = document.getElementById('add_fas_sel_' + bId);
+        let qty = document.getElementById('add_fas_qty_' + bId).value || 1;
+        
+        if(sel.selectedIndex <= 0) return alert('Silakan pilih fasilitas terlebih dahulu.');
+        
+        let opt = sel.options[sel.selectedIndex];
+        let fId = opt.value;
+        let nama = opt.getAttribute('data-nama');
+        let harga = parseFloat(opt.getAttribute('data-harga'));
+        
+        editItemCounter++;
+        let html = `
+        <div class="row g-2 align-items-center mb-2 edit-fas-row-${bId} pb-2 border-bottom border-light">
+            <div class="col-md-5">
+                <div class="fw-bold text-dark">${nama}</div>
+                <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')} /malam</small>
+            </div>
+            <div class="col-md-5">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">Qty</span>
+                    <input type="number" name="fasilitas[${editItemCounter}][qty]" class="form-control edit-qty-fas-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
+                </div>
+            </div>
+            <div class="col-md-2 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-fas-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
+                <input type="hidden" name="fasilitas[${editItemCounter}][fasilitas_id]" value="${fId}">
+                <input type="hidden" class="edit-harga-fas-${bId}" value="${harga}">
+            </div>
+        </div>`;
+        
+        document.getElementById('edit-fas-container-' + bId).insertAdjacentHTML('beforeend', html);
+        calcEditTotal(bId);
+    }
+
+    function calcEditTotal(id) {
+        let totalPaket = 0;
+        let totalFas = 0;
+        
+        let ci = new Date(document.getElementById('edit_ci_' + id).value);
+        let co = new Date(document.getElementById('edit_co_' + id).value);
+        let malam = Math.ceil((co - ci) / (1000 * 60 * 60 * 24));
+        if (isNaN(malam) || malam < 1) malam = 1;
+
+        document.querySelectorAll('.edit-paket-row-' + id).forEach(row => {
+            let qty = parseInt(row.querySelector('.edit-qty-' + id).value) || 0;
+            let harga = parseFloat(row.querySelector('.edit-harga-paket-' + id).value) || 0;
+            totalPaket += (qty * harga);
+        });
+        
+        document.querySelectorAll('.edit-fas-row-' + id).forEach(row => {
+            let qty = parseInt(row.querySelector('.edit-qty-fas-' + id).value) || 0;
+            let harga = parseFloat(row.querySelector('.edit-harga-fas-' + id).value) || 0;
+            totalFas += (qty * harga * malam);
+        });
+        
+        let total = totalPaket + totalFas;
+        let diskon = parseFloat(document.getElementById('edit_diskon_' + id).value) || 0;
+        let final = total - diskon;
+        if (final < 0) final = 0;
+        
+        document.getElementById('label_edit_dasar_' + id).innerText = total.toLocaleString('id-ID');
+        document.getElementById('label_edit_final_' + id).innerText = final.toLocaleString('id-ID');
+        document.getElementById('input_edit_total_' + id).value = total;
+        document.getElementById('input_edit_final_' + id).value = final;
     }
 </script>
 @endsection
