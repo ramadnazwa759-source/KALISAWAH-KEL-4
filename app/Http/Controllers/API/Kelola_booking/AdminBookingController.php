@@ -4,699 +4,241 @@ namespace App\Http\Controllers\API\Kelola_booking;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Booking;
 use App\Models\BookingItem;
 use App\Models\BookingFasilitas;
-use App\Models\Pembayaran;
-
-use App\Models\PaketWisata;
 use App\Models\Fasilitas;
-
-use Illuminate\Support\Str;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use App\Models\Pembayaran;
+use App\Models\PaketWisata;
 
 class AdminBookingController extends Controller
 {
-    // =========================================
-    // TAMPIL SEMUA BOOKING
-    // =========================================
-    public function index()
+    public function index(Request $request)
     {
-        $data = Booking::with([
-            'items.paketWisata',
-            'fasilitas.fasilitas',
-            'pembayaran'
-        ])->latest()->get();
+        $query = Booking::with(['items.paketWisata', 'fasilitas.fasilitas', 'pembayaran'])->latest();
 
-        return view('admin.kelola_booking.index', compact('data'));
-    }
-
-    // =========================================
-    // DETAIL BOOKING
-    // =========================================
-    public function show($id)
-    {
-        $booking = Booking::with([
-            'items.paketWisata',
-            'fasilitas.fasilitas',
-            'pembayaran'
-        ])->find($id);
-
-        if (!$booking) {
-
-            return response()->json([
-                'message' => 'Booking tidak ditemukan'
-            ], 404);
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal_kunjungan', $request->bulan);
         }
 
-        return response()->json($booking, 200);
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal_kunjungan', $request->tahun);
+        } else {
+            $query->whereYear('tanggal_kunjungan', date('Y'));
+        }
+
+        $data = $query->get();
+
+        $fasilitasList = Fasilitas::where('tipe_fasilitas', 'sewa')->get();
+        $paketList = PaketWisata::all();
+
+        $groupedFasilitas = [];
+        foreach ($fasilitasList as $f) {
+            $katName = $this->parseKategoriName($f->kategori);
+            $groupedFasilitas[$katName][] = $f;
+        }
+
+        $groupedPaket = [
+            'Semua Paket' => []
+        ];
+        
+        foreach ($paketList as $p) {
+            $katName = $this->parseKategoriName($p->kategori);
+            $groupedPaket['Semua Paket'][] = $p;
+            if ($katName !== 'Semua Paket') {
+                $groupedPaket[$katName][] = $p;
+            }
+        }
+
+        return view('admin.kelola_booking.index', compact('data', 'groupedFasilitas', 'groupedPaket'));
     }
 
-    // =========================================
-    // TAMBAH BOOKING MANUAL OLEH ADMIN
-    // =========================================
+    private function parseKategoriName($kategori)
+    {
+        if (empty($kategori)) return 'Semua Paket';
+        
+        if (is_object($kategori)) {
+            return $kategori->nama_kategori ?? $kategori->NAMA_KATEGORI ?? 'Semua Paket';
+        }
+        
+        if (is_array($kategori)) {
+            return $kategori['NAMA_KATEGORI'] ?? $kategori['nama_kategori'] ?? 'Semua Paket';
+        }
+        
+        if (is_string($kategori)) {
+            $dec = json_decode(html_entity_decode($kategori), true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($dec)) {
+                return $dec['NAMA_KATEGORI'] ?? $dec['nama_kategori'] ?? 'Semua Paket';
+            }
+            if (preg_match('/"NAMA_KATEGORI"\s*:\s*"([^"]+)"/i', $kategori, $matches) || preg_match('/"nama_kategori"\s*:\s*"([^"]+)"/i', $kategori, $matches)) {
+                return $matches[1];
+            }
+            if (strtoupper($kategori) === 'UMUM') {
+                return 'Semua Paket';
+            }
+            return $kategori;
+        }
+        
+        return 'Semua Paket';
+    }
+
+    public function show($id)
+    {
+        $booking = Booking::with(['items.paketWisata', 'fasilitas.fasilitas', 'pembayaran'])->findOrFail($id);
+        return view('admin.kelola_booking.show', compact('booking'));
+    }
+
     public function store(Request $request)
     {
-        $request->validate([
-
-            'nama_pemesan' =>
-                'required|string|max:255',
-
-            'no_hp' =>
-                'required|string|max:20',
-
-            'tanggal_kunjungan' =>
-                'required|date',
-
-            'jam' =>
-                'required',
-
-            'jumlah_pengunjung' =>
-                'required|integer|min:1',
-
-            'catatan' =>
-                'nullable|string',
-
-            // optional checkout / multi-day
-            'tanggal_selesai' =>
-                'nullable|date',
-
-            'jumlah_hari' =>
-                'nullable|integer|min:1',
-
-            // paket wisata
-            'paket' =>
-                'required|array|min:1',
-
-            'paket.*.paket_wisata_id' =>
-                'required|exists:paket_wisata,id',
-
-            'paket.*.qty' =>
-                'required|integer|min:1',
-
-            // fasilitas tambahan
-            'fasilitas' =>
-                'nullable|array',
-
-            'fasilitas.*.fasilitas_id' =>
-                'required|exists:fasilitas,id',
-
-            'fasilitas.*.qty' =>
-                'required|integer|min:1',
-
-            // diskon
-            'diskon_manual' =>
-                'nullable|numeric|min:0',
-
-            // pembayaran admin
-            'metode_pembayaran' =>
-                'nullable|in:cash,transfer',
-
-            'tipe_pembayaran' =>
-                'nullable|in:dp,lunas',
-
-            'nominal_bayar' =>
-                'nullable|numeric|min:0',
-
-            'bukti_pembayaran' =>
-                'nullable|image|mimes:jpg,jpeg,png|max:2048'
-        ]);
-
         DB::beginTransaction();
-
         try {
-
-            // =====================================
-            // GENERATE KODE BOOKING
-            // =====================================
-            $kodeBooking =
-                'KLS-' . strtoupper(Str::random(8));
-
-            // =====================================
-            // VARIABLE TOTAL
-            // =====================================
-            $subtotalPaket = 0;
-
-            $subtotalFasilitas = 0;
-
-            $subtotalTiketTambahan = 0;
-
-            $jumlahTiketTambahan = 0;
-
-            // =====================================
-            // HITUNG TOTAL KAPASITAS
-            // =====================================
-            $totalKapasitas = 0;
-
-            foreach ($request->paket as $item) {
-
-                $paket = PaketWisata::findOrFail(
-                    $item['paket_wisata_id']
-                );
-
-                $totalKapasitas +=
-                    $paket->kapasitas *
-                    $item['qty'];
-            }
-
-            // =====================================
-            // HITUNG TIKET TAMBAHAN
-            // =====================================
-            if (
-                $request->jumlah_pengunjung >
-                $totalKapasitas
-            ) {
-
-                $jumlahTiketTambahan =
-                    $request->jumlah_pengunjung -
-                    $totalKapasitas;
-
-                $subtotalTiketTambahan =
-                    $jumlahTiketTambahan * 25000;
-            }
-
-            // =====================================
-            // HITUNG TOTAL PAKET
-            // =====================================
-            foreach ($request->paket as $item) {
-
-                $paket = PaketWisata::findOrFail(
-                    $item['paket_wisata_id']
-                );
-
-                $subtotal =
-                    $paket->harga *
-                    $item['qty'];
-
-                $subtotalPaket +=
-                    $subtotal;
-            }
-
-            // =====================================
-            // HITUNG TOTAL FASILITAS
-            // =====================================
-            if ($request->fasilitas) {
-
-                foreach ($request->fasilitas as $item) {
-
-                    $fasilitas = Fasilitas::findOrFail(
-                        $item['fasilitas_id']
-                    );
-
-                    // =================================
-                    // CEK STOK FASILITAS SEWA
-                    // =================================
-                    if (
-                        $fasilitas->tipe_fasilitas
-                        == 'sewa'
-                    ) {
-
-                        if (
-                            $fasilitas->stok <
-                            $item['qty']
-                        ) {
-
-                            DB::rollBack();
-
-                            return response()->json([
-                                'message' =>
-                                    'Stok fasilitas ' .
-                                    $fasilitas->nama_fasilitas .
-                                    ' tidak mencukupi'
-                            ], 422);
-                        }
-                    }
-
-                    $subtotal =
-                        $fasilitas->harga *
-                        $item['qty'];
-
-                    $subtotalFasilitas +=
-                        $subtotal;
-                }
-            }
-
-            // =====================================
-            // TOTAL HARGA
-            // =====================================
-            $totalHarga =
-                $subtotalPaket +
-                $subtotalFasilitas +
-                $subtotalTiketTambahan;
-
-            // =====================================
-            // DISKON
-            // =====================================
-            $diskonManual =
-                $request->diskon_manual ?? 0;
-
-            // =====================================
-            // TOTAL FINAL
-            // =====================================
-            $totalHargaFinal = max(
-                0,
-                $totalHarga - $diskonManual
-            );
-
-            // =====================================
-            // DEFAULT STATUS
-            // =====================================
-            $statusBooking = 'pending';
-            $statusPembayaran = 'belum_bayar';
-
-            // =====================================
-            // HANDLE OPTIONAL CHECKOUT / NIGHTS
-            // =====================================
-            $tanggalSelesai = null;
-            if ($request->filled('tanggal_selesai')) {
-                $tanggalSelesai = Carbon::parse($request->tanggal_selesai)->toDateString();
-            }
-
-            $jumlahHari = (int) ($request->jumlah_hari ?? 1);
-
-            // =====================================
-            // JIKA ADA PEMBAYARAN
-            // =====================================
-            if ($request->nominal_bayar > 0) {
-
-                $statusBooking =
-                    'dikonfirmasi';
-
-                if (
-                    $request->nominal_bayar >=
-                    $totalHargaFinal
-                ) {
-
-                    $statusPembayaran =
-                        'lunas';
-                }
-
-                else {
-
-                    $statusPembayaran =
-                        'dp';
-                }
-            }
-
-            // =====================================
-            // SIMPAN BOOKING
-            // =====================================
             $booking = Booking::create([
-
-                'kode_booking' =>
-                    $kodeBooking,
-
-                'nama_pemesan' =>
-                    $request->nama_pemesan,
-
-                'no_hp' =>
-                    $request->no_hp,
-
-                'tanggal_kunjungan' =>
-                    $request->tanggal_kunjungan,
-
-                'jam' =>
-                    $request->jam,
-
-                'jumlah_pengunjung' =>
-                    $request->jumlah_pengunjung,
-
-                'jumlah_tiket_tambahan' =>
-                    $jumlahTiketTambahan,
-
-                'harga_tiket_tambahan' =>
-                    25000,
-
-                'subtotal_tiket_tambahan' =>
-                    $subtotalTiketTambahan,
-
-                'catatan' =>
-                    $request->catatan,
-
-                // multi-day fields
-                'tanggal_selesai' => $tanggalSelesai,
-                'jumlah_hari' => $jumlahHari,
-
-                'total_harga' =>
-                    $totalHarga,
-
-                'diskon_manual' =>
-                    $diskonManual,
-
-                'total_harga_final' =>
-                    $totalHargaFinal,
-
-                'status_booking' =>
-                    $statusBooking,
-
-                'status_pembayaran' =>
-                    $statusPembayaran
+                'kode_booking' => 'BK-' . time(),
+                'nama_pemesan' => $request->nama_pemesan,
+                'no_hp' => $request->no_hp,
+                'tanggal_kunjungan' => $request->tanggal_kunjungan,
+                'tanggal_selesai' => $request->tanggal_selesai,
+                'jam' => $request->jam,
+                'jumlah_pengunjung' => $request->jumlah_pengunjung,
+                'catatan' => $request->catatan,
+                'jumlah_malam' => $request->jumlah_malam,
+                'total_harga' => round($request->total_harga),
+                'total_harga_final' => round($request->total_harga_final),
+                'diskon_manual' => round($request->diskon_manual ?? 0),
+                'jumlah_tiket_tambahan' => $request->jumlah_tiket_tambahan ?? 0,
+                'subtotal_tiket_tambahan' => round($request->subtotal_tiket_tambahan ?? 0),
+                'status_booking' => 'pending'
             ]);
 
-            // =====================================
-            // SIMPAN BOOKING ITEM
-            // =====================================
-            foreach ($request->paket as $item) {
-
-                $paket = PaketWisata::findOrFail(
-                    $item['paket_wisata_id']
-                );
-
-                BookingItem::create([
-
-                    'booking_id' =>
-                        $booking->id,
-
-                    'paket_wisata_id' =>
-                        $paket->id,
-
-                    'qty' =>
-                        $item['qty'],
-
-                    'harga' =>
-                        $paket->harga,
-
-                    'subtotal' =>
-                        $paket->harga *
-                        $item['qty']
-                ]);
+            $buktiPath = null;
+            if ($request->hasFile('bukti_pembayaran')) {
+                $buktiPath = $request->file('bukti_pembayaran')->store('pembayaran_dp', 'local');
             }
 
-            // =====================================
-            // SIMPAN BOOKING FASILITAS
-            // =====================================
-            if ($request->fasilitas) {
+            Pembayaran::create([
+                'booking_id' => $booking->id,
+                'tipe_pembayaran' => $request->tipe_pembayaran,
+                'metode_pembayaran' => $request->metode_pembayaran,
+                'nominal' => round($request->nominal),
+                'bukti_pembayaran' => $buktiPath,
+                'tanggal_pembayaran' => now()
+            ]);
 
-                foreach (
-                    $request->fasilitas
-                    as $item
-                ) {
+            if ($request->has('paket')) {
+                foreach ($request->paket as $p) {
+                    $tanggal = \Carbon\Carbon::parse($request->tanggal_kunjungan)
+                                ->addDays($p['hari'] - 1)
+                                ->format('Y-m-d');
+                    
+                    $subtotal = round($p['qty'] * $p['harga']);
 
-                    $fasilitas =
-                        Fasilitas::findOrFail(
-                            $item['fasilitas_id']
-                        );
-
-                    // =============================
-                    // KURANGI STOK FASILITAS SEWA
-                    // =============================
-                    if (
-                        $fasilitas->tipe_fasilitas
-                        == 'sewa'
-                    ) {
-
-                        $fasilitas->decrement(
-                            'stok',
-                            $item['qty']
-                        );
-                    }
-
-                    BookingFasilitas::create([
-
-                        'booking_id' =>
-                            $booking->id,
-
-                        'fasilitas_id' =>
-                            $fasilitas->id,
-
-                        'qty' =>
-                            $item['qty'],
-
-                        'harga' =>
-                            $fasilitas->harga,
-
-                        'subtotal' =>
-                            $fasilitas->harga *
-                            $item['qty']
+                    BookingItem::create([
+                        'booking_id' => $booking->id,
+                        'paket_wisata_id' => $p['paket_wisata_id'],
+                        'hari' => $p['hari'],
+                        'tanggal' => $tanggal,
+                        'qty' => $p['qty'],
+                        'harga' => round($p['harga']),
+                        'subtotal' => $subtotal,
                     ]);
                 }
             }
 
-            // =====================================
-            // SIMPAN PEMBAYARAN ADMIN
-            // =====================================
-            if ($request->nominal_bayar > 0) {
+            if ($request->has('fasilitas')) {
+                $jumlah_malam = $request->jumlah_malam > 0 ? $request->jumlah_malam : 1;
+                
+                foreach ($request->fasilitas as $f) {
+                    for ($i = 1; $i <= $jumlah_malam; $i++) {
+                        $tanggal = \Carbon\Carbon::parse($request->tanggal_kunjungan)
+                                    ->addDays($i - 1)
+                                    ->format('Y-m-d');
+                        
+                        $subtotal = round($f['qty'] * $f['harga']);
 
-                $path = null;
-
-                // =============================
-                // UPLOAD BUKTI
-                // =============================
-                if (
-                    $request->hasFile(
-                        'bukti_pembayaran'
-                    )
-                ) {
-
-                    $path = $request
-                        ->file('bukti_pembayaran')
-                        ->store(
-                            'pembayaran',
-                            'public'
-                        );
+                        BookingFasilitas::create([
+                            'booking_id' => $booking->id,
+                            'fasilitas_id' => $f['fasilitas_id'],
+                            'hari' => $i,
+                            'tanggal' => $tanggal,
+                            'qty' => $f['qty'],
+                            'harga' => round($f['harga']),
+                            'subtotal' => $subtotal,
+                        ]);
+                    }
                 }
-
-                Pembayaran::create([
-
-                    'booking_id' =>
-                        $booking->id,
-
-                    'tipe_pembayaran' =>
-                        $request->tipe_pembayaran,
-
-                    'metode_pembayaran' =>
-                        $request->metode_pembayaran,
-
-                    'nominal' =>
-                        $request->nominal_bayar,
-
-                    'bukti_pembayaran' =>
-                        $path,
-
-                    // ADMIN AUTO VALID
-                    'status_verifikasi' =>
-                        'valid',
-
-                    'tanggal_pembayaran' =>
-                        now()
-                ]);
             }
 
             DB::commit();
-
-            return redirect()->route('admin.booking-admin.index')->with('success', 'Data booking berhasil ditambahkan!');
-
+            return redirect('/admin/booking-admin')->with('success', 'Data booking berhasil ditambahkan!');
         } catch (\Exception $e) {
-
             DB::rollBack();
-
-            return redirect()->route('admin.booking-admin.index')->with('error', 'Error: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
         }
     }
 
-    // =========================================
-    // UPDATE BOOKING
-    // =========================================
     public function update(Request $request, $id)
     {
-        $booking = Booking::with(
-            'fasilitas.fasilitas'
-        )->find($id);
+        $booking = Booking::findOrFail($id);
 
-        if (!$booking) {
+        $totalAwal = round($booking->total_harga);
+        $diskonBaru = round($request->diskon_manual ?? $booking->diskon_manual);
+        $hargaFinalBaru = $totalAwal - $diskonBaru;
 
-            return response()->json([
-                'message' => 'Booking tidak ditemukan'
-            ], 404);
-
+        if ($hargaFinalBaru < 0) {
+            $hargaFinalBaru = 0;
         }
 
-        $request->validate([
-
-            'status_booking' =>
-                'nullable|in:pending,dikonfirmasi,selesai,dibatalkan',
-
-            'status_pembayaran' =>
-                'nullable|in:belum_bayar,dp,lunas,menunggu_verifikasi',
-
-            'diskon_manual' =>
-                'nullable|numeric|min:0',
-
-            'catatan' =>
-                'nullable|string',
-
-            'tanggal_selesai' =>
-                'nullable|date',
-
-            'jumlah_hari' =>
-                'nullable|integer|min:1'
+        $booking->update([
+            'nama_pemesan' => $request->nama_pemesan ?? $booking->nama_pemesan,
+            'no_hp' => $request->no_hp ?? $booking->no_hp,
+            'tanggal_kunjungan' => $request->tanggal_kunjungan ?? $booking->tanggal_kunjungan,
+            'tanggal_selesai' => $request->tanggal_selesai ?? $booking->tanggal_selesai,
+            'jam' => $request->jam ?? $booking->jam,
+            'catatan' => $request->catatan ?? $booking->catatan,
+            'diskon_manual' => $diskonBaru,
+            'total_harga_final' => $hargaFinalBaru,
+            'status_booking' => $request->status_booking ?? $booking->status_booking,
         ]);
 
-        DB::beginTransaction();
-
-        try {
-
-            // =====================================
-            // KEMBALIKAN STOK JIKA BOOKING DIBATALKAN
-            // =====================================
-            if (
-                $booking->status_booking != 'dibatalkan'
-                && $request->status_booking == 'dibatalkan'
-            ) {
-                foreach ($booking->fasilitas as $item) {
-                    $fasilitas = $item->fasilitas;
-                    if ($fasilitas && $fasilitas->tipe_fasilitas == 'sewa') {
-                        $fasilitas->increment('stok', $item->qty);
-                    }
-                }
-            }
-
-            // =====================================
-            // KURANGI STOK JIKA STATUS DIBATALKAN DIUBAH KE STATUS LAIN
-            // =====================================
-            if (
-                $booking->status_booking == 'dibatalkan'
-                && $request->status_booking != 'dibatalkan'
-                && $request->status_booking !== null
-            ) {
-                foreach ($booking->fasilitas as $item) {
-                    $fasilitas = $item->fasilitas;
-                    if ($fasilitas && $fasilitas->tipe_fasilitas == 'sewa') {
-                        // Validasi stok sebelum proses
-                        if ($fasilitas->stok < $item->qty) {
-                            throw new \Exception("Stok fasilitas {$fasilitas->nama_fasilitas} tidak cukup.");
-                        }
-                        $fasilitas->decrement('stok', $item->qty);
-                    }
-                }
-            }
-
-            // =====================================
-            // UPDATE DISKON
-            // =====================================
-            $diskonManual =
-                $request->diskon_manual
-                ?? $booking->diskon_manual;
-
-            // =====================================
-            // HITUNG TOTAL FINAL
-            // =====================================
-            $totalHargaFinal = max(
-                0,
-                $booking->total_harga -
-                $diskonManual
-            );
-
-            // =====================================
-            // UPDATE BOOKING
-            // =====================================
-            $booking->update([
-
-                'status_booking' =>
-                    $request->status_booking
-                    ?? $booking->status_booking,
-
-                'status_pembayaran' =>
-                    $request->status_pembayaran
-                    ?? $booking->status_pembayaran,
-
-                'catatan' =>
-                    $request->catatan
-                    ?? $booking->catatan,
-
-                'diskon_manual' =>
-                    $diskonManual,
-
-                'total_harga_final' =>
-                    $totalHargaFinal,
-
-                // allow admin to update multi-day fields
-                'tanggal_selesai' => $request->tanggal_selesai ?? $booking->tanggal_selesai,
-                'jumlah_hari' => $request->jumlah_hari ?? $booking->jumlah_hari
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil diupdate!');
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return redirect()->route('admin.booking-admin.index')->with('error', 'Terjadi kesalahan saat mengupdate booking: ' . $e->getMessage());
-        }
+        return back()->with('success', 'Booking berhasil diupdate');
     }
 
-    // =========================================
-    // HAPUS BOOKING
-    // =========================================
     public function destroy($id)
     {
-        $booking = Booking::with(
-            'fasilitas.fasilitas'
-        )->find($id);
-
-        if (!$booking) {
-
-            return redirect()->route('admin.booking-admin.index')->with('error', 'Booking tidak ditemukan!');
-        }
+        $booking = Booking::with(['fasilitas.fasilitas'])->findOrFail($id);
 
         DB::beginTransaction();
 
         try {
-
-            // =====================================
-            // KEMBALIKAN STOK
-            // =====================================
-            foreach (
-                $booking->fasilitas
-                as $item
-            ) {
-
-                $fasilitas =
-                    $item->fasilitas;
-
-                if (
-
-                    $fasilitas &&
-
-                    $fasilitas->tipe_fasilitas
-                    == 'sewa'
-
-                ) {
-
-                    $fasilitas->increment(
-                        'stok',
-                        $item->qty
-                    );
+            foreach ($booking->fasilitas as $item) {
+                if ($item->fasilitas && $item->fasilitas->tipe_fasilitas === 'sewa') {
+                    $item->fasilitas->increment('stok', $item->qty);
                 }
             }
 
-            // =====================================
-            // HAPUS RELASI
-            // =====================================
             $booking->items()->delete();
-
             $booking->fasilitas()->delete();
-
-            $booking->pembayaran()->delete();
-
-            // =====================================
-            // HAPUS BOOKING
-            // =====================================
+            
+            foreach($booking->pembayaran as $pembayaran) {
+                if ($pembayaran->bukti_pembayaran) {
+                    Storage::disk('local')->delete($pembayaran->bukti_pembayaran);
+                }
+                $pembayaran->delete();
+            }
+            
             $booking->delete();
 
             DB::commit();
 
-            return redirect()->route('admin.booking-admin.index')->with('success', 'Booking berhasil dihapus!');
+            return back()->with('success', 'Booking berhasil dihapus');
 
         } catch (\Exception $e) {
-
             DB::rollBack();
-
-            return redirect()->route('admin.booking-admin.index')->with('error', 'Terjadi kesalahan saat menghapus booking: ' . $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
 }

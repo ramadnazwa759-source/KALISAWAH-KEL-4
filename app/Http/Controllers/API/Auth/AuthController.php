@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -13,9 +14,14 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $key = Str::lower($request->email).'|'.$request->ip();
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:8'
+        ]);
 
-        // Maksimal 3 kali percobaan
+        $key = Str::lower($request->email) . '|' . $request->ip();
+
+        // Maksimal 3 percobaan login
         if (RateLimiter::tooManyAttempts($key, 3)) {
 
             $seconds = RateLimiter::availableIn($key);
@@ -27,33 +33,25 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first(); // Cari user berdasarkan email
 
-        if (!$user) {
+        // Email tidak ditemukan atau password salah
+        if (!$user || !Hash::check($request->password, $user->password)) {
 
-            RateLimiter::hit($key, 300); // blok selama 5 menit
-
-            return response()->json([
-                "message" => "User tidak ditemukan"
-            ], 404);
-        }
-
-        if (!Hash::check($request->password, $user->password)) {
-
-            RateLimiter::hit($key, 300);
+            RateLimiter::hit($key, 300); // blok 5 menit
 
             return response()->json([
-                "message" => "Password salah"
+                'message' => 'Email atau password salah'
             ], 401);
         }
 
-        // Login berhasil → reset hit counter
+        // Login berhasil → reset counter
         RateLimiter::clear($key);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            "message" => "Login berhasil",
-            "user" => $user,
-            "token" => $token
+            'message' => 'Login berhasil',
+            'user' => $user,
+            'token' => $token
         ]);
     }
 
