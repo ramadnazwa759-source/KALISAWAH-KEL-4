@@ -10,10 +10,17 @@ class PengeluaranOperasionalController extends Controller
 {
     public function index()
     {
-        return response()->json(
-            PengeluaranOperasional::with('kategori')->get(),
-            200
-        );
+        // return response()->json(
+        //     PengeluaranOperasional::with('kategori')->get(),
+        //     200
+        // );
+        return view('admin.kelola_operasional.pengeluaran', [
+        'data' => PengeluaranOperasional::with('kategori')->get(),
+        'kategori' => \App\Models\KategoriPengeluaran::all() // Pastikan kategori juga dikirim
+        ]);
+        // return view('admin.kelola_operasional.pengeluaran', [
+        //     'pengeluaran' => PengeluaranOperasional::with('kategori')->get()
+        // ]);
     }
 
     private function validateData(Request $request)
@@ -41,7 +48,8 @@ class PengeluaranOperasionalController extends Controller
 
         $result = PengeluaranOperasional::create($data);
 
-        return response()->json($result, 201);
+        // return response()->json($result, 201);
+        return redirect()->route('admin.pengeluaran.index')->with('success', 'Data pengeluaran berhasil ditambahkan');
     }
 
     public function show($id)
@@ -52,7 +60,10 @@ class PengeluaranOperasionalController extends Controller
             return response()->json(['error' => 'Tidak ditemukan'], 404);
         }
 
-        return response()->json($data, 200);
+        // return response()->json($data, 200);
+        return view('admin.kelola_operasional.pengeluaran.show', [
+            'pengeluaran' => $data
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -73,7 +84,8 @@ class PengeluaranOperasionalController extends Controller
 
         $item->update($data);
 
-        return response()->json($item, 200);
+        // return response()->json($item, 200);
+        return redirect()->route('admin.pengeluaran.index')->with('success', 'Data pengeluaran berhasil diperbarui');
     }
 
     public function destroy($id)
@@ -86,8 +98,9 @@ class PengeluaranOperasionalController extends Controller
 
         $data->delete();
 
-        return response()->json([
-            'message' => 'Data berhasil dihapus'
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Data berhasil dihapus'
+        // ], 200);
+        return redirect()->route('admin.pengeluaran.index')->with('success', 'Data pengeluaran berhasil dihapus');
     }
 }

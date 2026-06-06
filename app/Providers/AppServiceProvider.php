@@ -22,7 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (!app()->runningInConsole()) {
         View::share('categories', KategoriPaket::all());
+        }
     }
 }
 

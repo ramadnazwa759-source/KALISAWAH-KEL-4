@@ -14,6 +14,8 @@ use App\Http\Controllers\API\Kelola_booking\AdminBookingController;
 use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 use App\Http\Controllers\API\Booking_pengunjung\PengunjungBookingController;
 use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
+use App\Http\Controllers\API\Kelola_pengeluaran\KategoriPengeluaranController;
+use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController;
 
 /* 1. SEKTOR ADMIN */
 Route::get('/admin/login', function () { return view('auth.login'); })->name('login');
@@ -50,6 +52,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(funct
     Route::get('fasilitas-booking', [FasilitasController::class, 'fasilitasBooking']);
     Route::resource('booking-admin', AdminBookingController::class);
     Route::resource('pembayaran', PembayaranAdminController::class);
+    Route::resource('kategori-pengeluaran', KategoriPengeluaranController::class);
+    Route::resource('pengeluaran', PengeluaranOperasionalController::class);
 });
 
 /* 2. SEKTOR PENGUNJUNG */
@@ -59,19 +63,19 @@ Route::get('/home', [ProfilWisataController::class, 'index'])->name('landing-pag
 // SISTEM BOOKING PENGUNJUNG
 Route::prefix('booking')->as('pengunjung.booking.')->group(function () {
     Route::get('/', [PengunjungBookingController::class, 'showForm'])->name('booking-form');
-    
+
     // Alur Booking: Form -> Review -> Confirm
     Route::post('/review', [PengunjungBookingController::class, 'review'])->name('review');
     Route::get('/review', [PengunjungBookingController::class, 'showReview'])->name('review.show');
     Route::post('/confirm', [PengunjungBookingController::class, 'confirmStore'])->name('confirm');
-    
+
     // Detail & Payment
     Route::get('/{id}/detail', [PengunjungBookingController::class, 'showDetail'])->name('booking-detail');
     Route::get('/{id}/payment', [PengunjungBookingController::class, 'showPayment'])->name('booking-payment');
     Route::post('/{id}/update-payment', [PengunjungBookingController::class, 'updatePaymentMethod'])->name('update-payment');
     Route::get('/{id}/success', [PengunjungBookingController::class, 'showSuccess'])->name('booking-success');
     Route::post('/{id}/upload-bukti', [PengunjungBookingController::class, 'uploadBukti'])->name('upload-bukti');
-    
+
     // Edit & Update
     Route::get('/{id}/edit', [PengunjungBookingController::class, 'edit'])->name('edit');
     Route::put('/{id}/update', [PengunjungBookingController::class, 'update'])->name('update');

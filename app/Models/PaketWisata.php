@@ -16,7 +16,8 @@ class PaketWisata extends Model
         'harga',
         'kapasitas',
         'durasi',
-        'status'
+        'status',
+        'gambar',
     ];
 
     public function kategori()
