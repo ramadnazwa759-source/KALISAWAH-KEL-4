@@ -57,6 +57,43 @@
         </button>
     </div>
 
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url('/admin/booking-admin') }}" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Filter Bulan Kunjungan</label>
+                    <select name="bulan" class="form-select rounded-3">
+                        <option value="">Tampilkan Semua Bulan</option>
+                        @php
+                            $months = [
+                                '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+                                '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+                                '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+                            ];
+                        @endphp
+                        @foreach($months as $num => $name)
+                            <option value="{{ $num }}" {{ request('bulan') == $num ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Tahun</label>
+                    <select name="tahun" class="form-select rounded-3">
+                        @for($y = date('Y') - 1; $y <= date('Y') + 2; $y++)
+                            <option value="{{ $y }}" {{ request('tahun', date('Y')) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary rounded-3 fw-bold flex-grow-1 py-2"><i class="fas fa-filter me-1"></i> Terapkan</button>
+                    @if(request('bulan') || request('tahun'))
+                        <a href="{{ url('/admin/booking-admin') }}" class="btn btn-light border rounded-3 fw-bold py-2"><i class="fas fa-undo"></i></a>
+                    @endif
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -68,13 +105,24 @@
                             <th>Pemesan</th>
                             <th>Kunjungan</th>
                             <th class="text-center">Orang</th>
-                            <th>Total</th>
-                            <th>Status</th>
+                            <th class="text-end">Harga Awal</th>
+                            <th class="text-end">Diskon</th>
+                            <th class="text-end">Harga Final</th>
+                            <th class="text-end">Terbayar DP</th>
+                            <th class="text-end">Sisa Bayar</th>
+                            <th class="text-center">Status</th>
                             <th class="text-center pe-4" style="width: 140px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($data as $key => $b)
+                        @php
+                            $hargaAwal = round($b->total_harga);
+                            $diskon = round($b->diskon_manual);
+                            $hargaFinal = round($b->total_harga_final);
+                            $terbayar = round($b->pembayaran->sum('nominal'));
+                            $sisa = max(0, $hargaFinal - $terbayar);
+                        @endphp
                         <tr>
                             <td class="ps-4 text-center fw-medium text-secondary">{{ $key + 1 }}</td>
                             <td><span class="badge bg-primary px-3 py-2 rounded-3 fw-bold">{{ $b->kode_booking }}</span></td>
@@ -84,25 +132,25 @@
                             </td>
                             <td><div class="fw-bold text-secondary">{{ date('d M Y', strtotime($b->tanggal_kunjungan)) }}</div></td>
                             <td class="text-center"><span class="badge bg-light text-dark border px-2 py-2">{{ $b->jumlah_pengunjung }} Org</span></td>
-                            <td class="fw-bold text-success">Rp {{ number_format($b->total_harga_final,0,',','.') }}</td>
-                            <td><span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-medium">{{ $b->status_booking }}</span></td>
+                            <td class="text-end fw-bold text-secondary">Rp {{ number_format($hargaAwal,0,',','.') }}</td>
+                            <td class="text-end fw-bold text-danger">Rp {{ number_format($diskon,0,',','.') }}</td>
+                            <td class="text-end fw-bold text-primary">Rp {{ number_format($hargaFinal,0,',','.') }}</td>
+                            <td class="text-end fw-bold text-success">Rp {{ number_format($terbayar,0,',','.') }}</td>
+                            <td class="text-end fw-bold text-warning">Rp {{ number_format($sisa,0,',','.') }}</td>
+                            <td class="text-center"><span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-medium">{{ $b->status_booking }}</span></td>
                             <td class="text-center pe-4">
                                 <div class="d-inline-flex gap-2">
                                     <button type="button" class="btn btn-sm btn-info text-white rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     
-                                    <a href="{{ url('/admin/booking-admin/'.$b->id.'/edit') }}" class="btn btn-sm btn-warning text-dark rounded-3 shadow-sm px-2.5 py-2">
+                                    <button type="button" class="btn btn-sm btn-warning text-dark rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalEditBooking{{ $b->id }}">
                                         <i class="fas fa-edit"></i>
-                                    </a>
+                                    </button>
 
-                                    <form action="{{ url('/admin/booking-admin/'.$b->id) }}" method="POST" id="delete-form-{{ $b->id }}" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn btn-sm btn-danger rounded-3 shadow-sm px-2.5 py-2" onclick="confirmDelete({{ $b->id }})">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <a href="{{ url('/admin/pembayaran?booking_id='.$b->id) }}" class="btn btn-sm btn-success text-white rounded-3 shadow-sm px-2.5 py-2" title="Lihat Data Pembayaran">
+                                        <i class="fas fa-wallet"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -261,26 +309,47 @@
                                     <input type="number" name="nominal" class="form-control" placeholder="0" required>
                                 </div>
                                 <div class="mb-3">
+                                    <label class="form-label">Upload Bukti DP/Pembayaran</label>
+                                    <input type="file" name="bukti_pembayaran" class="form-control" accept="image/*" required>
+                                </div>
+                                <div class="mb-0">
                                     <label class="form-label">Diskon Manual (Rp)</label>
                                     <input type="number" name="diskon_manual" id="diskon_manual" class="form-control" placeholder="0" value="0" oninput="calculateTotal()">
                                 </div>
                             </div>
 
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="summary-card card-blue shadow-sm">
-                                        <small class="d-block mb-1 fw-bold text-uppercase"><i class="fas fa-users"></i> Kapasitas Disediakan /Malam</small>
-                                        <div class="d-flex align-items-baseline gap-2">
-                                            <span id="disp-kapasitas" class="fs-1 fw-bold">0</span> <span class="fw-bold">Orang</span>
-                                        </div>
-                                    </div>
+                            <div class="summary-card card-blue shadow-sm mb-3">
+                                <small class="d-block mb-3 fw-bold text-uppercase"><i class="fas fa-receipt"></i> Rincian Harga</small>
+                                
+                                <div class="d-flex justify-content-between mb-2 small">
+                                    <span class="text-secondary">Subtotal Paket Wisata:</span>
+                                    <span id="disp-sub-paket" class="fw-bold text-dark">Rp 0</span>
                                 </div>
-                                <div class="col-12">
-                                    <div class="summary-card card-green shadow-sm">
-                                        <small class="d-block mb-1 fw-bold text-uppercase"><i class="fas fa-calculator"></i> Total Estimasi Biaya</small>
-                                        <span id="disp-total" class="fs-2 fw-bold text-success">Rp 0</span>
-                                        <p class="small mb-0 mt-2 fw-bold text-success">*Otomatis menghitung semua item dan denda over-capacity.</p>
-                                    </div>
+                                <div class="d-flex justify-content-between mb-2 small">
+                                    <span class="text-secondary">Subtotal Fasilitas:</span>
+                                    <span id="disp-sub-fasilitas" class="fw-bold text-dark">Rp 0</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 small">
+                                    <span class="text-danger">Tiket Tambahan (Over Kapasitas):</span>
+                                    <span id="disp-sub-tiket" class="fw-bold text-danger">Rp 0</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 small">
+                                    <span class="text-primary">Diskon:</span>
+                                    <span id="disp-diskon" class="fw-bold text-primary">- Rp 0</span>
+                                </div>
+                                
+                                <hr class="my-2 border-primary opacity-20">
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="fw-bold text-dark">Total Akhir:</span>
+                                    <span id="disp-total" class="fs-4 fw-bold text-success">Rp 0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-card bg-white border shadow-sm">
+                                <small class="d-block mb-1 fw-bold text-uppercase text-secondary"><i class="fas fa-users"></i> Kapasitas Disediakan /Malam</small>
+                                <div class="d-flex align-items-baseline gap-2">
+                                    <span id="disp-kapasitas" class="fs-2 fw-bold text-dark">0</span> <span class="fw-bold text-secondary">Orang</span>
                                 </div>
                             </div>
                         </div>
@@ -297,44 +366,205 @@
     </div>
 </div>
 
+@foreach($data as $b)
+<div class="modal fade" id="modalShowBooking{{ $b->id }}" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content shadow-lg rounded-4 border-0">
+            <div class="modal-header bg-light">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-info-circle text-info me-2"></i> Rincian Lengkap Data Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="bg-white p-3 rounded-3 border">
+                            <div class="detail-label">KODE BOOKING</div>
+                            <div class="detail-value text-primary mb-3">{{ $b->kode_booking }}</div>
+                            
+                            <div class="detail-label">NAMA PEMESAN</div>
+                            <div class="detail-value mb-3">{{ $b->nama_pemesan }}</div>
+                            
+                            <div class="detail-label">NOMOR WHATSAPP</div>
+                            <div class="detail-value mb-3">{{ $b->no_hp }}</div>
+                            
+                            <div class="detail-label">CATATAN</div>
+                            <div class="detail-value">{{ $b->catatan ?? '-' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-white p-3 rounded-3 border">
+                            <div class="detail-label">TANGGAL KUNJUNGAN (CHECK-IN)</div>
+                            <div class="detail-value mb-3">{{ date('d F Y', strtotime($b->tanggal_kunjungan)) }}</div>
+                            
+                            <div class="detail-label">TANGGAL SELESAI (CHECK-OUT)</div>
+                            <div class="detail-value mb-3">{{ date('d F Y', strtotime($b->tanggal_selesai)) }}</div>
+                            
+                            <div class="detail-label">JAM CHECK-IN</div>
+                            <div class="detail-value mb-3">{{ date('H:i', strtotime($b->jam)) }} WIB</div>
+                            
+                            <div class="detail-label">JUMLAH PENGUNJUNG</div>
+                            <div class="detail-value"><span class="badge bg-light text-dark border px-3 py-1.5">{{ $b->jumlah_pengunjung }} Orang</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-3 rounded-3 border mb-4">
+                    <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-history me-2"></i>Rincian Item Per Hari</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm align-middle mb-0">
+                            <thead class="bg-light small fw-bold text-secondary text-uppercase text-center">
+                                <tr>
+                                    <th>Hari / Tgl</th>
+                                    <th>Jenis</th>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($b->items as $item)
+                                <tr>
+                                    <td class="text-center">Hari {{ $item->hari }}<br><small class="text-muted">{{ date('d/m/Y', strtotime($item->tanggal)) }}</small></td>
+                                    <td class="text-center"><span class="badge bg-info text-dark">Paket</span></td>
+                                    <td>{{ $item->paketWisata->nama_paket ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->qty }}</td>
+                                    <td class="text-end fw-bold">Rp {{ number_format(round($item->subtotal),0,',','.') }}</td>
+                                </tr>
+                                @endforeach
+                                @foreach($b->fasilitas as $fas)
+                                <tr>
+                                    <td class="text-center">Hari {{ $fas->hari }}<br><small class="text-muted">{{ date('d/m/Y', strtotime($fas->tanggal)) }}</small></td>
+                                    <td class="text-center"><span class="badge bg-success text-white">Fasilitas</span></td>
+                                    <td>{{ $fas->fasilitas->nama_fasilitas ?? '-' }}</td>
+                                    <td class="text-center">{{ $fas->qty }}</td>
+                                    <td class="text-end fw-bold">Rp {{ number_format(round($fas->subtotal),0,',','.') }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-3 rounded-3 border mb-4">
+                    <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-history me-2"></i>Histori Pembayaran</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm align-middle mb-0">
+                            <thead class="bg-light small fw-bold text-secondary text-uppercase">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Tipe</th>
+                                    <th>Metode</th>
+                                    <th class="text-end">Nominal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($b->pembayaran as $p)
+                                <tr>
+                                    <td>{{ date('d M Y H:i', strtotime($p->tanggal_pembayaran)) }}</td>
+                                    <td><span class="badge bg-secondary text-uppercase">{{ $p->tipe_pembayaran }}</span></td>
+                                    <td class="text-capitalize">{{ $p->metode_pembayaran }}</td>
+                                    <td class="fw-bold text-success text-end">Rp {{ number_format(round($p->nominal), 0, ',', '.') }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-2 small">Belum ada riwayat pembayaran.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                            <tfoot class="bg-light">
+                                @php
+                                    $hargaAwal = round($b->total_harga);
+                                    $diskon = round($b->diskon_manual);
+                                    $hargaFinal = round($b->total_harga_final);
+                                    $terbayar = round($b->pembayaran->sum('nominal'));
+                                    $sisa = max(0, $hargaFinal - $terbayar);
+                                @endphp
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-secondary">Harga Awal</td>
+                                    <td class="text-end fw-bold text-secondary">Rp {{ number_format($hargaAwal,0,',','.') }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-danger">Diskon</td>
+                                    <td class="text-end fw-bold text-danger">- Rp {{ number_format($diskon,0,',','.') }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-primary">Harga Final Tagihan</td>
+                                    <td class="text-end fw-bold text-primary">Rp {{ number_format($hargaFinal,0,',','.') }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-success">Total Terbayar</td>
+                                    <td class="text-end fw-bold text-success">Rp {{ number_format($terbayar,0,',','.') }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold text-warning">Sisa Bayar</td>
+                                    <td class="text-end fw-bold text-warning">Rp {{ number_format($sisa,0,',','.') }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0 py-3">
+                <button type="button" class="btn btn-secondary px-4 py-2 rounded-3 fw-bold" data-bs-dismiss="modal">Kembali</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditBooking{{ $b->id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg rounded-4 border-0">
+            <div class="modal-header">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-edit text-warning me-2"></i> Edit / Reschedule Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url('/admin/booking-admin/'.$b->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Tanggal Kunjungan (Check-In)</label>
+                        <input type="date" name="tanggal_kunjungan" class="form-control" value="{{ $b->tanggal_kunjungan }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tanggal Selesai (Check-Out)</label>
+                        <input type="date" name="tanggal_selesai" class="form-control" value="{{ $b->tanggal_selesai }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Diskon Manual (Rp)</label>
+                        <input type="number" name="diskon_manual" id="edit_diskon_{{ $b->id }}" class="form-control" value="{{ round($b->diskon_manual) }}" oninput="calcEdit({{ $b->id }}, {{ round($b->total_harga) }})">
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small text-secondary fw-semibold">Harga Dasar Sistem:</span>
+                            <span class="fw-bold text-dark">Rp {{ number_format(round($b->total_harga), 0, ',', '.') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-secondary fw-semibold">Harga Final Tagihan:</span>
+                            <span class="fw-bold text-success fs-5">Rp <span id="label_edit_final_{{ $b->id }}">{{ number_format(round($b->total_harga_final), 0, ',', '.') }}</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-3 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-secondary px-4 py-2 rounded-3 fw-bold" data-bs-dismiss="modal">Batal Edit</button>
+                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-bold">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+
 <script>
     const groupedPaket = {!! json_encode($groupedPaket) !!};
     let globalPaketIdx = 0; 
     let fIdx = 0; 
 
-    $(document).ready(function() {
-        if ($.fn.DataTable.isDataTable('#bookingTable')) {
-            $('#bookingTable').DataTable().destroy();
-        }
-        $('#bookingTable').DataTable({"ordering": false});
-    });
-
-    @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: "{{ session('success') }}",
-            showConfirmButton: false,
-            timer: 1500
-        });
-    @endif
-
-    function confirmDelete(id) {
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data booking ini akan dihapus permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById(`delete-form-${id}`).submit();
-            }
-        });
+    function calcEdit(id, hargaAwal) {
+        let val = parseFloat(document.getElementById('edit_diskon_' + id).value) || 0;
+        let final = hargaAwal - val;
+        if (final < 0) final = 0;
+        document.getElementById('label_edit_final_' + id).innerText = final.toLocaleString('id-ID');
     }
 
     function switchFasTab(btnElement, paneId) {
@@ -588,7 +818,13 @@
         if (totalHargaFinal < 0) totalHargaFinal = 0;
 
         document.getElementById('disp-kapasitas').innerText = totalKapasitasSemuaMalam;
+        
+        document.getElementById('disp-sub-paket').innerText = 'Rp ' + totalHargaPaket.toLocaleString('id-ID');
+        document.getElementById('disp-sub-fasilitas').innerText = 'Rp ' + totalHargaFasilitas.toLocaleString('id-ID');
+        document.getElementById('disp-sub-tiket').innerText = 'Rp ' + totalBiayaTiketTambahan.toLocaleString('id-ID');
+        document.getElementById('disp-diskon').innerText = '- Rp ' + diskonManual.toLocaleString('id-ID');
         document.getElementById('disp-total').innerText = 'Rp ' + totalHargaFinal.toLocaleString('id-ID');
+        
         document.getElementById('hidden_total_harga').value = totalHarga;
         document.getElementById('hidden_total_harga_final').value = totalHargaFinal;
         document.getElementById('hidden_tiket_tambahan').value = totalTiketTambahan;
