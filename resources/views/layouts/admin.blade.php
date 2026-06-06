@@ -206,26 +206,13 @@
     <!-- WISATA -->
     <div class="menu-group">
         <div class="menu-item parent-toggle">
-            <i class="fa-solid fa-mountain-sun"></i> Wisata
+            <i class="fa-solid fa-mountain-sun"></i> Konten Wisata
             <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
         </div>
         <div class="submenu">
-            <a href="/admin/wisata/profil" class="menu-item" style="padding-left:50px;">Profil Wisata</a>
-            <a href="/admin/wisata/galeri" class="menu-item" style="padding-left:50px;">Galeri</a>
-            <a href="/admin/wisata/fasilitas" class="menu-item" style="padding-left:50px;">Fasilitas</a>
-        </div>
-    </div>
-
-    <!-- KONTEN -->
-    <div class="menu-group">
-        <div class="menu-item parent-toggle">
-            <i class="fa-solid fa-newspaper"></i> Konten
-            <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
-        </div>
-        <div class="submenu">
-            <a href="/admin/berita" class="menu-item" style="padding-left:50px;">Berita</a>
-            <a href="/admin/berita" class="menu-item" style="padding-left:50px;">Hero Section</a>
-            <a href="/admin/client-logo" class="menu-item" style="padding-left:50px;">Client Logo</a>
+            <a href="{{ route('admin.kabar.index') }}" class="menu-item" style="padding-left:50px;">Kabar</a>
+            <a href="{{ route('admin.landing-settings.index') }}" class="menu-item" style="padding-left:50px;">Hero Section</a>
+            <a href="{{ route('admin.client-logos.index') }}" class="menu-item" style="padding-left:50px;">Client Logo</a>
         </div>
     </div>
 

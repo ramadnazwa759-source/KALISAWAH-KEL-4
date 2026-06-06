@@ -4,20 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Berita extends Model
+class Kabar extends Model
 {
-    protected $table = 'berita';
-    protected $primaryKey = 'id_berita';
+    protected $table = 'kabar';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'judul',
-        'isi_berita',
+        'isi_kabar',
         'foto',
-        'tanggal'
+        'tanggal',
+        'slug',
     ];
 
     public function getSlugAttribute()
     {
         return \Illuminate\Support\Str::slug($this->judul);
+        // return Str::slug($this->judul);
     }
 }

@@ -16,6 +16,9 @@ use App\Http\Controllers\API\Booking_pengunjung\PengunjungBookingController;
 use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
 use App\Http\Controllers\API\Kelola_pengeluaran\KategoriPengeluaranController;
 use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController;
+use App\Http\Controllers\API\Kelola_landingpage\kabar\KabarController;
+use App\Http\Controllers\API\Kelola_landingpage\experience\ClientLogosController;
+use App\Http\Controllers\API\Kelola_landingpage\hero_section\LandingSettingsController;
 
 /* 1. SEKTOR ADMIN */
 Route::get('/admin/login', function () { return view('auth.login'); })->name('login');
@@ -54,6 +57,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(funct
     Route::resource('pembayaran', PembayaranAdminController::class);
     Route::resource('kategori-pengeluaran', KategoriPengeluaranController::class);
     Route::resource('pengeluaran', PengeluaranOperasionalController::class);
+
+    // Halaman
+    Route::get('/kabar/foto/{id}', [KabarController::class, 'getFoto'])->name('kabar.foto');
+    Route::resource('kabar', KabarController::class);
+    Route::resource('client-logos', ClientLogosController::class);
+    Route::resource('landing-settings', LandingSettingsController::class);
 });
 
 /* 2. SEKTOR PENGUNJUNG */
@@ -93,6 +102,11 @@ Route::get('/panduan-booking', function () {
 Route::get('/kabar', function () {
     return view('pengunjung.landing-page.kabar.kabar');
 })->name('kabar.index');
+
+Route::get('/kabar', [KabarController::class, 'publicIndex'])->name('kabar.index');
+Route::get('/kabar/{id}', [KabarController::class, 'publicShow'])->name('kabar.detail');
+
+
 Route::get('/testimoni', function () {
     return view('pengunjung.landing-page.testimoni.review');
 })->name('testimoni.create');

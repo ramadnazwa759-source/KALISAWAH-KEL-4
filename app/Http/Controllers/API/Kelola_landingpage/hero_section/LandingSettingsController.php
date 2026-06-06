@@ -22,7 +22,7 @@ class LandingSettingsController extends Controller
         //     'data' => $setting
         // ]);
 
-        return view('admin.landing.hero', compact('setting'));
+        return view('admin.kelola_halaman.landing', compact('setting'));
 
     }
 
@@ -35,23 +35,26 @@ class LandingSettingsController extends Controller
             'hero_title' => 'nullable|string|max:255',
             'hero_subtitle' => 'nullable|string',
             'hero_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'hero_image_2' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'hero_image_3' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         // cek apakah sudah ada data lama
+        // Ambil data pertama
         $oldSetting = LandingSetting::first();
 
-        // jika ada data lama, hapus file lama & data lama
+        // JIKA data lama ada, baru lakukan penghapusan
         if ($oldSetting) {
-
-            // hapus gambar lama
-            if (
-                $oldSetting->hero_image_path &&
-                Storage::disk('local')->exists($oldSetting->hero_image_path)
-            ) {
-                Storage::disk('local')->delete($oldSetting->hero_image_path);
+            if ($oldSetting->hero_image_path && Storage::disk('public')->exists($oldSetting->hero_image_path)) {
+                Storage::disk('public')->delete($oldSetting->hero_image_path);
             }
-
-            // hapus data lama
+            if ($oldSetting->hero_image_path_2 && Storage::disk('public')->exists($oldSetting->hero_image_path_2)) {
+                Storage::disk('public')->delete($oldSetting->hero_image_path_2);
+            }
+            if ($oldSetting->hero_image_path_3 && Storage::disk('public')->exists($oldSetting->hero_image_path_3)) {
+                Storage::disk('public')->delete($oldSetting->hero_image_path_3);
+                }
+            // hapus data lama dari database
             $oldSetting->delete();
         }
 
@@ -82,11 +85,34 @@ class LandingSettingsController extends Controller
                 $request->file('hero_image')->getClientOriginalExtension();
 
             // simpan file ke storage/app/landing
-            $path = $request->file('hero_image')
-                ->storeAs('landing', $filename, 'local');
+            $path = $request->file('hero_image')->storeAs('landing', $filename, 'public');
 
             // simpan path file
             $setting->hero_image_path = $path;
+        }
+        // Hero image 2
+        if ($request->hasFile('hero_image_2')) {
+            // generate nama file aman
+            $filename = Str::uuid() . '.' .
+                $request->file('hero_image_2')->getClientOriginalExtension();
+
+            // simpan file ke storage/app/landing
+            $path = $request->file('hero_image_2')->storeAs('landing', $filename, 'public');
+
+            // simpan path file
+            $setting->hero_image_path_2 = $path;
+        }
+        //Hero image 3
+        if ($request->hasFile('hero_image_3')) {
+            // generate nama file aman
+            $filename = Str::uuid() . '.' .
+                $request->file('hero_image_3')->getClientOriginalExtension();
+
+            // simpan file ke storage/app/landing
+            $path = $request->file('hero_image_3')->storeAs('landing', $filename, 'public');
+
+            // simpan path file
+            $setting->hero_image_path_3 = $path;
         }
 
         // simpan data
@@ -98,7 +124,7 @@ class LandingSettingsController extends Controller
         //     'data' => $setting
         // ], 201);
 
-        return redirect()->route('admin.landing.index') ->with('success', 'Landing setting berhasil disimpan!');
+        return redirect()->route('admin.landing-settings.index')->with('success', 'Landing setting berhasil disimpan!');
     }
 
     /**
@@ -110,6 +136,8 @@ class LandingSettingsController extends Controller
             'hero_title' => 'nullable|string|max:255',
             'hero_subtitle' => 'nullable|string',
             'hero_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'hero_image_2' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'hero_image_3' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         // ambil data berdasarkan id
@@ -133,13 +161,8 @@ class LandingSettingsController extends Controller
          * Update hero image
          */
         if ($request->hasFile('hero_image')) {
-
-            // hapus file lama
-            if (
-                $setting->hero_image_path &&
-                Storage::disk('local')->exists($setting->hero_image_path)
-            ) {
-                Storage::disk('local')->delete($setting->hero_image_path);
+            if ($setting->hero_image_path && Storage::disk('public')->exists($setting->hero_image_path)) {
+                Storage::disk('public')->delete($setting->hero_image_path);
             }
 
             // generate nama file aman
@@ -147,11 +170,44 @@ class LandingSettingsController extends Controller
                 $request->file('hero_image')->getClientOriginalExtension();
 
             // simpan file baru
-            $path = $request->file('hero_image')
-                ->storeAs('landing', $filename, 'local');
+            $path = $request->file('hero_image')->storeAs('landing', $filename, 'public');
 
             // simpan path file baru
             $setting->hero_image_path = $path;
+        }
+
+        // Hero image 2
+        if ($request->hasFile('hero_image_2')) {
+            if ($setting->hero_image_path_2 && Storage::disk('public')->exists($setting->hero_image_path_2)) {
+                Storage::disk('public')->delete($setting->hero_image_path_2);
+            }
+
+            // generate nama file aman
+            $filename = Str::uuid() . '.' .
+                $request->file('hero_image_2')->getClientOriginalExtension();
+
+            // simpan file baru
+            $path = $request->file('hero_image_2')->storeAs('landing', $filename, 'public');
+
+            // simpan path file baru
+            $setting->hero_image_path_2 = $path;
+        }
+
+        // Hero image 3
+        if ($request->hasFile('hero_image_3')) {
+            if ($setting->hero_image_path_3 && Storage::disk('public')->exists($setting->hero_image_path_3)) {
+                Storage::disk('public')->delete($setting->hero_image_path_3);
+            }
+
+            // generate nama file aman
+            $filename = Str::uuid() . '.' .
+                $request->file('hero_image_3')->getClientOriginalExtension();
+
+            // simpan file baru
+            $path = $request->file('hero_image_3')->storeAs('landing', $filename, 'public');
+
+            // simpan path file baru
+            $setting->hero_image_path_3 = $path;
         }
 
         // simpan perubahan
@@ -163,6 +219,6 @@ class LandingSettingsController extends Controller
         //     'data' => $setting
         // ]);
 
-        return redirect()->route('admin.landing.index')->with('success', 'Landing setting berhasil diperbarui!');
+        return redirect()->route('admin.landing-settings.index')->with('success', 'Landing setting berhasil diperbarui!');
     }
 }

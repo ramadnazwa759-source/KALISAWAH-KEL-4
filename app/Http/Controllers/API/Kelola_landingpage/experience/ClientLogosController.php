@@ -17,10 +17,11 @@ class ClientLogosController extends Controller
     {
         $logos = ClientLogo::latest()->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $logos
-        ]);
+        // return response()->json([
+        //     'success' => true,
+        //     'data' => $logos
+        // ]);
+        return view('admin.kelola_halaman.logo', compact('logos'));
     }
 
     /**
@@ -40,8 +41,7 @@ class ClientLogosController extends Controller
                 $request->file('logo_image_path')->getClientOriginalExtension();
 
             // simpan file ke storage/app/logos
-            $path = $request->file('logo_image_path')
-                ->storeAs('logos', $filename, 'local');
+            $path = $request->file('logo_image_path')->storeAs('logos', $filename, 'public');
 
             // simpan database
             $logo = ClientLogo::create([
@@ -49,17 +49,22 @@ class ClientLogosController extends Controller
                 'logo_image_path' => $path,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Logo perusahaan berhasil ditambahkan',
-                'data' => $logo
-            ], 201);
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => 'Logo perusahaan berhasil ditambahkan',
+            //     'data' => $logo
+            // ], 201);
+
+            return redirect()->back()->with('success', 'Logo perusahaan berhasil ditambahkan');
+
 
         } catch (\Exception $e) {
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            // return response()->json([
+            //     'message' => $e->getMessage()
+            // ], 500);
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan logo perusahaan');
         }
     }
 
@@ -102,25 +107,27 @@ class ClientLogosController extends Controller
                     $request->file('logo_image_path')->getClientOriginalExtension();
 
                 // simpan file baru
-                $path = $request->file('logo_image_path')
-                    ->storeAs('logos', $filename, 'local');
+                $path = $request->file('logo_image_path')->storeAs('logos', $filename, 'public');
 
                 $logo->logo_image_path = $path;
             }
 
             $logo->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Logo perusahaan berhasil diperbarui',
-                'data' => $logo
-            ]);
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => 'Logo perusahaan berhasil diperbarui',
+            //     'data' => $logo
+            // ]);
+
+            return redirect()->back()->with('success', 'Logo perusahaan berhasil diperbarui');
 
         } catch (\Exception $e) {
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            // return response()->json([
+            //     'message' => $e->getMessage()
+            // ], 500);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui logo perusahaan');
         }
     }
 
@@ -144,16 +151,19 @@ class ClientLogosController extends Controller
             // hapus data database
             $logo->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Logo perusahaan berhasil dihapus'
-            ]);
+            //  return response()->json([
+            //     'success' => true,
+            //     'message' => 'Logo perusahaan berhasil dihapus'
+            // ]);
+
+            return redirect()->back()->with('success', 'Logo perusahaan berhasil dihapus');
 
         } catch (\Exception $e) {
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            // return response()->json([
+            //     'message' => $e->getMessage()
+            // ], 500);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus logo perusahaan');
         }
     }
 }

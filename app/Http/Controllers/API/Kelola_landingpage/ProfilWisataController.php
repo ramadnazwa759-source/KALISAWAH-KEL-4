@@ -5,7 +5,8 @@ namespace App\Http\Controllers\API\Kelola_landingpage;
 use App\Http\Controllers\Controller;
 use App\Models\ProfilWisata;
 use App\Models\KategoriPaket;
-use App\Models\Berita;
+use App\Models\Kabar;
+use App\Models\LandingSetting;
 use Illuminate\Http\Request;
 
 class ProfilWisataController extends Controller
@@ -13,13 +14,16 @@ class ProfilWisataController extends Controller
     public function index()
     {
         $categories = KategoriPaket::all();
-        $kabars = Berita::latest('tanggal')->take(3)->get();
-        
+        $kabars = Kabar::latest('tanggal')->take(3)->get();
+
         // AMBIL DATA LOGO INSTANSI DARI TABEL client_logos
         $experiences = \DB::table('client_logos')->get();
-        
-        // Kirim semua variabel ($categories, $kabars, $experiences) ke view home
-        return view('pengunjung.landing-page.home', compact('categories', 'kabars', 'experiences'));
+
+        // 2. AMBIL DATA SETTING LANDING PAGE TERBARU
+        $landingSetting = LandingSetting::first();
+
+        // Kirim semua variabel ($categories, $kabars, $experiences, $landingSetting) ke view home
+        return view('pengunjung.landing-page.home', compact('categories', 'kabars', 'experiences', 'landingSetting'));
     }
 
     /**
@@ -28,7 +32,7 @@ class ProfilWisataController extends Controller
     public function detailKategori($id)
     {
         $kategori = \App\Models\KategoriPaket::findOrFail($id);
-        
+
         // Mengambil paket wisata yang terhubung dengan kategori ini
         $pakets = \App\Models\PaketWisata::where('kategori_paket_id', $kategori->id)
             ->with('fasilitas')

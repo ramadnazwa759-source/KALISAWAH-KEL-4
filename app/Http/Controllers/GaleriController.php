@@ -20,13 +20,28 @@ class GaleriController extends Controller
 
     public function store(Request $request)
     {
+        /**
+         * FILE UPLOAD VULNERABILITY PREVENTION
+         */
+        $request->validate([
+            'judul'  => 'required|string|max:255',
+            'gambar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
         $file = $request->file('gambar');
-        $nama_file = time().'_'.$file->getClientOriginalName();
+
+        /**
+         * rename file agar aman
+         */
+        $nama_file = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+        /**
+         * simpan file ke public/gambar
+         */
         $file->move(public_path('gambar'), $nama_file);
 
         Galeri::create([
-            'judul' => $request->judul,
-            
+            'judul'  => $request->judul,
             'gambar' => $nama_file
         ]);
 
@@ -35,7 +50,27 @@ class GaleriController extends Controller
 
     public function destroy($id)
     {
-        Galeri::destroy($id);
+        $galeri = Galeri::find($id);
+
+        if ($galeri) {
+
+            /**
+             * ===============================
+             * HAPUS FILE LAMA DI STORAGE
+             * ===============================
+             */
+            $filePath = public_path('gambar/' . $galeri->gambar);
+
+            if (file_exists($filePath)) {
+                unlink($filePath); // hapus file fisik
+            }
+
+            /**
+             * hapus data database
+             */
+            $galeri->delete();
+        }
+
         return redirect()->back();
     }
 }

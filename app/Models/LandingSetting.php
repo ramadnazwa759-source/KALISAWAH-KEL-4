@@ -12,5 +12,7 @@ class LandingSetting extends Model
         'hero_title',
         'hero_subtitle',
         'hero_image_path',
+        'hero_image_path_2',
+        'hero_image_path_3',
     ];
 }

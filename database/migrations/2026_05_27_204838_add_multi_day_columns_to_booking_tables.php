@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('booking', function (Blueprint $table) {
-            $table->date('tanggal_selesai')->nullable()->after('tanggal_kunjungan');
             $table->integer('jumlah_malam')->default(1)->after('tanggal_selesai');
         });
 

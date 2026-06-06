@@ -8,11 +8,11 @@
     <div class="p-8 flex flex-col flex-grow">
         <div class="flex items-center gap-3 text-gray-400 text-xs font-semibold mb-4">
             <span class="flex items-center gap-1.5">
-                <i class="fa-solid fa-calendar text-primary"></i> 
+                <i class="fa-solid fa-calendar text-primary"></i>
                 {{ $date }}
             </span>
             <span class="flex items-center gap-1.5">
-                <i class="fa-solid fa-location-dot text-primary"></i> 
+                <i class="fa-solid fa-location-dot text-primary"></i>
                 Glenmore, Banyuwangi
             </span>
         </div>
@@ -23,7 +23,7 @@
             {{ $description }}
         </p>
         <div class="mt-auto">
-            <a href="{{ route('kabar.detail', $slug) }}" class="inline-flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all group-hover:text-hover-primary text-sm">
+            <a href="{{ url('/kabar/' . $slug) }}" class="inline-flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all group-hover:text-hover-primary text-sm">
                 Baca Selengkapnya <i class="fa-solid fa-arrow-right text-xs"></i>
             </a>
         </div>

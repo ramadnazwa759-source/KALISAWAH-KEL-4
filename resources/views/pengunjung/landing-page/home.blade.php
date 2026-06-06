@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
@@ -66,23 +66,33 @@
 
     @include('components.navbar')
 
-    <section id="hero" x-data="{ 
-        activeSlide: 0, 
+    <section id="hero" x-data="{
+        activeSlide: 0,
         slides: [
-            'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=1920&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1920&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=1920&auto=format&fit=crop'
-        ],
+            @if(isset($landingSetting) && $landingSetting->hero_image_path)
+                '{{ asset('storage/' . $landingSetting->hero_image_path) }}',
+            @endif
+
+            @if(isset($landingSetting) && $landingSetting->hero_image_path_2)
+                '{{ asset('storage/' . $landingSetting->hero_image_path_2) }}',
+            @endif
+
+            @if(isset($landingSetting) && $landingSetting->hero_image_path_3)
+                '{{ asset('storage/' . $landingSetting->hero_image_path_3) }}'
+            @endif
+        ].filter(Boolean),
         init() {
-            setInterval(() => {
-                this.activeSlide = (this.activeSlide + 1) % this.slides.length;
-            }, 6000);
+            if (this.slides.length > 1) {
+                setInterval(() => {
+                    this.activeSlide = (this.activeSlide + 1) % this.slides.length;
+                }, 6000);
+            }
         }
     }" class="relative min-h-[95vh] w-full flex items-center bg-dark-navy pt-40 pb-48 overflow-hidden">
-        
+
         <div class="absolute inset-0 z-0">
             <template x-for="(slide, index) in slides" :key="index">
-                <div x-show="activeSlide === index" 
+                <div x-show="activeSlide === index"
                      x-transition:enter="transition ease-out duration-1000"
                      x-transition:enter-start="opacity-0 scale-105"
                      x-transition:enter-end="opacity-100 scale-100"
@@ -102,18 +112,18 @@
                     <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
                     <span class="text-white font-semibold text-xs tracking-widest uppercase">Wonderful Songgon, Banyuwangi</span>
                 </div>
-                
+
                 <div class="space-y-4">
                     <p class="font-latin text-secondary text-3xl md:text-5xl tracking-wide">Rafting & Outbound</p>
                     <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] text-gradient">
-                        Jelajahi Petualangan <br>Tanpa Batas
+                        {!! nl2br(e($landingSetting->hero_title ?? 'Jelajahi Petualangan Tanpa Batas')) !!}
                     </h1>
                 </div>
-                
+
                 <p class="text-slate-300 text-base md:text-lg font-light leading-relaxed max-w-xl">
-                    Nikmati keseruan arung jeram, outbound training, camping eksklusif, hingga keindahan alam Songgon bersama fasilitator bersertifikasi nasional.
+                    {{ $landingSetting->hero_subtitle ?? 'Nikmati keseruan arung jeram, outbound training, camping eksklusif, hingga keindahan alam Songgon bersama fasilitator bersertifikasi nasional.' }}
                 </p>
-                
+
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 pt-4">
                     <a href="{{ route('pengunjung.booking.booking-form', ['paket' => 'semua']) }}" class="bg-primary hover:bg-primary-hover text-white font-extrabold px-10 py-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 text-sm uppercase tracking-widest text-center flex items-center justify-center gap-3 shadow-button-solid active:translate-y-0">
                         <i class="fa-solid fa-calendar-check text-base"></i> Booking Sekarang
@@ -150,7 +160,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <form action="{{ route('cari.booking.proses') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                 @csrf
                 <div class="space-y-2.5">
@@ -194,7 +204,7 @@
             </h2>
             <div class="w-16 h-1.5 bg-primary mx-auto rounded-full"></div>
         </div>
-        
+
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-6">
             <div class="bg-white p-8 rounded-3xl border border-slate-100 text-center space-y-1.5 shadow-premium hover:shadow-premium-hover hover:-translate-y-2 transition-all duration-300">
                 <p class="text-3xl font-extrabold text-primary tracking-tight">{{ $settings['total_peserta'] ?? '20.000+' }}</p>
@@ -229,7 +239,7 @@
                     <h3 class="text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">Mengenal Lebih Dekat <br><span class="text-secondary">Kalisawah</span> Adventure</h3>
                 </div>
                 <p class="text-slate-500 text-base leading-relaxed font-normal">
-                    {{ $settings['about_description'] ?? 'Kalisawah adalah pionir destinasi wisata petualangan alam terbuka terintegrasi di Banyuwangi. Kami mengombinasikan keindahan alam bentang sungai dan persawahan Songgon yang sejuk dengan standar manajemen keselamatan nasional.' }}
+                    {{ $settings['about_description'] ?? 'Kalisawah Adventure merupakan destinasi wisata alam terintegrasi di Banyuwangi yang menghadirkan pengalaman petualangan seru di tengah keindahan sungai dan hamparan persawahan Songgon. Didukung oleh pengelolaan yang profesional serta standar keselamatan yang terjamin, kami siap memberikan pengalaman wisata yang aman, nyaman, dan berkesan.' }}
                 </p>
                 <div class="pt-4">
                     <a href="{{ route('pengunjung.booking.booking-form', ['paket' => 'semua']) }}" class="inline-flex items-center gap-3 bg-primary hover:bg-primary-hover text-white text-xs font-extrabold py-5 px-10 rounded-2xl transition-all duration-300 shadow-button-solid transform hover:-translate-y-0.5 group">
@@ -237,11 +247,11 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-2 gap-6 lg:col-span-5 w-full">
                 <div class="space-y-6">
                     <div class="overflow-hidden rounded-[24px] shadow-premium group">
-                        <img src="{{ isset($settings['about_img_1']) ? asset('storage/' . $settings['about_img_1']) : 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=400&auto=format&fit=crop' }}" class="w-full h-52 object-cover object-center transform transition-transform duration-700 group-hover:scale-110" alt="Rafting Activity">
+                        <img src="{{ isset($settings['about_img_1']) ? asset('storage/' . $settings['about_img_1']) : 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/21/e2/39/de/caption.jpg?w=1200&h=1200&s=1' }}" class="w-full h-52 object-cover object-center transform transition-transform duration-700 group-hover:scale-110" alt="Rafting Activity">
                     </div>
                     <div class="bg-blue-50/80 border border-blue-100 p-6 rounded-[24px] text-center">
                         <span class="block text-2xl font-black text-primary">Safe</span>
@@ -254,7 +264,7 @@
                         <span class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Exciting Games</span>
                     </div>
                     <div class="overflow-hidden rounded-[24px] shadow-premium group">
-                        <img src="{{ isset($settings['about_img_2']) ? asset('storage/' . $settings['about_img_2']) : 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=400&auto=format&fit=crop' }}" class="w-full h-52 object-cover object-center transform transition-transform duration-700 group-hover:scale-110" alt="Camping Activity">
+                        <img src="{{ isset($settings['about_img_2']) ? asset('storage/' . $settings['about_img_2']) : 'https://labirutour.co.id/wp-content/uploads/2025/11/Kalisawah-Adventure-Banyuwangi-.webp' }}" class="w-full h-52 object-cover object-center transform transition-transform duration-700 group-hover:scale-110" alt="Camping Activity">
                     </div>
                 </div>
             </div>
@@ -366,16 +376,14 @@
                             $companyName = $exp->company_name ?? ($exp->nama_instansi ?? 'Instansi');
                         @endphp
 
-                        <div class="h-16 w-40 flex items-center justify-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 hover:scale-105">
-
-                            <img
-                                src="{{ asset('storage/' . $logoPath) }}"
-                                alt="{{ $companyName }}"
-                                class="max-h-full max-w-full object-contain"
-                                title="{{ $companyName }}"
-                            >
-
-                        </div>
+                    <div class="h-20 w-30 flex items-center justify-center transition-all duration-300 hover:scale-105">
+                        <img
+                            src="{{ asset('storage/' . $logoPath) }}"
+                            alt="{{ $companyName }}"
+                            class="max-h-full max-w-full object-contain"
+                            title="{{ $companyName }}"
+                        >
+                    </div>
 
                     @empty
 
@@ -408,7 +416,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 @forelse($kabars as $kabar)
                     @include('components.news-card', [
-                        'image' => $kabar->gambar ? asset('storage/' . $kabar->gambar) : 'https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=500',
+                        'image' => $kabar->foto ? asset('storage/' . $kabar->foto) : 'https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=500',
                         'date' => isset($kabar->tanggal) ? \Carbon\Carbon::parse($kabar->tanggal)->translatedFormat('d M Y') : date('d M Y'),
                         'title' => $kabar->judul,
                         'description' => Str::limit(strip_tags($kabar->isi), 120, '...'),
@@ -429,8 +437,8 @@
         </div>
     </section>
 
-    <section id="testimoni" class="py-28 bg-slate-100/60 px-6 border-t border-b border-slate-200/40" 
-             x-data="{ 
+    <section id="testimoni" class="py-28 bg-slate-100/60 px-6 border-t border-b border-slate-200/40"
+             x-data="{
                 skip: 1,
                 next() {
                     this.$refs.slider.scrollBy({ left: this.$refs.slider.offsetWidth, behavior: 'smooth' });
@@ -446,7 +454,7 @@
                     <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight text-left">Apa Kata Mereka?</h2>
                     <div class="w-16 h-1.5 bg-primary rounded-full"></div>
                 </div>
-                
+
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm mr-2">
                         <button @click="prev()" class="w-12 h-12 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all duration-200 active:scale-90 border border-slate-200">
@@ -520,11 +528,11 @@
                     <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Temukan Kami di <span class="text-secondary">Songgon</span></h2>
                     <div class="w-16 h-1.5 bg-primary rounded-full"></div>
                 </div>
-                
+
                 <p class="text-slate-500 text-base leading-relaxed">
                     Kunjungi basecamp kami untuk memulai petualangan seru Anda. Kami berlokasi di area perkebunan yang sejuk, asri, dan mudah dijangkau di Songgon, Banyuwangi.
                 </p>
-                
+
                 <div class="flex items-start gap-4 pt-4">
                     <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0 shadow-inner">
                         <i class="fa-solid fa-location-dot text-xl"></i>
@@ -534,14 +542,14 @@
                         <p class="text-sm text-slate-500 leading-relaxed">Jl. Raya Songgon, Area Perkebunan, Songgon, Kabupaten Banyuwangi, Jawa Timur.</p>
                     </div>
                 </div>
-                
+
                 <div class="pt-6">
                     <a href="https://maps.google.com" target="_blank" class="inline-flex items-center gap-3 bg-slate-900 hover:bg-primary text-white text-xs font-extrabold py-4 px-8 rounded-2xl transition-all duration-300 shadow-button-dark hover:shadow-button-solid transform hover:-translate-y-0.5 uppercase tracking-widest">
                         <i class="fa-solid fa-map-location-dot"></i> Buka di Google Maps
                     </a>
                 </div>
             </div>
-            
+
             <div class="h-[450px] w-full rounded-[32px] overflow-hidden shadow-premium border border-slate-200/50 relative group">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3948.3307675975056!2d114.195232!3d-8.2325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd1531e2c918c57%3A0xc682f1bbaec7b526!2sKalisawah%20Adventure!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="grayscale group-hover:grayscale-0 transition-all duration-700"></iframe>
             </div>
@@ -561,7 +569,7 @@
                     <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all duration-300 shadow-lg transform hover:-translate-y-1"><i class="fa-brands fa-tiktok text-lg"></i></a>
                 </div>
             </div>
-            
+
             <div class="space-y-6 md:col-span-4 lg:col-span-3 lg:col-start-6">
                 <h4 class="text-white font-extrabold uppercase text-xs tracking-widest relative inline-block">
                     Navigasi

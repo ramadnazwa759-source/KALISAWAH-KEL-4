@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-            Schema::create('kabar', function (Blueprint $table) {
+        Schema::create('testimoni', function (Blueprint $table) {
             $table->id();
-            $table->string('judul');
-            $table->text('isi_kabar');
-            $table->string('foto')->nullable();
-            $table->date('tanggal');
-            $table->string('slug')->unique();
+            $table->string('nama');
+            $table->string('instansi');
+            $table->tinyInteger('rating')->default(5); // Menyimpan rating 1-5
+            $table->text('ulasan');
+            $table->string('foto_path')->nullable(); // Menyimpan path file foto profil
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('berita');
+        Schema::dropIfExists('testimoni');
     }
 };

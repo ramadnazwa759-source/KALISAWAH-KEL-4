@@ -25,7 +25,7 @@ class AuthController extends Controller
             ], 429);
         }
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first(); // Cari user berdasarkan email
 
         if (!$user) {
 
@@ -65,18 +65,6 @@ class AuthController extends Controller
             "message"=>"Logout berhasil"
         ]);
     }
-
-//     public function register(Request $request)
-// {
-//     $user = User::create([
-//         'name' => $request->name,
-//         'email' => $request->email,
-//         'password' => Hash::make($request->password),
-//         'role' => $request->role
-//     ]);
-
-//     return redirect('/admin/login')->with('success', 'Registrasi berhasil, silakan login');
-// }
 
     public function showRegister()
     {

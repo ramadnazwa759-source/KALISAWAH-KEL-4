@@ -20,12 +20,12 @@
     <section class="py-20 px-6 md:px-20 max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             @forelse($kabars as $kabar)
-            <x-news-card 
+            <x-news-card
                 :image="$kabar->foto ? asset('storage/' . $kabar->foto) : 'https://picsum.photos/seed/' . $kabar->id . '/800/600'"
                 :date="\Carbon\Carbon::parse($kabar->tanggal)->translatedFormat('d F Y')"
                 :title="$kabar->judul"
-                :description="Str::limit(strip_tags($kabar->isi_berita), 120)"
-                :slug="Str::slug($kabar->judul)"
+                :description="Str::limit(strip_tags($kabar->isi_kabar), 120)"
+                :slug="$kabar->slug"
             />
             @empty
             <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-dashed border-gray-200">
