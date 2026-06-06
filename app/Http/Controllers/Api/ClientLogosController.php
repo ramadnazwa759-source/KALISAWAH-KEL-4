@@ -65,7 +65,7 @@ class ClientLogosController extends Controller
 
         $validated = $request->validate([
             'company_name' => 'sometimes|required|string|max:255',
-            'logo_image_path' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'logo_image_path' => 'sometimes|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('logo_image_path')) {

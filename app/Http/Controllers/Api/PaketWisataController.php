@@ -28,7 +28,7 @@ class PaketWisataController extends Controller
         return response()->json($paket, 200);
     }
 
-    // POST
+    
     public function store(Request $request)
     {
         $request->validate([
