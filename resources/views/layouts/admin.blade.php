@@ -24,10 +24,9 @@
 
         body {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #F4F7FE;
             color: #333;
-            overflow: hidden;
         }
 
         /* ================= SIDEBAR ================= */
@@ -110,7 +109,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: auto;
             min-width: 0;
         }
 
