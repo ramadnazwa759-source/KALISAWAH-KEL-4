@@ -14,18 +14,10 @@
         </button>
     </div>
 
-    {{-- Alert Success --}}
+    {{-- Alert Global (hanya untuk sukses) --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    {{-- Alert Error --}}
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
@@ -118,6 +110,13 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Gambar (JPG/PNG, Max 2MB)</label>
+                                                <input type="file" name="gambar" class="form-control rounded-3 @error('gambar') is-invalid @enderror" accept=".jpg,.jpeg,.png" onchange="validateFile(this)">
+                                                @error('gambar')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                             <div class="mb-3"><label class="form-label fw-bold">Deskripsi</label><textarea name="deskripsi" class="form-control rounded-3">{{ $item->deskripsi }}</textarea></div>
                                         </div>
                                         <div class="modal-footer border-0 pb-4 px-4"><button type="submit" class="btn btn-primary px-4 rounded-3">Update Fasilitas</button></div>
@@ -165,7 +164,13 @@
                             <select name="status" class="form-select rounded-3"><option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option></select>
                         </div>
                     </div>
-                    <div class="mb-3"><label class="form-label fw-bold">Gambar</label><input type="file" name="gambar" class="form-control rounded-3"></div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Gambar (JPG/PNG, Max 2MB)</label>
+                        <input type="file" name="gambar" class="form-control rounded-3 @error('gambar') is-invalid @enderror" accept=".jpg,.jpeg,.png" onchange="validateFile(this)">
+                        @error('gambar')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
                     <div class="mb-3"><label class="form-label fw-bold">Deskripsi</label><textarea name="deskripsi" class="form-control rounded-3" rows="2"></textarea></div>
                 </div>
                 <div class="modal-footer border-0 pb-4 px-4"><button type="submit" class="btn btn-primary px-4 rounded-3">Simpan</button></div>
@@ -178,6 +183,28 @@
     function confirmDelete(id) {
         if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
             document.getElementById('delete-form-' + id).submit();
+        }
+    }
+
+    function validateFile(input) {
+        const file = input.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        
+        // Reset error styling
+        input.classList.remove('is-invalid');
+        
+        if (file) {
+            if (!allowedTypes.includes(file.type)) {
+                alert('Tipe file salah! Hanya JPG atau PNG yang diperbolehkan.');
+                input.value = '';
+                return false;
+            }
+            if (file.size > maxSize) {
+                alert('Ukuran file terlalu besar! Maksimal 2MB.');
+                input.value = '';
+                return false;
+            }
         }
     }
 </script>

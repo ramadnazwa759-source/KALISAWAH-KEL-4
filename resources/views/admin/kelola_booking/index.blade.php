@@ -48,9 +48,37 @@
     .custom-scrollbar::-webkit-scrollbar { height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    .nowrap-table th, .nowrap-table td { white-space: nowrap; vertical-align: middle; }
 </style>
 
 <div class="container-fluid px-4 py-4">
+    
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i> <strong>Berhasil!</strong> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i> <strong>Gagal!</strong> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-shield-alt me-2"></i> <strong>Peringatan Keamanan / Validasi:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div><h2 class="fw-bold text-dark mb-1">Daftar Booking Wisata</h2></div>
         <button type="button" class="btn btn-primary px-4 py-2 rounded-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahBooking">
@@ -98,7 +126,7 @@
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="bookingTable">
+                <table class="table table-hover align-middle mb-0 nowrap-table" id="bookingTable">
                     <thead class="text-secondary small text-uppercase bg-light">
                         <tr>
                             <th class="ps-4 text-center" style="width: 60px;">No</th>
@@ -122,7 +150,7 @@
                             $hargaFinal = round($b->total_harga_final);
                         @endphp
                         <tr>
-                            <td class="ps-4 text-center fw-medium text-secondary">{{ $key + 1 }}</td>
+                            <td class="ps-4 text-center fw-medium text-secondary">{{ method_exists($data, 'firstItem') ? $data->firstItem() + $key : $key + 1 }}</td>
                             <td><span class="badge bg-primary px-3 py-2 rounded-3 fw-bold">{{ $b->kode_booking }}</span></td>
                             <td>
                                 <div class="fw-bold text-dark mb-1">{{ $b->nama_pemesan }}</div>
@@ -155,13 +183,17 @@
                     </tbody>
                 </table>
             </div>
+            
+            <div class="p-3 border-top d-flex justify-content-center bg-white rounded-bottom-4">
+                {{ method_exists($data, 'links') ? $data->links('pagination::bootstrap-5') : '' }}
+            </div>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="modalTambahBooking" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <form action="{{ url('/admin/booking-admin') }}" method="POST" class="w-100 h-100 d-flex flex-column" enctype="multipart/form-data">
+        <form action="{{ url('/admin/booking-admin') }}" method="POST" id="formTambahBooking" class="w-100 h-100 d-flex flex-column" enctype="multipart/form-data">
             @csrf
             
             <input type="hidden" name="jumlah_tiket_tambahan" id="hidden_tiket_tambahan" value="0">
@@ -200,7 +232,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">Jam Check-In</label>
-                                        <input type="time" name="jam" class="form-control" value="14:00" required>
+                                        <input type="time" name="jam" class="form-control" required>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">Total Pengunjung</label>
@@ -223,52 +255,14 @@
                                 </div>
                             </div>
 
-                            <div class="form-section">
-                                <div class="section-title"><i class="fas fa-map-marked-alt"></i> Pemilihan Paket Wisata (Per Hari)</div>
+                            <div class="form-section mb-0">
+                                <div class="section-title"><i class="fas fa-map-marked-alt"></i> Pemilihan Paket & Fasilitas (Per Hari)</div>
                                 <div id="day-tabs-container" class="day-tabs"></div>
                                 <div id="itinerary-panels-container">
                                     <div class="empty-state-box">
                                         <i class="fas fa-calendar-alt fs-2 mb-2 text-muted"></i>
                                         <p class="mb-0 fw-bold">Silakan pilih tanggal Check-In dan Check-Out terlebih dahulu.</p>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="form-section mb-0">
-                                <div class="section-title mb-3"><i class="fas fa-box-open"></i> Fasilitas Tambahan (Per Malam)</div>
-                                
-                                <div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">
-                                    @php $firstFas = true; @endphp
-                                    @foreach($groupedFasilitas as $katName => $items)
-                                        <button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap {{ $firstFas ? 'btn-primary' : 'btn-light text-secondary border' }} fas-tab-btn" onclick="switchFasTab(this, 'fas-pane-{{ Str::slug($katName) }}')">
-                                            {{ $katName }}
-                                        </button>
-                                        @php $firstFas = false; @endphp
-                                    @endforeach
-                                </div>
-
-                                <div class="fas-panes-container mb-4">
-                                    @php $firstFasPane = true; @endphp
-                                    @foreach($groupedFasilitas as $katName => $items)
-                                        <div id="fas-pane-{{ Str::slug($katName) }}" class="fas-pane {{ $firstFasPane ? 'd-block' : 'd-none' }}">
-                                            <div class="row g-2">
-                                                @foreach($items as $f)
-                                                <div class="col-md-6">
-                                                    <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addFasilitasData({{ $f->id }}, '{{ addslashes($f->nama_fasilitas) }}', {{ $f->harga }})">
-                                                        <div class="fw-bold text-dark mb-2">{{ $f->nama_fasilitas }}</div>
-                                                        <div class="text-success fw-bold text-end">Rp {{ number_format($f->harga, 0, ',', '.') }}</div>
-                                                    </div>
-                                                </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                        @php $firstFasPane = false; @endphp
-                                    @endforeach
-                                </div>
-                                
-                                <div class="pt-3 border-top">
-                                    <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Fasilitas Terpilih:</h6>
-                                    <div id="fasilitas-container"></div>
                                 </div>
                             </div>
                         </div>
@@ -293,15 +287,22 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Nominal Bayar (Rp)</label>
-                                        <input type="number" name="nominal" class="form-control" placeholder="0" required>
+                                        <input type="text" id="nominal_bayar_input" class="form-control fw-bold text-success" onkeyup="formatRupiahRealtime(this, 'nominal_bayar')" required>
+                                        <input type="hidden" name="nominal" id="nominal_bayar" value="0">
                                     </div>
+                                    
                                     <div class="mb-3">
-                                        <label class="form-label">Upload Bukti</label>
-                                        <input type="file" name="bukti_pembayaran" class="form-control" accept="image/*" required>
+                                        <label class="form-label">Upload Bukti (Opsional)</label>
+                                        <input type="file" name="bukti_pembayaran" id="bukti_pembayaran" class="form-control" accept=".jpg,.jpeg,.png" onchange="validateFile(this)">
+                                        <div id="file_error_msg" class="text-danger fw-bold small mt-1 d-none">
+                                            <i class="fas fa-times-circle me-1"></i> <span id="file_error_text"></span>
+                                        </div>
                                     </div>
-                                    <div class="mb-0">
-                                        <label class="form-label">Diskon Manual (Rp)</label>
-                                        <input type="number" name="diskon_manual" id="diskon_manual" class="form-control" placeholder="0" value="0" oninput="calculateTotal()">
+                                    
+                                    <div class="mb-0 border-top pt-3">
+                                        <label class="form-label text-danger">Diskon Manual (Rp)</label>
+                                        <input type="text" id="diskon_manual_input" class="form-control" onkeyup="formatRupiahRealtime(this, 'diskon_manual')">
+                                        <input type="hidden" name="diskon_manual" id="diskon_manual" value="0">
                                     </div>
                                 </div>
 
@@ -317,7 +318,7 @@
                                         <span id="disp-sub-fasilitas" class="fw-bold text-dark">Rp 0</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-2 small">
-                                        <span class="text-danger">Tiket Tambahan:</span>
+                                        <span class="text-danger">Tiket Tambahan (25k):</span>
                                         <span id="disp-sub-tiket" class="fw-bold text-danger">Rp 0</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-2 small">
@@ -334,9 +335,10 @@
                                 </div>
                                 
                                 <div class="summary-card bg-white border shadow-sm">
-                                    <small class="d-block mb-1 fw-bold text-uppercase text-secondary"><i class="fas fa-users"></i> Kapasitas Disediakan /Malam</small>
+                                    <small class="d-block mb-1 fw-bold text-uppercase text-secondary"><i class="fas fa-users"></i> Kapasitas Menginap / Hari</small>
                                     <div class="d-flex align-items-baseline gap-2">
-                                        <span id="disp-kapasitas" class="fs-2 fw-bold text-dark">0</span> <span class="fw-bold text-secondary">Orang</span>
+                                        <span id="disp-kapasitas" class="fs-2 fw-bold text-dark">0</span>
+                                        <span class="fw-bold text-secondary">Orang</span>
                                     </div>
                                 </div>
                             </div>
@@ -346,7 +348,7 @@
 
                 <div class="modal-footer d-flex justify-content-end">
                     <button type="button" class="btn btn-light fw-bold px-4 py-2 rounded-3 border me-2" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn-save">
+                    <button type="submit" class="btn-save" id="btn_submit_booking">
                         <i class="fas fa-check-circle me-2"></i> Konfirmasi & Simpan Booking
                     </button>
                 </div>
@@ -366,55 +368,55 @@
             <div class="modal-body p-4">
                 <div class="row g-4 mb-4">
                     <div class="col-md-6">
-                        <div class="bg-white p-3 rounded-3 border">
-                            <div class="detail-label">KODE BOOKING</div>
-                            <div class="detail-value text-primary mb-3">{{ $b->kode_booking }}</div>
-                            
-                            <div class="detail-label">NAMA PEMESAN</div>
-                            <div class="detail-value mb-3">{{ $b->nama_pemesan }}</div>
-                            
-                            <div class="detail-label">NOMOR WHATSAPP</div>
-                            <div class="detail-value mb-3">{{ $b->no_hp }}</div>
-                            
-                            <div class="detail-label">CATATAN</div>
-                            <div class="detail-value">{{ $b->catatan ?? '-' }}</div>
+                        <div class="bg-white p-3 rounded-3 border h-100">
+                            <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Informasi Pemesan</h6>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tr><td width="40%" class="text-secondary">Nama Lengkap</td><td class="fw-bold">: {{ $b->nama_pemesan }}</td></tr>
+                                <tr><td class="text-secondary">No WhatsApp</td><td class="fw-bold">: {{ $b->no_hp }}</td></tr>
+                                <tr><td class="text-secondary">Tgl Kunjungan</td><td class="fw-bold">: {{ date('d M Y', strtotime($b->tanggal_kunjungan)) }}</td></tr>
+                                <tr><td class="text-secondary">Jml Pengunjung</td><td class="fw-bold">: {{ $b->jumlah_pengunjung }} Orang</td></tr>
+                            </table>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="bg-white p-3 rounded-3 border">
-                            <div class="detail-label">TANGGAL KUNJUNGAN (CHECK-IN)</div>
-                            <div class="detail-value mb-3">{{ date('d F Y', strtotime($b->tanggal_kunjungan)) }}</div>
+                        <div class="bg-white p-3 rounded-3 border h-100">
+                            <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Status & Bukti</h6>
+                            <p class="mb-2"><span class="text-secondary d-inline-block" style="width: 120px;">Status Booking</span>: <span class="badge bg-warning text-dark">{{ $b->status_booking }}</span></p>
                             
-                            <div class="detail-label">TANGGAL SELESAI (CHECK-OUT)</div>
-                            <div class="detail-value mb-3">{{ date('d F Y', strtotime($b->tanggal_selesai)) }}</div>
-                            
-                            <div class="detail-label">JAM CHECK-IN</div>
-                            <div class="detail-value mb-3">{{ date('H:i', strtotime($b->jam)) }} WIB</div>
-                            
-                            <div class="detail-label">JUMLAH PENGUNJUNG</div>
-                            <div class="detail-value"><span class="badge bg-light text-dark border px-3 py-1.5">{{ $b->jumlah_pengunjung }} Orang</span></div>
+                            @if($b->bukti_pembayaran)
+                                <div class="mt-3">
+                                    <p class="fw-bold text-secondary mb-1">Bukti Pembayaran Terakhir:</p>
+                                    <a href="{{ url('storage/'.$b->bukti_pembayaran) }}" target="_blank">
+                                        <img src="{{ url('storage/'.$b->bukti_pembayaran) }}" 
+                                             onerror="this.onerror=null;this.src='{{ asset('public/storage/'.$b->bukti_pembayaran) }}';" 
+                                             class="img-fluid rounded border" style="max-height: 150px; object-fit: contain;">
+                                    </a>
+                                </div>
+                            @else
+                                <p class="text-muted fst-italic mt-3">Belum ada bukti pembayaran.</p>
+                            @endif
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white p-3 rounded-3 border mb-4">
-                    <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-history me-2"></i>Rincian Item Per Hari</h6>
+                    <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-list me-2"></i>Item Paket & Fasilitas Terpilih</h6>
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm align-middle mb-0">
-                            <thead class="bg-light small fw-bold text-secondary text-uppercase text-center">
+                            <thead class="bg-light small fw-bold text-secondary text-uppercase">
                                 <tr>
-                                    <th>Hari / Tgl</th>
-                                    <th>Jenis</th>
-                                    <th>Item</th>
-                                    <th>Qty</th>
+                                    <th>Hari Ke-</th>
+                                    <th>Tipe Item</th>
+                                    <th>Nama Item</th>
+                                    <th class="text-center">Qty</th>
                                     <th class="text-end">Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($b->items as $item)
                                 <tr>
-                                    <td class="text-center">Hari {{ $item->hari }}<br><small class="text-muted">{{ date('d/m/Y', strtotime($item->tanggal)) }}</small></td>
-                                    <td class="text-center"><span class="badge bg-info text-dark">Paket</span></td>
+                                    <td class="text-center">{{ $item->hari }}</td>
+                                    <td><span class="badge bg-primary">Paket Wisata</span></td>
                                     <td>{{ $item->paketWisata->nama_paket ?? '-' }}</td>
                                     <td class="text-center">{{ $item->qty }}</td>
                                     <td class="text-end fw-bold">Rp {{ number_format(round($item->subtotal),0,',','.') }}</td>
@@ -422,8 +424,8 @@
                                 @endforeach
                                 @foreach($b->fasilitas as $fas)
                                 <tr>
-                                    <td class="text-center">Hari {{ $fas->hari }}<br><small class="text-muted">{{ date('d/m/Y', strtotime($fas->tanggal)) }}</small></td>
-                                    <td class="text-center"><span class="badge bg-success text-white">Fasilitas</span></td>
+                                    <td class="text-center">{{ $fas->hari }}</td>
+                                    <td><span class="badge bg-success">Fasilitas</span></td>
                                     <td>{{ $fas->fasilitas->nama_fasilitas ?? '-' }}</td>
                                     <td class="text-center">{{ $fas->qty }}</td>
                                     <td class="text-end fw-bold">Rp {{ number_format(round($fas->subtotal),0,',','.') }}</td>
@@ -433,105 +435,54 @@
                         </table>
                     </div>
                 </div>
-
-                <div class="bg-white p-3 rounded-3 border mb-4">
-                    <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-history me-2"></i>Histori Pembayaran</h6>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm align-middle mb-0">
-                            <thead class="bg-light small fw-bold text-secondary text-uppercase">
-                                <tr>
-                                    <th>Tanggal</th>
-                                    <th>Tipe</th>
-                                    <th>Metode</th>
-                                    <th class="text-end">Nominal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($b->pembayaran as $p)
-                                <tr>
-                                    <td>{{ date('d M Y H:i', strtotime($p->tanggal_pembayaran)) }}</td>
-                                    <td><span class="badge bg-secondary text-uppercase">{{ $p->tipe_pembayaran }}</span></td>
-                                    <td class="text-capitalize">{{ $p->metode_pembayaran }}</td>
-                                    <td class="fw-bold text-success text-end">Rp {{ number_format(round($p->nominal), 0, ',', '.') }}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-2 small">Belum ada riwayat pembayaran.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                            <tfoot class="bg-light">
-                                @php
-                                    $hargaAwal = round($b->total_harga);
-                                    $diskon = round($b->diskon_manual);
-                                    $hargaFinal = round($b->total_harga_final);
-                                    $terbayar = round($b->pembayaran->sum('nominal'));
-                                    $sisa = max(0, $hargaFinal - $terbayar);
-                                @endphp
-                                <tr>
-                                    <td colspan="3" class="text-end fw-bold text-secondary">Harga Awal</td>
-                                    <td class="text-end fw-bold text-secondary">Rp {{ number_format($hargaAwal,0,',','.') }}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-end fw-bold text-danger">Diskon</td>
-                                    <td class="text-end fw-bold text-danger">- Rp {{ number_format($diskon,0,',','.') }}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-end fw-bold text-primary">Harga Final Tagihan</td>
-                                    <td class="text-end fw-bold text-primary">Rp {{ number_format($hargaFinal,0,',','.') }}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-end fw-bold text-success">Total Terbayar</td>
-                                    <td class="text-end fw-bold text-success">Rp {{ number_format($terbayar,0,',','.') }}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" class="text-end fw-bold text-warning">Sisa Bayar</td>
-                                    <td class="text-end fw-bold text-warning">Rp {{ number_format($sisa,0,',','.') }}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer bg-light border-0 py-3">
-                <button type="button" class="btn btn-secondary px-4 py-2 rounded-3 fw-bold" data-bs-dismiss="modal">Kembali</button>
             </div>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="modalEditBooking{{ $b->id }}" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content shadow-lg rounded-4 border-0 h-100">
-            <div class="modal-header">
-                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-edit text-warning me-2"></i> Edit Data & Jadwal Reservasi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ url('/admin/booking-admin/'.$b->id) }}" method="POST" class="h-100 d-flex flex-column w-100">
-                @csrf
-                @method('PUT')
-                
-                <input type="hidden" name="total_harga" id="input_edit_total_{{ $b->id }}" value="{{ round($b->total_harga) }}">
-                <input type="hidden" name="total_harga_final" id="input_edit_final_{{ $b->id }}" value="{{ round($b->total_harga_final) }}">
-
-                <div class="modal-body custom-scrollbar p-4 bg-light">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <form action="{{ url('/admin/booking-admin/update/'.$b->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="modal-content shadow-lg rounded-4 border-0">
+                <div class="modal-header bg-light">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-edit text-warning me-2"></i> Edit Data Booking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
                     <div class="row g-4">
                         <div class="col-lg-4">
                             <div class="bg-white p-4 rounded-3 border shadow-sm h-100">
-                                <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Informasi Utama</h6>
+                                <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Informasi Dasar</h6>
                                 <div class="mb-3">
-                                    <label class="form-label">Tanggal Check-In</label>
-                                    <input type="date" name="tanggal_kunjungan" id="edit_ci_{{ $b->id }}" class="form-control" value="{{ $b->tanggal_kunjungan }}" required onchange="calcEditTotal({{ $b->id }})">
+                                    <label class="form-label">Nama Pemesan</label>
+                                    <input type="text" name="nama_pemesan" class="form-control" value="{{ $b->nama_pemesan }}" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Tanggal Check-Out</label>
-                                    <input type="date" name="tanggal_selesai" id="edit_co_{{ $b->id }}" class="form-control" value="{{ $b->tanggal_selesai }}" required onchange="calcEditTotal({{ $b->id }})">
+                                    <label class="form-label">No WhatsApp</label>
+                                    <input type="text" name="no_hp" class="form-control" value="{{ $b->no_hp }}" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Diskon Manual (Rp)</label>
-                                    <input type="number" name="diskon_manual" id="edit_diskon_{{ $b->id }}" class="form-control" value="{{ round($b->diskon_manual) }}" oninput="calcEditTotal({{ $b->id }})">
+                                    <label class="form-label">Jumlah Pengunjung</label>
+                                    <input type="number" name="jumlah_pengunjung" id="edit_pengunjung_{{ $b->id }}" class="form-control" value="{{ $b->jumlah_pengunjung }}" required oninput="calcEditTotal({{ $b->id }})">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Status Booking</label>
+                                    <select name="status_booking" class="form-select">
+                                        <option value="Menunggu Konfirmasi" {{ $b->status_booking == 'Menunggu Konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
+                                        <option value="Terkonfirmasi" {{ $b->status_booking == 'Terkonfirmasi' ? 'selected' : '' }}>Terkonfirmasi</option>
+                                        <option value="Selesai" {{ $b->status_booking == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                                        <option value="Dibatalkan" {{ $b->status_booking == 'Dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                                    </select>
                                 </div>
                                 
+                                <div class="mb-3 pt-3 border-top">
+                                    <label class="form-label text-danger fw-bold">Diskon Manual (Rp)</label>
+                                    <input type="text" id="edit_diskon_input_{{ $b->id }}" class="form-control" value="{{ number_format(round($b->diskon_manual), 0, ',', '.') }}" onkeyup="formatRupiahEdit(this, {{ $b->id }})">
+                                    <input type="hidden" name="diskon_manual" id="edit_diskon_{{ $b->id }}" value="{{ round($b->diskon_manual) }}">
+                                </div>
+
                                 <div class="p-3 bg-light rounded-3 border mt-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="small text-secondary fw-semibold">Harga Dasar Sistem:</span>
@@ -552,7 +503,7 @@
                                     @foreach($b->items as $item)
                                     <div class="row g-2 align-items-center mb-2 edit-paket-row-{{ $b->id }} pb-2 border-bottom border-light">
                                         <div class="col-md-4">
-                                            <div class="fw-bold text-dark">{{ $item->paketWisata->nama_paket ?? 'Paket Terhapus' }}</div>
+                                            <div class="fw-bold text-dark">{{ $item->paketWisata->nama_paket ?? 'Paket Terhapus' }} <span class="badge bg-secondary ms-1">Kap: {{ $item->paketWisata->kapasitas ?? 0 }}</span></div>
                                             <small class="text-success fw-bold">Rp {{ number_format(round($item->harga),0,',','.') }}</small>
                                         </div>
                                         <div class="col-md-3">
@@ -569,30 +520,33 @@
                                         </div>
                                         <div class="col-md-2 text-end">
                                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-{{ $b->id }}').remove(); calcEditTotal({{ $b->id }})"><i class="fas fa-trash"></i></button>
-                                            <input type="hidden" name="paket[{{ $item->id }}][paket_wisata_id]" value="{{ $item->paket_wisata_id }}">
+                                            <input type="hidden" name="paket[{{ $item->id }}][paket_id]" value="{{ $item->paket_id }}">
                                             <input type="hidden" class="edit-harga-paket-{{ $b->id }}" value="{{ round($item->harga) }}">
+                                            <input type="hidden" class="edit-kapasitas-paket-{{ $b->id }}" value="{{ $item->paketWisata->kapasitas ?? 0 }}">
                                         </div>
                                     </div>
                                     @endforeach
                                 </div>
-                                
                                 <div class="p-3 bg-light rounded-3 border">
                                     <label class="form-label fw-bold text-primary mb-2 small"><i class="fas fa-plus-circle me-1"></i> Tambah Paket Baru</label>
                                     <div class="row g-2">
                                         <div class="col-md-5">
                                             <select id="add_paket_sel_{{ $b->id }}" class="form-select form-select-sm border">
                                                 <option value="">-- Pilih Paket --</option>
-                                                @foreach($groupedPaket as $kat => $pakets)
-                                                    <optgroup label="{{ $kat }}">
-                                                        @foreach($pakets as $p)
-                                                            <option value="{{ $p->id }}" data-nama="{{ htmlspecialchars($p->nama_paket) }}" data-harga="{{ $p->harga }}">{{ $p->nama_paket }}</option>
-                                                        @endforeach
-                                                    </optgroup>
+                                                @foreach($groupedPaket ?? [] as $kat => $paketItems)
+                                                <optgroup label="{{ $kat }}">
+                                                    @foreach($paketItems as $p)
+                                                    <option value="{{ $p->id }}" data-nama="{{ htmlspecialchars($p->nama_paket) }}" data-harga="{{ $p->harga }}" data-kapasitas="{{ $p->kapasitas }}">{{ $p->nama_paket }}</option>
+                                                    @endforeach
+                                                </optgroup>
                                                 @endforeach
                                             </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <input type="number" id="add_paket_hari_{{ $b->id }}" class="form-control form-control-sm border" placeholder="Untuk Hari Ke-" min="1">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text">Hari</span>
+                                                <input type="number" id="add_paket_hari_{{ $b->id }}" class="form-control border" value="1" min="1">
+                                            </div>
                                         </div>
                                         <div class="col-md-2">
                                             <input type="number" id="add_paket_qty_{{ $b->id }}" class="form-control form-control-sm border" placeholder="Qty" min="1" value="1">
@@ -609,11 +563,17 @@
                                 <div id="edit-fas-container-{{ $b->id }}" class="mb-3">
                                     @foreach($b->fasilitas as $fas)
                                     <div class="row g-2 align-items-center mb-2 edit-fas-row-{{ $b->id }} pb-2 border-bottom border-light">
-                                        <div class="col-md-5">
-                                            <div class="fw-bold text-dark">{{ $fas->fasilitas->nama_fasilitas ?? 'Fasilitas Terhapus' }}</div>
-                                            <small class="text-success fw-bold">Rp {{ number_format(round($fas->harga),0,',','.') }} /malam</small>
+                                        <div class="col-md-4">
+                                            <div class="fw-bold text-dark">{{ $fas->fasilitas->nama_fasilitas ?? 'Terhapus' }}</div>
+                                            <small class="text-success fw-bold">Rp {{ number_format(round($fas->harga),0,',','.') }}</small>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-md-3">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text bg-light">Hari Ke-</span>
+                                                <input type="number" name="fasilitas[{{ $fas->id }}][hari]" class="form-control" value="{{ $fas->hari ?? 1 }}" min="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
                                             <div class="input-group input-group-sm">
                                                 <span class="input-group-text bg-light">Qty</span>
                                                 <input type="number" name="fasilitas[{{ $fas->id }}][qty]" class="form-control edit-qty-fas-{{ $b->id }}" value="{{ $fas->qty }}" min="1" oninput="calcEditTotal({{ $b->id }})">
@@ -627,23 +587,28 @@
                                     </div>
                                     @endforeach
                                 </div>
-
                                 <div class="p-3 bg-light rounded-3 border">
                                     <label class="form-label fw-bold text-primary mb-2 small"><i class="fas fa-plus-circle me-1"></i> Tambah Fasilitas Baru</label>
                                     <div class="row g-2">
-                                        <div class="col-md-7">
+                                        <div class="col-md-5">
                                             <select id="add_fas_sel_{{ $b->id }}" class="form-select form-select-sm border">
                                                 <option value="">-- Pilih Fasilitas --</option>
-                                                @foreach($groupedFasilitas as $kat => $fasItems)
-                                                    <optgroup label="{{ $kat }}">
-                                                        @foreach($fasItems as $f)
-                                                            <option value="{{ $f->id }}" data-nama="{{ htmlspecialchars($f->nama_fasilitas) }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }}</option>
-                                                        @endforeach
-                                                    </optgroup>
+                                                @foreach($groupedFasilitas ?? [] as $kat => $fasItems)
+                                                <optgroup label="{{ $kat }}">
+                                                    @foreach($fasItems as $f)
+                                                    <option value="{{ $f->id }}" data-nama="{{ htmlspecialchars($f->nama_fasilitas) }}" data-harga="{{ $f->harga }}">{{ $f->nama_fasilitas }}</option>
+                                                    @endforeach
+                                                </optgroup>
                                                 @endforeach
                                             </select>
                                         </div>
                                         <div class="col-md-3">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text">Hari</span>
+                                                <input type="number" id="add_fas_hari_{{ $b->id }}" class="form-control border" value="1" min="1">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
                                             <input type="number" id="add_fas_qty_{{ $b->id }}" class="form-control form-control-sm border" placeholder="Qty" min="1" value="1">
                                         </div>
                                         <div class="col-md-2">
@@ -655,207 +620,283 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-white border-top py-3 d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-light border px-4 py-2 rounded-3 fw-bold" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-bold"><i class="fas fa-save me-2"></i>Simpan Perubahan</button>
+                <div class="modal-footer bg-white py-3 border-top d-flex justify-content-end">
+                    <button type="button" class="btn btn-light fw-bold px-4 border me-2" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4"><i class="fas fa-save me-2"></i> Simpan Perubahan</button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
 @endforeach
 
 <script>
-    const groupedPaket = {!! json_encode($groupedPaket) !!};
-    let globalPaketIdx = 0; 
-    let fIdx = 0; 
-    let editItemCounter = 9999; 
+    const groupedPaket = {!! json_encode($groupedPaket ?? []) !!};
+    const groupedFasilitas = {!! json_encode($groupedFasilitas ?? []) !!};
 
-    function switchFasTab(btnElement, paneId) {
-        document.querySelectorAll('.fas-tab-btn').forEach(btn => {
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-light', 'text-secondary', 'border');
-        });
-        btnElement.classList.remove('btn-light', 'text-secondary', 'border');
-        btnElement.classList.add('btn-primary');
-        
-        document.querySelectorAll('.fas-pane').forEach(pane => {
-            pane.classList.remove('d-block');
-            pane.classList.add('d-none');
-        });
-        document.getElementById(paneId).classList.remove('d-none');
-        document.getElementById(paneId).classList.add('d-block');
+    let pIdx = 0;
+    let fIdx = 0;
+    let editItemCounter = 999;
+
+    // VALIDASI FILE UPLOAD CLIENT-SIDE
+    function validateFile(input) {
+        const file = input.files[0];
+        const errorMsg = document.getElementById('file_error_msg');
+        const errorText = document.getElementById('file_error_text');
+        const submitBtn = document.getElementById('btn_submit_booking');
+
+        if (file) {
+            // Hanya izinkan image/jpeg dan image/png
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            const maxSize = 2 * 1024 * 1024; // 2 MB
+
+            if (!validTypes.includes(file.type)) {
+                errorText.innerText = "Format file ditolak! Hanya boleh mengunggah file JPG atau PNG.";
+                errorMsg.classList.remove('d-none');
+                input.value = ''; // Reset file input
+                submitBtn.disabled = true; // Kunci tombol submit
+                return;
+            }
+
+            if (file.size > maxSize) {
+                errorText.innerText = "Ukuran file terlalu besar! Ukuran maksimal adalah 2MB.";
+                errorMsg.classList.remove('d-none');
+                input.value = ''; // Reset file input
+                submitBtn.disabled = true; // Kunci tombol submit
+                return;
+            }
+
+            // Jika valid, hilangkan pesan error & buka tombol submit
+            errorMsg.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
     }
 
-    function switchCatTab(btnElement, paneId, dayIdx) {
-        document.querySelectorAll(`.cat-btn-${dayIdx}`).forEach(btn => {
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-light', 'text-secondary', 'border');
-        });
-        btnElement.classList.remove('btn-light', 'text-secondary', 'border');
-        btnElement.classList.add('btn-primary');
+    function formatRupiahRealtime(input, hiddenId) {
+        let value = input.value.replace(/[^,\d]/g, '').toString();
+        let split = value.split(',');
+        let sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        input.value = rupiah;
         
-        document.querySelectorAll(`.cat-pane-${dayIdx}`).forEach(pane => {
-            pane.classList.remove('d-block');
-            pane.classList.add('d-none');
-        });
-        document.getElementById(paneId).classList.remove('d-none');
-        document.getElementById(paneId).classList.add('d-block');
+        let numeric = parseInt(value) || 0;
+        document.getElementById(hiddenId).value = numeric;
+        calculateTotal();
     }
 
-    function switchTab(idx) {
-        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.itinerary-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(`tab-${idx}`).classList.add('active');
-        document.getElementById(`panel-${idx}`).classList.add('active');
+    function formatRupiahEdit(input, bId) {
+        let value = input.value.replace(/[^,\d]/g, '').toString();
+        let split = value.split(',');
+        let sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+        input.value = rupiah;
+        document.getElementById('edit_diskon_' + bId).value = parseInt(value) || 0;
+        calcEditTotal(bId);
     }
 
     function renderItinerary() {
-        const ci = document.getElementById('tanggal_kunjungan').value;
-        const co = document.getElementById('tanggal_selesai').value;
-        const tabs = document.getElementById('day-tabs-container');
-        const panels = document.getElementById('itinerary-panels-container');
-
-        if (!ci || !co) {
-            tabs.innerHTML = ''; 
-            panels.innerHTML = `
-                <div class="empty-state-box">
-                    <i class="fas fa-calendar-alt fs-2 mb-2 text-muted"></i>
-                    <p class="mb-0 fw-bold">Silakan pilih tanggal Check-In dan Check-Out terlebih dahulu.</p>
-                </div>`;
-            document.getElementById('jml_malam').value = 0;
-            document.getElementById('label_jml_malam').innerText = 0;
-            calculateTotal();
-            return;
-        }
-
-        const d1 = new Date(ci);
-        const d2 = new Date(co);
-        let totalMalam = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        let ci = new Date(document.getElementById('tanggal_kunjungan').value);
+        let co = new Date(document.getElementById('tanggal_selesai').value);
+        
+        if (isNaN(ci) || isNaN(co)) return;
+        
+        let totalMalam = Math.ceil((co - ci) / (1000 * 60 * 60 * 24));
         if (totalMalam < 1) totalMalam = 1;
-
+        
         document.getElementById('jml_malam').value = totalMalam;
         document.getElementById('label_jml_malam').innerText = totalMalam;
-
-        tabs.innerHTML = ''; 
+        
+        let tabs = document.getElementById('day-tabs-container');
+        let panels = document.getElementById('itinerary-panels-container');
+        tabs.innerHTML = '';
         panels.innerHTML = '';
-
+        
         for (let i = 0; i < totalMalam; i++) {
-            let cur = new Date(d1); cur.setDate(d1.getDate() + i);
+            let cur = new Date(ci);
+            cur.setDate(ci.getDate() + i);
             let dateStr = cur.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-
+            
             tabs.insertAdjacentHTML('beforeend', `<div class="day-tab ${i===0?'active':''}" id="tab-${i}" onclick="switchTab(${i})">HARI ${i+1} (${dateStr})</div>`);
             
-            let tabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">`;
-            let panesHtml = `<div class="tab-content mb-4">`;
-            
+            let pktTabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">`;
+            let pktPanesHtml = `<div class="tab-content mb-4">`;
             let isFirstCat = true;
             for (const katName in groupedPaket) {
                 let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
                 let activeBtn = isFirstCat ? 'btn-primary' : 'btn-light text-secondary border';
                 let activePane = isFirstCat ? 'd-block' : 'd-none';
-
-                tabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} cat-btn-${i}" onclick="switchCatTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
-
+                
+                pktTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} cat-btn-${i}" onclick="switchCatTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
+                
                 let cardsHtml = `<div class="row g-2">`;
                 groupedPaket[katName].forEach(p => {
-                    let formattedHarga = parseInt(p.harga).toLocaleString('id-ID');
                     let safeNama = p.nama_paket.replace(/'/g, "\\'");
-                    
                     cardsHtml += `
                     <div class="col-md-6">
                         <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addPaketData('${p.id}', '${safeNama}', '${p.harga}', '${p.kapasitas}', ${i})">
                             <div class="fw-bold text-dark mb-2">${p.nama_paket}</div>
                             <div class="d-flex justify-content-between align-items-center mt-auto">
                                 <span class="badge bg-info bg-opacity-10 text-info border border-info"><i class="fas fa-users"></i> ${p.kapasitas} Org</span>
-                                <span class="text-success fw-bold">Rp ${formattedHarga}</span>
+                                <span class="text-success fw-bold">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</span>
                             </div>
                         </div>
                     </div>`;
                 });
                 cardsHtml += `</div>`;
-                
-                panesHtml += `<div id="pane-${slug}-${i}" class="cat-pane-${i} ${activePane}">${cardsHtml}</div>`;
+                pktPanesHtml += `<div id="pane-${slug}-${i}" class="cat-pane-${i} ${activePane}">${cardsHtml}</div>`;
                 isFirstCat = false;
             }
-            tabsHtml += `</div>`;
-            panesHtml += `</div>`;
+            pktTabsHtml += `</div>`;
+            pktPanesHtml += `</div>`;
 
-            panels.insertAdjacentHTML('beforeend', `
-                <div class="itinerary-panel ${i===0?'active':''}" id="panel-${i}">
-                    <div class="bg-white border rounded-3 p-3 mb-3 shadow-sm">
-                        ${tabsHtml}
-                        ${panesHtml}
-                        <div class="pt-3 border-top">
-                            <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Paket Terpilih:</h6>
-                            <div id="paket-container-${i}"></div>
+            let fasTabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom mt-4">`;
+            let fasPanesHtml = `<div class="tab-content mb-4">`;
+            let isFirstFasCat = true;
+            for (const katName in groupedFasilitas) {
+                let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '-fas';
+                let activeBtn = isFirstFasCat ? 'btn-success' : 'btn-light text-secondary border';
+                let activePane = isFirstFasCat ? 'd-block' : 'd-none';
+                
+                fasTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} fas-btn-${i}" onclick="switchFasTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
+                
+                let fCardsHtml = `<div class="row g-2">`;
+                groupedFasilitas[katName].forEach(f => {
+                    let safeNama = f.nama_fasilitas.replace(/'/g, "\\'");
+                    fCardsHtml += `
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addFasilitasData('${f.id}', '${safeNama}', '${f.harga}', ${i})">
+                            <div class="fw-bold text-dark mb-2">${f.nama_fasilitas}</div>
+                            <div class="text-success fw-bold text-end">Rp ${parseInt(f.harga).toLocaleString('id-ID')}</div>
                         </div>
-                    </div>
+                    </div>`;
+                });
+                fCardsHtml += `</div>`;
+                fasPanesHtml += `<div id="pane-${slug}-${i}" class="fas-pane-${i} ${activePane}">${fCardsHtml}</div>`;
+                isFirstFasCat = false;
+            }
+            fasTabsHtml += `</div>`;
+            fasPanesHtml += `</div>`;
+            
+            let panelHtml = `
+            <div class="itinerary-panel ${i===0?'active':''}" id="panel-${i}">
+                <h6 class="fw-bold text-primary mb-3"><i class="fas fa-box"></i> Pilih Paket Wisata (Hari ke-${i+1})</h6>
+                ${pktTabsHtml}
+                ${pktPanesHtml}
+                
+                <h6 class="fw-bold text-success mb-3 mt-4"><i class="fas fa-plus-circle"></i> Pilih Fasilitas Tambahan (Hari ke-${i+1})</h6>
+                ${fasTabsHtml}
+                ${fasPanesHtml}
+                
+                <div class="pt-3 border-top mt-4 bg-light p-3 rounded">
+                    <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Terpilih (Hari ke-${i+1}):</h6>
+                    <div id="selected-items-hari-${i}"></div>
                 </div>
-            `);
+            </div>`;
+            
+            panels.insertAdjacentHTML('beforeend', panelHtml);
         }
         calculateTotal();
     }
 
-    function addPaketData(id, nama, harga, kapasitas, dayIdx) {
-        let currentPaketIdx = globalPaketIdx++;
+    function addPaketData(id, nama, harga, kap, hariIndex) {
         let html = `
-        <div class="row g-2 item-row paket-row align-items-center">
+        <div class="row g-2 item-row pkt-row align-items-center bg-white p-2 rounded mb-2 border shadow-sm">
             <div class="col-md-7">
-                <div class="fw-bold text-dark fs-6 mb-1">${nama}</div>
-                <div class="text-muted small">
-                    <span class="badge bg-info text-dark shadow-sm me-2"><i class="fas fa-users"></i> Kapasitas: ${kapasitas} Orang</span>
-                    <span class="fw-bold text-success"><i class="fas fa-tag"></i> Rp ${parseInt(harga).toLocaleString('id-ID')}</span>
-                </div>
-                <input type="hidden" name="paket[${currentPaketIdx}][paket_wisata_id]" value="${id}">
-                <input type="hidden" name="paket[${currentPaketIdx}][hari]" value="${dayIdx + 1}">
-                <input type="hidden" name="paket[${currentPaketIdx}][harga]" value="${harga}">
+                <div class="fw-bold text-dark fs-6 mb-1">${nama} <span class="badge bg-secondary ms-1">Kap: ${kap}</span></div>
+                <div class="text-primary small fw-bold">Rp ${parseInt(harga).toLocaleString('id-ID')}</div>
+                <input type="hidden" name="paket[${pIdx}][paket_id]" value="${id}">
+                <input type="hidden" name="paket[${pIdx}][hari]" value="${hariIndex + 1}">
                 <input type="hidden" class="paket-harga-hidden" value="${harga}">
-                <input type="hidden" class="paket-kapasitas-hidden" value="${kapasitas}">
+                <input type="hidden" class="paket-kapasitas-hidden" value="${kap}">
             </div>
             <div class="col-md-4">
                 <div class="input-group-qty-modern mx-auto">
                     <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
-                    <input type="number" name="paket[${currentPaketIdx}][qty]" class="qty-input-modern qty-input" value="1" min="1" oninput="calculateTotal()">
+                    <input type="number" name="paket[${pIdx}][qty]" class="qty-input-modern qty-input text-center" value="1" min="1" oninput="calculateTotal()" readonly>
                     <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
                 </div>
             </div>
             <div class="col-md-1 text-end">
-                 <button type="button" class="btn btn-sm btn-danger rounded-3" onclick="this.closest('.paket-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.pkt-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
             </div>
         </div>`;
-        
-        document.getElementById(`paket-container-${dayIdx}`).insertAdjacentHTML('beforeend', html);
+        document.getElementById(`selected-items-hari-${hariIndex}`).insertAdjacentHTML('beforeend', html);
+        pIdx++;
         calculateTotal();
     }
 
-    function addFasilitasData(id, nama, harga) {
+    function addFasilitasData(id, nama, harga, hariIndex) {
         let html = `
-        <div class="row g-2 item-row fas-row align-items-center">
+        <div class="row g-2 item-row fas-row align-items-center bg-white p-2 rounded mb-2 border shadow-sm">
             <div class="col-md-7">
                 <div class="fw-bold text-dark fs-6 mb-1">${nama}</div>
-                <div class="text-muted small">
-                    <span class="fw-bold text-success"><i class="fas fa-tag"></i> Rp ${parseInt(harga).toLocaleString('id-ID')} /malam</span>
-                </div>
+                <div class="text-success small fw-bold">Rp ${parseInt(harga).toLocaleString('id-ID')}</div>
                 <input type="hidden" name="fasilitas[${fIdx}][fasilitas_id]" value="${id}">
-                <input type="hidden" name="fasilitas[${fIdx}][harga]" value="${harga}">
+                <input type="hidden" name="fasilitas[${fIdx}][hari]" value="${hariIndex + 1}">
                 <input type="hidden" class="fas-harga-hidden" value="${harga}">
             </div>
             <div class="col-md-4">
                 <div class="input-group-qty-modern mx-auto">
                     <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
-                    <input type="number" name="fasilitas[${fIdx}][qty]" class="qty-input-modern qty-input" value="1" min="1" oninput="calculateTotal()">
+                    <input type="number" name="fasilitas[${fIdx}][qty]" class="qty-input-modern qty-input text-center" value="1" min="1" oninput="calculateTotal()" readonly>
                     <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
                 </div>
             </div>
             <div class="col-md-1 text-end">
-                 <button type="button" class="btn btn-sm btn-danger rounded-3" onclick="this.closest('.fas-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.fas-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
             </div>
         </div>`;
-        
-        document.getElementById('fasilitas-container').insertAdjacentHTML('beforeend', html); 
+        document.getElementById(`selected-items-hari-${hariIndex}`).insertAdjacentHTML('beforeend', html);
         fIdx++;
         calculateTotal();
+    }
+
+    function switchTab(i) {
+        document.querySelectorAll('.day-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.itinerary-panel').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + i).classList.add('active');
+        document.getElementById('panel-' + i).classList.add('active');
+    }
+
+    function switchCatTab(btn, paneId, dayIndex) {
+        document.querySelectorAll(`.cat-btn-${dayIndex}`).forEach(el => {
+            el.classList.remove('btn-primary');
+            el.classList.add('btn-light', 'text-secondary', 'border');
+        });
+        btn.classList.remove('btn-light', 'text-secondary', 'border');
+        btn.classList.add('btn-primary');
+        document.querySelectorAll(`.cat-pane-${dayIndex}`).forEach(el => {
+            el.classList.remove('d-block'); el.classList.add('d-none');
+        });
+        document.getElementById(paneId).classList.remove('d-none');
+        document.getElementById(paneId).classList.add('d-block');
+    }
+
+    function switchFasTab(btn, paneId, dayIndex) {
+        document.querySelectorAll(`.fas-btn-${dayIndex}`).forEach(el => {
+            el.classList.remove('btn-success');
+            el.classList.add('btn-light', 'text-secondary', 'border');
+        });
+        btn.classList.remove('btn-light', 'text-secondary', 'border');
+        btn.classList.add('btn-success');
+        document.querySelectorAll(`.fas-pane-${dayIndex}`).forEach(el => {
+            el.classList.remove('d-block'); el.classList.add('d-none');
+        });
+        document.getElementById(paneId).classList.remove('d-none');
+        document.getElementById(paneId).classList.add('d-block');
     }
 
     function changeQtyValue(id, val) {
@@ -864,15 +905,11 @@
         if (newVal >= 1) { input.value = newVal; calculateTotal(); }
     }
 
-    function changeQty(btn, val, allowDelete = false) {
+    function changeQty(btn, val, allowDelete) {
         let input = btn.parentElement.querySelector('input');
         let newVal = parseInt(input.value) + val;
         if (newVal < 1) {
-            if (allowDelete) {
-                btn.closest('.item-row').remove();
-            } else {
-                input.value = 1;
-            }
+            if (allowDelete) { btn.closest('.item-row').remove(); } else { input.value = 1; }
         } else {
             input.value = newVal;
         }
@@ -880,59 +917,52 @@
     }
 
     function calculateTotal() {
-        let totalHargaPaket = 0;
-        let totalKapasitasSemuaMalam = 0;
-        let totalTiketTambahan = 0;
-        let totalBiayaTiketTambahan = 0;
-        const HARGA_TIKET_TAMBAHAN = 25000;
-
-        let jmlPengunjung = parseInt(document.getElementById('jml_pengunjung').value) || 0;
-        let totalMalam = parseInt(document.getElementById('jml_malam').value) || 0;
-
-        document.querySelectorAll('.itinerary-panel').forEach((panel) => {
-            let kapasitasMalamIni = 0;
-            panel.querySelectorAll('.paket-row').forEach(row => {
-                let qty = parseInt(row.querySelector('.qty-input').value) || 0;
-                let harga = parseFloat(row.querySelector('.paket-harga-hidden').value) || 0;
-                let kapasitas = parseInt(row.querySelector('.paket-kapasitas-hidden').value) || 0;
-                
-                totalHargaPaket += (harga * qty);
-                kapasitasMalamIni += (kapasitas * qty);
-            });
+        let totalPaket = 0;
+        let totalFasilitas = 0;
+        let totalKapasitasMenginap = 0; 
+        
+        document.querySelectorAll('.pkt-row').forEach(row => {
+            let qty = parseInt(row.querySelector('.qty-input').value) || 0;
+            let harga = parseFloat(row.querySelector('.paket-harga-hidden').value) || 0;
+            let kap = parseInt(row.querySelector('.paket-kapasitas-hidden').value) || 0;
             
-            if (kapasitasMalamIni > 0 && jmlPengunjung > kapasitasMalamIni) {
-                let overCapacity = jmlPengunjung - kapasitasMalamIni;
-                totalTiketTambahan += overCapacity;
-                totalBiayaTiketTambahan += (overCapacity * HARGA_TIKET_TAMBAHAN);
+            totalPaket += (qty * harga);
+            if (kap > 1) {
+                totalKapasitasMenginap += (qty * kap);
             }
-            totalKapasitasSemuaMalam += kapasitasMalamIni;
         });
 
-        let totalHargaFasilitas = 0;
         document.querySelectorAll('.fas-row').forEach(row => {
             let qty = parseInt(row.querySelector('.qty-input').value) || 0;
             let harga = parseFloat(row.querySelector('.fas-harga-hidden').value) || 0;
-            totalHargaFasilitas += (harga * qty * (totalMalam > 0 ? totalMalam : 1));
+            totalFasilitas += (qty * harga);
         });
 
+        let pengunjung = parseInt(document.getElementById('jml_pengunjung').value) || 0;
+        let tiketTambahanQty = 0;
+        
+        if (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap) {
+            tiketTambahanQty = pengunjung - totalKapasitasMenginap;
+        }
+        
+        let subtotalTiket = tiketTambahanQty * 25000;
         let diskonManual = parseFloat(document.getElementById('diskon_manual').value) || 0;
-        let totalHarga = totalHargaPaket + totalHargaFasilitas + totalBiayaTiketTambahan;
-        let totalHargaFinal = totalHarga - diskonManual;
         
-        if (totalHargaFinal < 0) totalHargaFinal = 0;
+        let totalAwal = totalPaket + totalFasilitas + subtotalTiket;
+        let totalAkhir = totalAwal - diskonManual;
+        if (totalAkhir < 0) totalAkhir = 0;
 
-        document.getElementById('disp-kapasitas').innerText = totalKapasitasSemuaMalam;
-        
-        document.getElementById('disp-sub-paket').innerText = 'Rp ' + totalHargaPaket.toLocaleString('id-ID');
-        document.getElementById('disp-sub-fasilitas').innerText = 'Rp ' + totalHargaFasilitas.toLocaleString('id-ID');
-        document.getElementById('disp-sub-tiket').innerText = 'Rp ' + totalBiayaTiketTambahan.toLocaleString('id-ID');
+        document.getElementById('disp-sub-paket').innerText = 'Rp ' + totalPaket.toLocaleString('id-ID');
+        document.getElementById('disp-sub-fasilitas').innerText = 'Rp ' + totalFasilitas.toLocaleString('id-ID');
+        document.getElementById('disp-sub-tiket').innerText = 'Rp ' + subtotalTiket.toLocaleString('id-ID');
         document.getElementById('disp-diskon').innerText = '- Rp ' + diskonManual.toLocaleString('id-ID');
-        document.getElementById('disp-total').innerText = 'Rp ' + totalHargaFinal.toLocaleString('id-ID');
-        
-        document.getElementById('hidden_total_harga').value = totalHarga;
-        document.getElementById('hidden_total_harga_final').value = totalHargaFinal;
-        document.getElementById('hidden_tiket_tambahan').value = totalTiketTambahan;
-        document.getElementById('hidden_subtotal_tiket').value = totalBiayaTiketTambahan;
+        document.getElementById('disp-total').innerText = 'Rp ' + totalAkhir.toLocaleString('id-ID');
+        document.getElementById('disp-kapasitas').innerText = totalKapasitasMenginap;
+
+        document.getElementById('hidden_tiket_tambahan').value = tiketTambahanQty;
+        document.getElementById('hidden_subtotal_tiket').value = subtotalTiket;
+        document.getElementById('hidden_total_harga').value = totalAwal;
+        document.getElementById('hidden_total_harga_final').value = totalAkhir;
     }
 
     function addEditPaket(bId) {
@@ -940,16 +970,59 @@
         let hari = document.getElementById('add_paket_hari_' + bId).value || 1;
         let qty = document.getElementById('add_paket_qty_' + bId).value || 1;
         
-        if(sel.selectedIndex <= 0) return alert('Silakan pilih paket wisata terlebih dahulu.');
+        if(sel.selectedIndex <= 0) return alert('Pilih paket wisata');
         
         let opt = sel.options[sel.selectedIndex];
         let pId = opt.value;
         let nama = opt.getAttribute('data-nama');
         let harga = parseFloat(opt.getAttribute('data-harga'));
-        
+        let kap = parseInt(opt.getAttribute('data-kapasitas')) || 0;
         editItemCounter++;
+        
         let html = `
         <div class="row g-2 align-items-center mb-2 edit-paket-row-${bId} pb-2 border-bottom border-light">
+            <div class="col-md-4">
+                <div class="fw-bold text-dark">${nama} <span class="badge bg-secondary ms-1">Kap: ${kap}</span></div>
+                <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')}</small>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">Hari Ke-</span>
+                    <input type="number" name="paket[new_${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">Qty</span>
+                    <input type="number" name="paket[new_${editItemCounter}][qty]" class="form-control edit-qty-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
+                </div>
+            </div>
+            <div class="col-md-2 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
+                <input type="hidden" name="paket[new_${editItemCounter}][paket_id]" value="${pId}">
+                <input type="hidden" class="edit-harga-paket-${bId}" value="${harga}">
+                <input type="hidden" class="edit-kapasitas-paket-${bId}" value="${kap}">
+            </div>
+        </div>`;
+        document.getElementById('edit-paket-container-' + bId).insertAdjacentHTML('beforeend', html);
+        calcEditTotal(bId);
+    }
+
+    function addEditFasilitas(bId) {
+        let sel = document.getElementById('add_fas_sel_' + bId);
+        let hari = document.getElementById('add_fas_hari_' + bId).value || 1;
+        let qty = document.getElementById('add_fas_qty_' + bId).value || 1;
+        
+        if(sel.selectedIndex <= 0) return alert('Pilih fasilitas');
+        
+        let opt = sel.options[sel.selectedIndex];
+        let fId = opt.value;
+        let nama = opt.getAttribute('data-nama');
+        let harga = parseFloat(opt.getAttribute('data-harga'));
+        editItemCounter++;
+        
+        let html = `
+        <div class="row g-2 align-items-center mb-2 edit-fas-row-${bId} pb-2 border-bottom border-light">
             <div class="col-md-4">
                 <div class="fw-bold text-dark">${nama}</div>
                 <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')}</small>
@@ -957,57 +1030,21 @@
             <div class="col-md-3">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light">Hari Ke-</span>
-                    <input type="number" name="paket[${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
+                    <input type="number" name="fasilitas[new_${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light">Qty</span>
-                    <input type="number" name="paket[${editItemCounter}][qty]" class="form-control edit-qty-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
-                </div>
-            </div>
-            <div class="col-md-2 text-end">
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
-                <input type="hidden" name="paket[${editItemCounter}][paket_wisata_id]" value="${pId}">
-                <input type="hidden" class="edit-harga-paket-${bId}" value="${harga}">
-            </div>
-        </div>`;
-        
-        document.getElementById('edit-paket-container-' + bId).insertAdjacentHTML('beforeend', html);
-        calcEditTotal(bId);
-    }
-
-    function addEditFasilitas(bId) {
-        let sel = document.getElementById('add_fas_sel_' + bId);
-        let qty = document.getElementById('add_fas_qty_' + bId).value || 1;
-        
-        if(sel.selectedIndex <= 0) return alert('Silakan pilih fasilitas terlebih dahulu.');
-        
-        let opt = sel.options[sel.selectedIndex];
-        let fId = opt.value;
-        let nama = opt.getAttribute('data-nama');
-        let harga = parseFloat(opt.getAttribute('data-harga'));
-        
-        editItemCounter++;
-        let html = `
-        <div class="row g-2 align-items-center mb-2 edit-fas-row-${bId} pb-2 border-bottom border-light">
-            <div class="col-md-5">
-                <div class="fw-bold text-dark">${nama}</div>
-                <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')} /malam</small>
-            </div>
-            <div class="col-md-5">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light">Qty</span>
-                    <input type="number" name="fasilitas[${editItemCounter}][qty]" class="form-control edit-qty-fas-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
+                    <input type="number" name="fasilitas[new_${editItemCounter}][qty]" class="form-control edit-qty-fas-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
                 </div>
             </div>
             <div class="col-md-2 text-end">
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-fas-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
-                <input type="hidden" name="fasilitas[${editItemCounter}][fasilitas_id]" value="${fId}">
+                <input type="hidden" name="fasilitas[new_${editItemCounter}][fasilitas_id]" value="${fId}">
                 <input type="hidden" class="edit-harga-fas-${bId}" value="${harga}">
             </div>
         </div>`;
-        
         document.getElementById('edit-fas-container-' + bId).insertAdjacentHTML('beforeend', html);
         calcEditTotal(bId);
     }
@@ -1015,33 +1052,43 @@
     function calcEditTotal(id) {
         let totalPaket = 0;
         let totalFas = 0;
+        let totalKapasitasMenginap = 0;
         
-        let ci = new Date(document.getElementById('edit_ci_' + id).value);
-        let co = new Date(document.getElementById('edit_co_' + id).value);
-        let malam = Math.ceil((co - ci) / (1000 * 60 * 60 * 24));
-        if (isNaN(malam) || malam < 1) malam = 1;
-
         document.querySelectorAll('.edit-paket-row-' + id).forEach(row => {
             let qty = parseInt(row.querySelector('.edit-qty-' + id).value) || 0;
             let harga = parseFloat(row.querySelector('.edit-harga-paket-' + id).value) || 0;
+            let kap = parseInt(row.querySelector('.edit-kapasitas-paket-' + id).value) || 0;
+            
             totalPaket += (qty * harga);
+            if (kap > 1) {
+                totalKapasitasMenginap += (qty * kap);
+            }
         });
         
         document.querySelectorAll('.edit-fas-row-' + id).forEach(row => {
             let qty = parseInt(row.querySelector('.edit-qty-fas-' + id).value) || 0;
             let harga = parseFloat(row.querySelector('.edit-harga-fas-' + id).value) || 0;
-            totalFas += (qty * harga * malam);
+            totalFas += (qty * harga);
         });
         
-        let total = totalPaket + totalFas;
+        let pengunjung = parseInt(document.getElementById('edit_pengunjung_' + id).value) || 0;
+        let tiketTambahanQty = 0;
+        
+        if (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap) {
+            tiketTambahanQty = pengunjung - totalKapasitasMenginap;
+        }
+        let subtotalTiket = tiketTambahanQty * 25000;
+        
+        let total = totalPaket + totalFas + subtotalTiket;
         let diskon = parseFloat(document.getElementById('edit_diskon_' + id).value) || 0;
         let final = total - diskon;
         if (final < 0) final = 0;
         
-        document.getElementById('label_edit_dasar_' + id).innerText = total.toLocaleString('id-ID');
-        document.getElementById('label_edit_final_' + id).innerText = final.toLocaleString('id-ID');
-        document.getElementById('input_edit_total_' + id).value = total;
-        document.getElementById('input_edit_final_' + id).value = final;
+        let lblDasar = document.getElementById('label_edit_dasar_' + id);
+        if(lblDasar) lblDasar.innerText = total.toLocaleString('id-ID');
+        
+        let lblFinal = document.getElementById('label_edit_final_' + id);
+        if(lblFinal) lblFinal.innerText = final.toLocaleString('id-ID');
     }
 </script>
 @endsection
