@@ -30,9 +30,30 @@
         </div>
     </div>
 
+    {{-- Notifikasi Sukses --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    {{-- Notifikasi Error Umum / Peringatan Validasi --}}
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+            <div class="fw-bold"><i class="fas fa-exclamation-triangle me-2"></i> Gagal Menyimpan Data. Silakan cek form kembali:</div>
+            <ul class="mb-0 mt-1 sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
@@ -79,6 +100,7 @@
                             </td>
                         </tr>
 
+                        {{-- Modal Edit --}}
                         <div class="modal fade" id="modalEdit{{ $item->id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                 <div class="modal-content rounded-4 border-0 shadow">
@@ -90,34 +112,62 @@
                                         </div>
                                         <div class="modal-body px-4 pb-4">
                                             <div class="row g-3">
-                                                <div class="col-md-6"><label class="form-label fw-semibold">Nama Paket</label><input type="text" name="nama_paket" class="form-control" value="{{ $item->nama_paket }}" required></div>
-                                                <div class="col-md-6"><label class="form-label fw-semibold">Kategori</label>
-                                                    <select name="kategori_paket_id" class="form-select" required>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">Nama Paket</label>
+                                                    <input type="text" name="nama_paket" class="form-control @error('nama_paket') is-invalid @enderror" value="{{ old('nama_paket', $item->nama_paket) }}" required>
+                                                    @error('nama_paket') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold">Kategori</label>
+                                                    <select name="kategori_paket_id" class="form-select @error('kategori_paket_id') is-invalid @enderror" required>
                                                         @foreach($categories as $cat)
-                                                            <option value="{{ $cat->id }}" {{ $item->kategori_paket_id == $cat->id ? 'selected' : '' }}>{{ $cat->nama_kategori }}</option>
+                                                            <option value="{{ $cat->id }}" {{ old('kategori_paket_id', $item->kategori_paket_id) == $cat->id ? 'selected' : '' }}>{{ $cat->nama_kategori }}</option>
                                                         @endforeach
                                                     </select>
+                                                    @error('kategori_paket_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                                 </div>
-                                                <div class="col-md-4"><label class="form-label fw-semibold">Harga (Rp)</label><input type="number" name="harga" class="form-control" value="{{ $item->harga }}" required></div>
-                                                <div class="col-md-4"><label class="form-label fw-semibold">Durasi</label><input type="text" name="durasi" class="form-control" value="{{ $item->durasi }}" required></div>
-                                                <div class="col-md-4"><label class="form-label fw-semibold">Kapasitas</label><input type="number" name="kapasitas" class="form-control" value="{{ $item->kapasitas }}" required></div>
-                                                <div class="col-12"><label class="form-label fw-semibold">Deskripsi</label><textarea name="deskripsi" class="form-control" rows="3" required>{{ $item->deskripsi }}</textarea></div>
-                                                <div class="col-12"><label class="form-label fw-semibold">Status</label>
-                                                    <select name="status" class="form-select" required>
-                                                        <option value="Aktif" {{ $item->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                                                        <option value="Nonaktif" {{ $item->status == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-semibold">Harga (Rp)</label>
+                                                    <input type="number" name="harga" class="form-control @error('harga') is-invalid @enderror" value="{{ old('harga', $item->harga) }}" required>
+                                                    @error('harga') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-semibold">Durasi</label>
+                                                    <input type="text" name="durasi" class="form-control @error('durasi') is-invalid @enderror" value="{{ old('durasi', $item->durasi) }}" required>
+                                                    @error('durasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fw-semibold">Kapasitas</label>
+                                                    <input type="number" name="kapasitas" class="form-control @error('kapasitas') is-invalid @enderror" value="{{ old('kapasitas', $item->kapasitas) }}" required>
+                                                    @error('kapasitas') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">Deskripsi</label>
+                                                    <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="3" required>{{ old('deskripsi', $item->deskripsi) }}</textarea>
+                                                    @error('deskripsi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-semibold">Status</label>
+                                                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                                        <option value="Aktif" {{ old('status', $item->status) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                                        <option value="Nonaktif" {{ old('status', $item->status) == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                                                     </select>
+                                                    @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="form-label fw-semibold">Gambar Paket</label>
                                                     @if($item->gambar)
                                                         <div class="mb-2"><img src="{{ asset('storage/' . $item->gambar) }}" alt="gambar" width="100" class="img-thumbnail"></div>
                                                     @endif
-                                                    <input type="file" name="gambar" class="form-control" accept="image/*">
+                                                    <input type="file" name="gambar" class="form-control @error('gambar') is-invalid @enderror" accept="image/*">
+                                                    @error('gambar') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer border-0 p-4"><button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary px-4">Simpan Perubahan</button></div>
+                                        <div class="modal-footer border-0 p-4">
+                                            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-primary px-4">Simpan Perubahan</button>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
@@ -132,6 +182,7 @@
     </div>
 </div>
 
+{{-- Modal Tambah --}}
 <div class="modal fade" id="modalTambah" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded-4 border-0 shadow">
@@ -143,29 +194,60 @@
                 </div>
                 <div class="modal-body px-4 pb-4">
                     <div class="row g-3">
-                        <div class="col-md-6"><label class="form-label fw-semibold">Nama Paket</label><input type="text" name="nama_paket" class="form-control" required></div>
-                        <div class="col-md-6"><label class="form-label fw-semibold">Kategori</label>
-                            <select name="kategori_paket_id" class="form-select" required>
-                                <option value="">Pilih Kategori...</option>
-                                @foreach($categories as $cat)<option value="{{ $cat->id }}">{{ $cat->nama_kategori }}</option>@endforeach
-                            </select>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nama Paket</label>
+                            <input type="text" name="nama_paket" class="form-control @error('nama_paket') is-invalid @enderror" value="{{ old('nama_paket') }}" required>
+                            @error('nama_paket') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                        <div class="col-md-4"><label class="form-label fw-semibold">Harga (Rp)</label><input type="number" name="harga" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label fw-semibold">Durasi</label><input type="text" name="durasi" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label fw-semibold">Kapasitas</label><input type="number" name="kapasitas" class="form-control" required></div>
-                        <div class="col-12"><label class="form-label fw-semibold">Deskripsi</label><textarea name="deskripsi" class="form-control" rows="3" required></textarea></div>
-                        <div class="col-12"><label class="form-label fw-semibold">Status</label>
-                            <select name="status" class="form-select" required>
-                                <option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Kategori</label>
+                            <select name="kategori_paket_id" class="form-select @error('kategori_paket_id') is-invalid @enderror" required>
+                                <option value="">Pilih Kategori...</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}" {{ old('kategori_paket_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nama_kategori }}</option>
+                                @endforeach
                             </select>
+                            @error('kategori_paket_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Harga (Rp)</label>
+                            <input type="number" name="harga" class="form-control @error('harga') is-invalid @enderror" value="{{ old('harga') }}" required>
+                            @error('harga') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Durasi</label>
+                            <input type="text" name="durasi" class="form-control @error('durasi') is-invalid @enderror" value="{{ old('durasi') }}" required>
+                            @error('durasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Kapasitas</label>
+                            <input type="number" name="kapasitas" class="form-control @error('kapasitas') is-invalid @enderror" value="{{ old('kapasitas') }}" required>
+                            @error('kapasitas') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Deskripsi</label>
+                            <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="3" required>{{ old('deskripsi') }}</textarea>
+                            @error('deskripsi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                <option value="Aktif" {{ old('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="Nonaktif" {{ old('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                            </select>
+                            @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold">Gambar Paket</label>
-                            <input type="file" name="gambar" class="form-control" accept="image/*" required>
+                            <input type="file" name="gambar" class="form-control @error('gambar') is-invalid @enderror" accept="image/*" required>
+                            @error('gambar') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-4"><button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary px-4">Simpan Paket</button></div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4">Simpan Paket</button>
+                </div>
             </form>
         </div>
     </div>
@@ -175,6 +257,19 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Script otomatis membuka modal kembali jika terdapat error validasi
+    document.addEventListener("DOMContentLoaded", function () {
+        @if($errors->any())
+            // Cari tahu modal mana yang harus dibuka berdasarkan request lama (old id)
+            @if(old('_method') == 'PUT')
+                // Ganti dengan logic pendeteksian target edit modal jika diperlukan, atau andalkan alert global di atas tabel
+            @else
+                var modalTambah = new bootstrap.Modal(document.getElementById('modalTambah'));
+                modalTambah.show();
+            @endif
+        @endif
+    });
+
     function filterData() {
         let searchText = document.getElementById('searchInput').value.toLowerCase();
         let filterKategori = document.getElementById('kategoriFilter').value.toLowerCase();

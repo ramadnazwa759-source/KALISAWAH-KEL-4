@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Kelola_landingpage;
 use App\Http\Controllers\Controller;
 use App\Models\ProfilWisata;
 use App\Models\KategoriPaket;
+use App\Models\testimoni;
 use App\Models\Kabar;
 use App\Models\LandingSetting;
 use Illuminate\Http\Request;
@@ -22,8 +23,10 @@ class ProfilWisataController extends Controller
         // 2. AMBIL DATA SETTING LANDING PAGE TERBARU
         $landingSetting = LandingSetting::first();
 
+        $testimoni = \App\Models\Testimoni::latest()->get();
+
         // Kirim semua variabel ($categories, $kabars, $experiences, $landingSetting) ke view home
-        return view('pengunjung.landing-page.home', compact('categories', 'kabars', 'experiences', 'landingSetting'));
+        return view('pengunjung.landing-page.home', compact('categories', 'kabars', 'experiences', 'landingSetting', 'testimoni'));
     }
 
     /**
