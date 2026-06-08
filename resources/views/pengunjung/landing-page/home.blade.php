@@ -471,50 +471,49 @@
             </div>
 
             <div class="relative">
-                <div x-ref="slider" class="flex gap-8 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-6 scroll-smooth">
-                    @forelse($testimonials ?? [] as $testi)
-                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 transform transition-all duration-300 hover:shadow-premium-hover snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
-                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"{{ $testi->komentar }}"</p>
-                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
-                                <img src="{{ $testi->foto_user ? asset('storage/' . $testi->foto_user) : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80' }}" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="User Avatar">
-                                <div>
-                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">{{ $testi->nama }}</h4>
-                                    <span class="text-xs text-slate-400 block mt-0.5">{{ $testi->instansi_atau_peran }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
-                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"Sangat seru, profesional, dan fasilitas lengkap. Terima kasih <span class="text-secondary font-bold">Kalisawah</span>, raftingnya luar biasa menantang!"</p>
-                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
-                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=80&auto=format&fit=crop" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="Reviewer">
-                                <div>
-                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">Taufik Hidayat</h4>
-                                    <span class="text-xs text-slate-400 block mt-0.5">Peserta Rafting</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
-                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"Outboundnya sangat menyenangkan dan penuh tantangan! Instruktur ramah dan sabar mendampingi."</p>
-                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
-                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=80&auto=format&fit=crop" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="Reviewer">
-                                <div>
-                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">Siti Rahmawati</h4>
-                                    <span class="text-xs text-slate-400 block mt-0.5">Instansi Pendidikan</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
-                            <p class="text-slate-600 text-sm leading-relaxed font-normal italic">"Fasilitas basecamp bersih, makanannya enak, dan pemandangan alam Songgon bikin pikiran fresh kembali."</p>
-                            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
-                                <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=80&auto=format&fit=crop" class="w-11 h-11 rounded-full object-cover border-2 border-primary/20" alt="Reviewer">
-                                <div>
-                                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">Andi Pratama</h4>
-                                    <span class="text-xs text-slate-400 block mt-0.5">Karyawan Swasta</span>
-                                </div>
-                            </div>
-                        </div>
-                    @endforelse
+            <div x-ref="slider" class="flex gap-8 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-6 scroll-smooth">
+
+            @forelse($testimoni ?? [] as $testi)
+            <div class="bg-white p-8 rounded-[24px] shadow-premium border border-slate-200/30 flex flex-col justify-between space-y-6 transform transition-all duration-300 hover:shadow-premium-hover snap-start shrink-0 w-full md:w-[calc(33.333%-22px)]">
+
+            <div>
+                {{-- 1. Teks Ulasan Pengunjung --}}
+                <p class="text-slate-600 text-sm leading-relaxed font-normal italic">
+                    "{{ $testi->ulasan }}"
+                </p>
+
+                {{-- 2. KOMPONEN BINTANG RATING (Dinamis sesuai nilai kolom 'rating' di database) --}}
+                <div class="flex gap-1 mt-4">
+                    @for($i = 0; $i < ($testi->rating ?? 5); $i++)
+                        <i class="fa-solid fa-star text-secondary text-xs"></i>
+                    @endfor
+                    @for($i = 0; $i < (5 - ($testi->rating ?? 5)); $i++)
+                        <i class="fa-solid fa-star text-slate-200 text-xs"></i>
+                    @endfor
+                </div>
+            </div>
+
+            {{-- 3. Informasi Profil User --}}
+            <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
+                <img src="{{ $testi->foto_path ? asset('storage/' . $testi->foto_path) : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=80' }}"
+                    class="w-11 h-11 rounded-full object-cover border-2 border-primary/20"
+                    alt="{{ $testi->nama }}">
+                <div>
+                    <h4 class="text-sm font-extrabold text-slate-900 tracking-tight">
+                        {{ $testi->nama }}
+                    </h4>
+                    <span class="text-xs text-slate-400 block mt-0.5">
+                        {{ $testi->instansi }}
+                    </span>
+                </div>
+            </div>
+            </div>
+        @empty
+            <div class="w-full text-center py-16 bg-white rounded-[24px] border border-dashed border-slate-300 text-slate-400 font-medium text-sm flex flex-col items-center justify-center gap-3 shadow-premium">
+                <i class="fa-regular fa-comment-dots text-4xl text-primary/40"></i>
+                <span>Belum ada ulasan dari pengunjung saat ini.</span>
+            </div>
+        @endforelse
                 </div>
             </div>
         </div>

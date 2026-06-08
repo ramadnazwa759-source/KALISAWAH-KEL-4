@@ -14,16 +14,27 @@
         </button>
     </div>
 
+    {{-- NOTIFIKASI SUKSES --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3">
-            {{ session('success') }}
+            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
+    {{-- NOTIFIKASI ERROR SYSTEM --}}
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3">
+            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    {{-- NOTIFIKASI ERROR VALIDASI FORMAT / UKURAN FILE --}}
     @if($errors->any())
         <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3">
-            <ul class="mb-0">
+            <div class="fw-bold mb-1"><i class="fas fa-exclamation-triangle me-2"></i> Gagal Memproses Data:</div>
+            <ul class="mb-0 ps-3">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -49,7 +60,7 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                <img src="{{ asset('storage/' . str_replace('logos/', 'logos/', $item->logo_image_path)) }}"
+                                <img src="{{ asset('storage/' . $item->logo_image_path) }}"
                                      alt="{{ $item->company_name }}"
                                      class="img-thumbnail"
                                      style="max-height: 50px; object-fit: contain;">
@@ -69,6 +80,7 @@
                             </td>
                         </tr>
 
+                        {{-- MODAL EDIT LOGO --}}
                         <div class="modal fade" id="modalEdit{{ $item->id }}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content border-0 shadow">
@@ -86,12 +98,13 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Logo Baru <span class="text-muted">(Kosongkan jika tidak diubah)</span></label>
-                                                <input type="file" name="logo_image_path" class="form-control" accept="image/*">
-                                                <div class="form-text">Format: JPG, JPEG, PNG, WEBP (Max: 2MB)</div>
+                                                {{-- PERBAIKAN: Ditambahkan accept file format gambar --}}
+                                                <input type="file" name="logo_image_path" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                                                <div class="form-text text-danger">Format wajib: JPG, JPEG, PNG, WEBP (Max: 2MB)</div>
                                             </div>
                                             <div class="mb-1">
                                                 <label class="form-label d-block">Logo Saat Ini:</label>
-                                                <img src="{{ asset('storage/' . $item->logo_image_path) }}" alt="" style="max-height: 40px;">
+                                                <img src="{{ asset('storage/' . $item->logo_image_path) }}" alt="" style="max-height: 40px; object-fit: contain;">
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -114,6 +127,7 @@
     </div>
 </div>
 
+{{-- MODAL TAMBAH LOGO --}}
 <div class="modal fade" id="modalTambah" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -130,8 +144,9 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">File Logo</label>
-                        <input type="file" name="logo_image_path" class="form-control" required accept="image/*">
-                        <div class="form-text">Format: JPG, JPEG, PNG, WEBP (Max: 2MB)</div>
+                        {{-- PERBAIKAN: Ditambahkan accept file format gambar --}}
+                        <input type="file" name="logo_image_path" class="form-control" required accept=".jpg,.jpeg,.png,.webp">
+                        <div class="form-text text-danger">Format wajib: JPG, JPEG, PNG, WEBP (Max: 2MB)</div>
                     </div>
                 </div>
                 <div class="modal-footer">

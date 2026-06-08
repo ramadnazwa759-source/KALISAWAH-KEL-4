@@ -19,6 +19,7 @@ use App\Http\Controllers\API\Kelola_pengeluaran\PengeluaranOperasionalController
 use App\Http\Controllers\API\Kelola_landingpage\kabar\KabarController;
 use App\Http\Controllers\API\Kelola_landingpage\experience\ClientLogosController;
 use App\Http\Controllers\API\Kelola_landingpage\hero_section\LandingSettingsController;
+use App\Http\Controllers\API\Kelola_landingpage\TestimoniController;
 
 /* 1. SEKTOR ADMIN */
 Route::get('/admin/login', function () { return view('auth.login'); })->name('login');
@@ -99,17 +100,22 @@ Route::get('/get-fasilitas-by-kategori/{id}', [PengunjungBookingController::clas
 Route::get('/panduan-booking', function () {
     return view('pengunjung.landing-page.panduan.panduan-booking');
 })->name('panduan.booking');
-Route::get('/kabar', function () {
-    return view('pengunjung.landing-page.kabar.kabar');
-})->name('kabar.index');
+
+// Kabar
+// Route::get('/kabar', function () {
+//     return view('pengunjung.landing-page.kabar.kabar');
+// })->name('kabar.index');
 
 Route::get('/kabar', [KabarController::class, 'publicIndex'])->name('kabar.index');
 Route::get('/kabar/{id}', [KabarController::class, 'publicShow'])->name('kabar.detail');
 
+// testimoni
+// Route::get('/testimoni', function () {
+//     return view('pengunjung.landing-page.testimoni.review');
+// })->name('testimoni.create');
 
-Route::get('/testimoni', function () {
-    return view('pengunjung.landing-page.testimoni.review');
-})->name('testimoni.create');
+Route::get('/testimoni', [TestimoniController::class, 'create'])->name('testimoni.create');
+Route::post('/testimoni', [TestimoniController::class, 'store'])->name('testimoni.store');
 
 // DETAIL KATEGORI PAKET
 Route::get('/kategori/{slug}', [ProfilWisataController::class, 'showKategori'])

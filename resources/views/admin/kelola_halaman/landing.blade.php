@@ -15,11 +15,24 @@
         </div>
     </div>
 
-    {{-- FLASH NOTIFICATION --}}
+    {{-- FLASH NOTIFICATION SUKSES --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4">
             <i class="fas fa-check-circle me-2"></i>
             {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    {{-- PERBAIKAN: NOTIFIKASI ERROR JIKA FORMAT BUKAN GAMBAR / UKURAN OVERSIZE --}}
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4">
+            <div class="fw-bold mb-1"><i class="fas fa-exclamation-triangle me-2"></i> Gagal Menyimpan Data:</div>
+            <ul class="mb-0 ps-3">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
@@ -79,22 +92,22 @@
 
                         {{-- GAMBAR 1 --}}
                         <div class="mb-4 p-3 bg-light rounded-3 border">
-                            <label class="form-label fw-bold text-dark small">Gambar Utama (Slider 1)</label>
-                            <input type="file" name="hero_image" class="form-control @error('hero_image') is-invalid @enderror" accept="image/*" id="inputImg1">
+                            <label class="form-label fw-bold text-dark small">Gambar Utama (Slider 1) <span class="text-muted fw-normal">(JPG, JPEG, PNG, WEBP | Max 2MB)</span></label>
+                            <input type="file" name="hero_image" class="form-control @error('hero_image') is-invalid @enderror" accept=".jpg,.jpeg,.png,.webp" id="inputImg1">
                             @error('hero_image') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         {{-- GAMBAR 2 --}}
                         <div class="mb-4 p-3 bg-light rounded-3 border">
-                            <label class="form-label fw-bold text-dark small">Gambar Kedua (Slider 2)</label>
-                            <input type="file" name="hero_image_2" class="form-control @error('hero_image_2') is-invalid @enderror" accept="image/*" id="inputImg2">
+                            <label class="form-label fw-bold text-dark small">Gambar Kedua (Slider 2) <span class="text-muted fw-normal">(JPG, JPEG, PNG, WEBP | Max 2MB)</span></label>
+                            <input type="file" name="hero_image_2" class="form-control @error('hero_image_2') is-invalid @enderror" accept=".jpg,.jpeg,.png,.webp" id="inputImg2">
                             @error('hero_image_2') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         {{-- GAMBAR 3 --}}
                         <div class="mb-4 p-3 bg-light rounded-3 border">
-                            <label class="form-label fw-bold text-dark small">Gambar Ketiga (Slider 3)</label>
-                            <input type="file" name="hero_image_3" class="form-control @error('hero_image_3') is-invalid @enderror" accept="image/*" id="inputImg3">
+                            <label class="form-label fw-bold text-dark small">Gambar Ketiga (Slider 3) <span class="text-muted fw-normal">(JPG, JPEG, PNG, WEBP | Max 2MB)</span></label>
+                            <input type="file" name="hero_image_3" class="form-control @error('hero_image_3') is-invalid @enderror" accept=".jpg,.jpeg,.png,.webp" id="inputImg3">
                             @error('hero_image_3') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 

@@ -12,7 +12,7 @@
         </div>
 
         <!-- Form -->
-        <form id="review-form" class="space-y-8">
+        <form id="review-form" action="{{ route('testimoni.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
 
             <!-- Profile Picture Upload -->
@@ -57,22 +57,22 @@
                     <label for="star5" class="cursor-pointer text-3xl text-gray-200 peer-hover:text-secondary peer-checked:text-secondary transition-all">
                         <i class="fa-solid fa-star"></i>
                     </label>
-                    
+
                     <input type="radio" id="star4" name="rating" value="4" class="hidden peer" />
                     <label for="star4" class="cursor-pointer text-3xl text-gray-200 peer-hover:text-secondary peer-checked:text-secondary transition-all">
                         <i class="fa-solid fa-star"></i>
                     </label>
-                    
+
                     <input type="radio" id="star3" name="rating" value="3" class="hidden peer" />
                     <label for="star3" class="cursor-pointer text-3xl text-gray-200 peer-hover:text-secondary peer-checked:text-secondary transition-all">
                         <i class="fa-solid fa-star"></i>
                     </label>
-                    
+
                     <input type="radio" id="star2" name="rating" value="2" class="hidden peer" />
                     <label for="star2" class="cursor-pointer text-3xl text-gray-200 peer-hover:text-secondary peer-checked:text-secondary transition-all">
                         <i class="fa-solid fa-star"></i>
                     </label>
-                    
+
                     <input type="radio" id="star1" name="rating" value="1" class="hidden peer" />
                     <label for="star1" class="cursor-pointer text-3xl text-gray-200 peer-hover:text-secondary peer-checked:text-secondary transition-all">
                         <i class="fa-solid fa-star"></i>
@@ -89,7 +89,7 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row items-center gap-4 pt-6">
-                <a href="{{ route('home') }}" class="w-full sm:w-1/2 py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-center shadow-lg shadow-gray-100/50 hover:-translate-y-1 active:scale-95 active:translate-y-[2px] transition-all duration-150">
+                <a href="{{ route('landing-page.home') }}" class="w-full sm:w-1/2 py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-center shadow-lg shadow-gray-100/50 hover:-translate-y-1 active:scale-95 active:translate-y-[2px] transition-all duration-150">
                     Kembali
                 </a>
                 <button type="submit" class="w-full sm:w-1/2 py-4 bg-secondary hover:bg-yellow-500 text-dark-navy rounded-xl font-bold text-center shadow-lg shadow-secondary/20 hover:shadow-secondary/40 hover:-translate-y-1 active:scale-95 active:translate-y-[2px] transition-all duration-150">
@@ -129,10 +129,10 @@
         const preview = document.getElementById('image-preview');
         const placeholder = document.getElementById('upload-placeholder');
         const overlay = document.getElementById('hover-overlay');
-        
+
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            
+
             reader.onload = function(e) {
                 preview.src = e.target.result;
                 preview.classList.remove('hidden');
@@ -140,31 +140,52 @@
                 overlay.classList.remove('hidden');
                 overlay.classList.add('flex');
             }
-            
+
             reader.readAsDataURL(input.files[0]);
         }
     }
 
     // Form Submission & Success Logic
     document.getElementById('review-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
+        e.preventDefault(); // Tahan reload halaman otomatis
+
+        const formData = new FormData(this);
         const modal = document.getElementById('success-modal');
         const content = document.getElementById('modal-content');
-        
-        // Show Modal with Animation
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        setTimeout(() => {
-            content.classList.remove('scale-90', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
-        }, 10);
 
-        // Redirect after 3 seconds
-        setTimeout(() => {
-            window.location.href = "{{ route('home') }}";
-        }, 3000);
+        // Kirim data secara real-time ke Laravel Controller
+        fetch("{{ route('testimoni.store') }}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // JIKA BERHASIL MASUK DATABASE, BARU MUNCULKAN ANIMASI MODAL SUKSES
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                setTimeout(() => {
+                    content.classList.remove('scale-90', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
+
+                // Redirect kembali ke beranda setelah 3 detik
+                setTimeout(() => {
+                    window.location.href = "{{ route('landing-page.home') }}";
+                }, 3000);
+            } else {
+                return response.json().then(data => {
+                    alert('Gagal mengirim review: ' + (data.message || 'Terjadi kesalahan validasi.'));
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi masalah koneksi jaringan ke server.');
+        });
     });
 </script>
 

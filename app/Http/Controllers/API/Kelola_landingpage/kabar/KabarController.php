@@ -28,7 +28,8 @@ class KabarController extends Controller
             return response()->json(['message' => 'Kabar tidak ditemukan'], 404);
         }
 
-        return response()->json($kabar, 200);
+        // return response()->json($kabar, 200);
+        return view('admin.kelola_halaman.kabar_detail', compact('kabar'));
     }
 
     // POST tambah kabar
