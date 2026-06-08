@@ -9,7 +9,6 @@
             <h1 class="text-4xl md:text-6xl font-bold text-dark-navy mb-4">Kata <span class="text-secondary">Mereka</span></h1>
             <p class="text-gray-500 text-lg font-medium italic max-w-2xl mx-auto">Pendapat jujur dari mereka yang telah merasakan keseruan petualangan bersama Kalisawah Adventure</p>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
             @forelse ($testimonials ?? [] as $testimoni)
