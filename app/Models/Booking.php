@@ -14,6 +14,7 @@ class Booking extends Model
         'no_hp',
         'tanggal_kunjungan',
         'tanggal_selesai',
+        'jumlah_malam',
         'jumlah_hari',
         'jam',
         'jumlah_pengunjung',

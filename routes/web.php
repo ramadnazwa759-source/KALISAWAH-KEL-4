@@ -129,3 +129,8 @@ Route::post(
     '/booking/{id}/upload-bukti',
     [TrackingBookingController::class, 'uploadBukti']
 )->name('booking.upload-bukti');
+
+Route::get('/clear-session', function () {
+    session()->forget('temp_booking_data');
+    return 'Session booking berhasil dibersihkan! Silakan kembali ke form.';
+});

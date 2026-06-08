@@ -23,6 +23,7 @@ class PengunjungBookingController extends Controller
 
     public function showForm(Request $request)
     {
+        session()->forget('temp_booking_data');
         return view('pengunjung.booking.booking-form', [
             'kategoriPaket' => KategoriPaket::all(),
 
@@ -300,7 +301,7 @@ class PengunjungBookingController extends Controller
         4. STORE BOOKING
     ========================================================= */
 
-    public function confirmStore(Request $request)
+public function confirmStore(Request $request)
     {
         $input = session('temp_booking_data');
 
@@ -310,12 +311,36 @@ class PengunjungBookingController extends Controller
                 ->with('error', 'Sesi habis, silakan isi ulang.');
         }
 
+        if (!empty($input['paket'])) {
+            foreach ($input['paket'] as $hari => $paketIds) {
+                foreach ($paketIds as $paketId) {
+                    $paket = PaketWisata::find($paketId);
+                    if (!$paket) {
+                        return redirect()->route('pengunjung.booking.booking-form')
+                            ->with('error', 'Paket wisata yang dipilih sudah tidak tersedia atau data telah diperbarui. Silakan isi form kembali.');
+                    }
+                }
+            }
+        }
+
+        if (!empty($input['fasilitas'])) {
+            foreach ($input['fasilitas'] as $hari => $fasList) {
+                foreach ($fasList as $fasId => $qty) {
+                    $qty = (int)$qty;
+                    if ($qty <= 0) continue;
+
+                    $fas = Fasilitas::find($fasId);
+                    if (!$fas) {
+                        return redirect()->route('pengunjung.booking.booking-form')
+                            ->with('error', 'Fasilitas yang dipilih sudah tidak tersedia atau database telah di-reset. Silakan isi form kembali.');
+                    }
+                }
+            }
+        }
+
         try {
-
             $bookingRecord = DB::transaction(function () use ($input) {
-
                 $kodeBooking = 'BK-' . strtoupper(Str::random(8));
-
                 $jumlahMalam = (int) ($input['jumlah_malam'] ?? 1);
                 $jumlahHari = $jumlahMalam + 1;
 
@@ -324,24 +349,14 @@ class PengunjungBookingController extends Controller
 
                 $items = [];
                 $fasilitas = [];
-
                 $totalPaket = 0;
                 $totalFasilitas = 0;
 
-                /* =========================
-                   PAKET
-                ========================= */
-
                 if (!empty($input['paket'])) {
-
                     foreach ($input['paket'] as $hari => $paketIds) {
-
                         foreach ($paketIds as $paketId) {
-
-                            $paket = PaketWisata::findOrFail($paketId);
-
+                            $paket = PaketWisata::find($paketId);
                             $qty = (int) ($input['paket_qty'][$hari][$paketId] ?? 1);
-
                             $subtotal = $paket->harga * $qty;
 
                             $items[] = [
@@ -352,29 +367,19 @@ class PengunjungBookingController extends Controller
                                 'harga' => $paket->harga,
                                 'subtotal' => $subtotal
                             ];
-
                             $totalPaket += $subtotal;
                         }
                     }
                 }
 
-                /* =========================
-                   FASILITAS
-                ========================= */
-
                 if (!empty($input['fasilitas'])) {
-
                     foreach ($input['fasilitas'] as $hari => $fasList) {
-
                         foreach ($fasList as $fasId => $qty) {
-
                             $qty = (int)$qty;
                             if ($qty <= 0) continue;
 
-                            $fas = Fasilitas::findOrFail($fasId);
-
+                            $fas = Fasilitas::find($fasId);
                             $fas->decrement('stok', $qty);
-
                             $subtotal = $fas->harga * $qty;
 
                             $fasilitas[] = [
@@ -385,25 +390,17 @@ class PengunjungBookingController extends Controller
                                 'harga' => $fas->harga,
                                 'subtotal' => $subtotal
                             ];
-
                             $totalFasilitas += $subtotal;
                         }
                     }
                 }
 
-                /* =========================
-                   ⭐ LAHAN
-                ========================= */
-
                 if (!empty($input['lahan'])) {
-
                     foreach ($input['lahan'] as $hari => $fasId) {
-
                         $fas = Fasilitas::find($fasId);
                         if (!$fas) continue;
 
                         $fas->decrement('stok', 1);
-
                         $subtotal = $fas->harga;
 
                         $fasilitas[] = [
@@ -414,38 +411,24 @@ class PengunjungBookingController extends Controller
                             'harga' => $fas->harga,
                             'subtotal' => $subtotal
                         ];
-
                         $totalFasilitas += $subtotal;
                     }
                 }
 
-                /* =========================
-                   TIKET TAMBAHAN
-                ========================= */
-
                 $kapasitasPerHari = [];
-
                 foreach ($items as $i) {
-
                     $hari = $i['hari'];
-
                     if (!isset($kapasitasPerHari[$hari])) {
                         $kapasitasPerHari[$hari] = 0;
                     }
-
                     $paket = PaketWisata::find($i['paket_wisata_id']);
-
                     if ($paket) {
                         $kapasitasPerHari[$hari] += ($paket->kapasitas ?? 0) * $i['qty'];
                     }
                 }
 
-                $kapasitasMaksimal = !empty($kapasitasPerHari)
-                    ? max($kapasitasPerHari)
-                    : 0;
-
+                $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
                 $jumlahPengunjung = (int) $input['jumlah_pengunjung'];
-
                 $jumlahTiketTambahan = 0;
                 $subtotalTiketTambahan = 0;
 
@@ -453,10 +436,6 @@ class PengunjungBookingController extends Controller
                     $jumlahTiketTambahan = $jumlahPengunjung - $kapasitasMaksimal;
                     $subtotalTiketTambahan = $jumlahTiketTambahan * 25000;
                 }
-
-                /* =========================
-                   CREATE BOOKING
-                ========================= */
 
                 $booking = Booking::create([
                     'kode_booking' => $kodeBooking,
@@ -489,11 +468,9 @@ class PengunjungBookingController extends Controller
             });
 
             session()->forget('temp_booking_data');
-
             return redirect()->route('pengunjung.booking.booking-payment', $bookingRecord->id);
 
         } catch (\Exception $e) {
-
             return back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
@@ -805,4 +782,9 @@ class PengunjungBookingController extends Controller
         return back()->with('success', 'Bukti berhasil diupload, menunggu verifikasi admin.');
     }
 
+    public function hapusDraft(Request $request)
+    {
+        $request->session()->forget('temp_booking_data');
+        return redirect()->route('pengunjung.booking.booking-form')->with('success', 'Draft berhasil dibersihkan.');
+    }
 }
