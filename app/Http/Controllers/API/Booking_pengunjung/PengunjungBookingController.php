@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-
 use App\Models\Booking;
 use App\Models\PaketWisata;
 use App\Models\Fasilitas;
 use App\Models\KategoriPaket;
 use App\Models\KategoriFasilitas;
 use App\Models\Pembayaran;
+use Illuminate\Support\Facades\Storage;
 
 class PengunjungBookingController extends Controller
 {
@@ -23,21 +23,11 @@ class PengunjungBookingController extends Controller
 
     public function showForm(Request $request)
     {
-        session()->forget('temp_booking_data');
         return view('pengunjung.booking.booking-form', [
             'kategoriPaket' => KategoriPaket::all(),
-
-            'paket' => PaketWisata::with('kategori')
-                ->where('status', 'aktif')
-                ->get(),
-
+            'paket' => PaketWisata::with('kategori')->where('status', 'aktif')->get(),
             'kategoriFasilitas' => KategoriFasilitas::all(),
-
-            'fasilitas' => Fasilitas::with('kategori')
-                ->where('tipe_fasilitas', 'sewa')
-                ->where('stok', '>', 0)
-                ->get(),
-
+            'fasilitas' => Fasilitas::with('kategori')->where('tipe_fasilitas', 'sewa')->where('stok', '>', 0)->get(),
             'draftBooking' => $request->session()->get('temp_booking_data', []),
         ]);
     }
@@ -45,19 +35,14 @@ class PengunjungBookingController extends Controller
     public function getPaketByKategori($id)
     {
         return response()->json(
-            PaketWisata::where('kategori_paket_id', $id)
-                ->where('status', 'aktif')
-                ->get()
+            PaketWisata::where('kategori_paket_id', $id)->where('status', 'aktif')->get()
         );
     }
 
     public function getFasilitasByKategori($kategoriId)
     {
         return response()->json(
-            Fasilitas::where('kategori_fasilitas_id', $kategoriId)
-                ->where('tipe_fasilitas', 'sewa')
-                ->where('stok', '>', 0)
-                ->get()
+            Fasilitas::where('kategori_fasilitas_id', $kategoriId)->where('tipe_fasilitas', 'sewa')->where('stok', '>', 0)->get()
         );
     }
 
@@ -69,11 +54,7 @@ class PengunjungBookingController extends Controller
     {
         $request->validate([
             'nama_pemesan' => 'required|string',
-            'no_hp' => [
-                'required',
-                'digits_between:10,13',
-                'regex:/^08[0-9]+$/'
-            ],
+            'no_hp' => ['required', 'digits_between:10,13', 'regex:/^08[0-9]+$/'],
             'tanggal_kunjungan' => 'required|date',
             'tanggal_checkout' => 'required|date',
             'jumlah_pengunjung' => 'required|integer|min:1',
@@ -85,7 +66,6 @@ class PengunjungBookingController extends Controller
         ]);
 
         $input = $request->all();
-
         $request->session()->put('temp_booking_data', $input);
 
         return redirect()->route('pengunjung.booking.review.show');
@@ -202,19 +182,13 @@ class PengunjungBookingController extends Controller
 
         foreach ($structuredItems as $item) {
             $hari = $item->hari;
-
             if (!isset($kapasitasPerHari[$hari])) {
                 $kapasitasPerHari[$hari] = 0;
             }
-
-            $kapasitasPerHari[$hari] +=
-                ($item->paketWisata->kapasitas ?? 0) * $item->qty;
+            $kapasitasPerHari[$hari] += ($item->paketWisata->kapasitas ?? 0) * $item->qty;
         }
 
-        $kapasitasMaksimal = !empty($kapasitasPerHari)
-            ? max($kapasitasPerHari)
-            : 0;
-
+        $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
         $kelebihan = 0;
         $extra = 0;
 
@@ -235,17 +209,14 @@ class PengunjungBookingController extends Controller
 
         return $booking;
     }
+
     /* =========================================================
         3. DETAIL BOOKING
     ========================================================= */
 
     public function showDetail($id)
     {
-        $booking = Booking::with([
-            'items.paketWisata',
-            'fasilitas.fasilitas'
-        ])->findOrFail($id);
-
+        $booking = Booking::with(['items.paketWisata', 'fasilitas.fasilitas'])->findOrFail($id);
         $total = 0;
 
         foreach ($booking->items as $item) {
@@ -259,33 +230,21 @@ class PengunjungBookingController extends Controller
         }
 
         $kapasitasPerHari = [];
-
         foreach ($booking->items as $item) {
-
             $hari = $item->hari;
-
             if (!isset($kapasitasPerHari[$hari])) {
                 $kapasitasPerHari[$hari] = 0;
             }
-
-            $kapasitasPerHari[$hari] +=
-                ($item->paketWisata->kapasitas ?? 0) * $item->qty;
+            $kapasitasPerHari[$hari] += ($item->paketWisata->kapasitas ?? 0) * $item->qty;
         }
 
-        $kapasitasMaksimal = !empty($kapasitasPerHari)
-            ? max($kapasitasPerHari)
-            : 0;
-
+        $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
         $extraCharge = 0;
         $jumlahTiketTambahan = 0;
 
         if ($booking->jumlah_pengunjung > $kapasitasMaksimal) {
-
-            $jumlahTiketTambahan =
-                $booking->jumlah_pengunjung - $kapasitasMaksimal;
-
+            $jumlahTiketTambahan = $booking->jumlah_pengunjung - $kapasitasMaksimal;
             $extraCharge = $jumlahTiketTambahan * 25000;
-
             $total += $extraCharge;
         }
 
@@ -301,7 +260,7 @@ class PengunjungBookingController extends Controller
         4. STORE BOOKING
     ========================================================= */
 
-public function confirmStore(Request $request)
+    public function confirmStore(Request $request)
     {
         $input = session('temp_booking_data');
 
@@ -309,33 +268,6 @@ public function confirmStore(Request $request)
             return redirect()
                 ->route('pengunjung.booking.booking-form')
                 ->with('error', 'Sesi habis, silakan isi ulang.');
-        }
-
-        if (!empty($input['paket'])) {
-            foreach ($input['paket'] as $hari => $paketIds) {
-                foreach ($paketIds as $paketId) {
-                    $paket = PaketWisata::find($paketId);
-                    if (!$paket) {
-                        return redirect()->route('pengunjung.booking.booking-form')
-                            ->with('error', 'Paket wisata yang dipilih sudah tidak tersedia atau data telah diperbarui. Silakan isi form kembali.');
-                    }
-                }
-            }
-        }
-
-        if (!empty($input['fasilitas'])) {
-            foreach ($input['fasilitas'] as $hari => $fasList) {
-                foreach ($fasList as $fasId => $qty) {
-                    $qty = (int)$qty;
-                    if ($qty <= 0) continue;
-
-                    $fas = Fasilitas::find($fasId);
-                    if (!$fas) {
-                        return redirect()->route('pengunjung.booking.booking-form')
-                            ->with('error', 'Fasilitas yang dipilih sudah tidak tersedia atau database telah di-reset. Silakan isi form kembali.');
-                    }
-                }
-            }
         }
 
         try {
@@ -352,10 +284,13 @@ public function confirmStore(Request $request)
                 $totalPaket = 0;
                 $totalFasilitas = 0;
 
+                /* =========================
+                   PAKET
+                ========================= */
                 if (!empty($input['paket'])) {
                     foreach ($input['paket'] as $hari => $paketIds) {
                         foreach ($paketIds as $paketId) {
-                            $paket = PaketWisata::find($paketId);
+                            $paket = PaketWisata::findOrFail($paketId);
                             $qty = (int) ($input['paket_qty'][$hari][$paketId] ?? 1);
                             $subtotal = $paket->harga * $qty;
 
@@ -372,16 +307,19 @@ public function confirmStore(Request $request)
                     }
                 }
 
+                /* =========================
+                   FASILITAS
+                ========================= */
                 if (!empty($input['fasilitas'])) {
                     foreach ($input['fasilitas'] as $hari => $fasList) {
                         foreach ($fasList as $fasId => $qty) {
                             $qty = (int)$qty;
                             if ($qty <= 0) continue;
 
-                            $fas = Fasilitas::find($fasId);
+                            $fas = Fasilitas::findOrFail($fasId);
                             $fas->decrement('stok', $qty);
-                            $subtotal = $fas->harga * $qty;
 
+                            $subtotal = $fas->harga * $qty;
                             $fasilitas[] = [
                                 'hari' => (int)$hari,
                                 'tanggal' => $tanggal->copy()->addDays((int)$hari)->toDateString(),
@@ -395,6 +333,9 @@ public function confirmStore(Request $request)
                     }
                 }
 
+                /* =========================
+                   ⭐ LAHAN
+                ========================= */
                 if (!empty($input['lahan'])) {
                     foreach ($input['lahan'] as $hari => $fasId) {
                         $fas = Fasilitas::find($fasId);
@@ -415,6 +356,9 @@ public function confirmStore(Request $request)
                     }
                 }
 
+                /* =========================
+                   TIKET TAMBAHAN
+                ========================= */
                 $kapasitasPerHari = [];
                 foreach ($items as $i) {
                     $hari = $i['hari'];
@@ -437,6 +381,9 @@ public function confirmStore(Request $request)
                     $subtotalTiketTambahan = $jumlahTiketTambahan * 25000;
                 }
 
+                /* =========================
+                   CREATE BOOKING
+                ========================= */
                 $booking = Booking::create([
                     'kode_booking' => $kodeBooking,
                     'nama_pemesan' => strip_tags($input['nama_pemesan']),
@@ -481,10 +428,7 @@ public function confirmStore(Request $request)
 
     public function edit($id)
     {
-        $booking = Booking::with([
-            'items.paketWisata',
-            'fasilitas.fasilitas'
-        ])->findOrFail($id);
+        $booking = Booking::with(['items.paketWisata', 'fasilitas.fasilitas'])->findOrFail($id);
 
         return view('pengunjung.booking.booking-form', [
             'booking' => $booking,
@@ -503,13 +447,18 @@ public function confirmStore(Request $request)
         DB::beginTransaction();
 
         try {
-
-            $booking = Booking::findOrFail($id);
+            $booking = Booking::with('fasilitas')->findOrFail($id);
 
             $jumlahMalam = (int) $request->jumlah_malam;
             $jumlahHari = $jumlahMalam + 1;
-
             $tanggalAwal = Carbon::parse($request->tanggal_kunjungan);
+
+            foreach ($booking->fasilitas as $oldFas) {
+                $fasitasModel = Fasilitas::find($oldFas->fasilitas_id);
+                if ($fasitasModel) {
+                    $fasitasModel->increment('stok', $oldFas->qty);
+                }
+            }
 
             $booking->update([
                 'nama_pemesan' => $request->nama_pemesan,
@@ -530,18 +479,13 @@ public function confirmStore(Request $request)
             /* =========================
                PAKET
             ========================= */
-
             if ($request->has('paket')) {
-
                 foreach ($request->paket as $hari => $paketIds) {
-
                     foreach ($paketIds as $paketId) {
-
                         $paket = PaketWisata::find($paketId);
                         if (!$paket) continue;
 
                         $qty = (int) ($request->paket_qty[$hari][$paketId] ?? 1);
-
                         $subtotal = $paket->harga * $qty;
 
                         $booking->items()->create([
@@ -561,19 +505,16 @@ public function confirmStore(Request $request)
             /* =========================
                FASILITAS
             ========================= */
-
             if ($request->has('fasilitas')) {
-
                 foreach ($request->fasilitas as $hari => $fasList) {
-
                     foreach ($fasList as $fasId => $qty) {
-
                         $qty = (int)$qty;
                         if ($qty <= 0) continue;
 
                         $fas = Fasilitas::find($fasId);
                         if (!$fas) continue;
 
+                        $fas->decrement('stok', $qty);
                         $subtotal = $fas->harga * $qty;
 
                         $booking->fasilitas()->create([
@@ -593,16 +534,14 @@ public function confirmStore(Request $request)
             /* =========================
                ⭐ LAHAN UPDATE
             ========================= */
-
             if ($request->has('lahan')) {
-
                 foreach ($request->lahan as $hari => $fasId) {
-
                     if (!$fasId) continue;
 
                     $fas = Fasilitas::find($fasId);
                     if (!$fas) continue;
 
+                    $fas->decrement('stok', 1);
                     $subtotal = $fas->harga;
 
                     $booking->fasilitas()->create([
@@ -621,36 +560,24 @@ public function confirmStore(Request $request)
             /* =========================
                TIKET TAMBAHAN
             ========================= */
-
+            $booking->load('items.paketWisata');
             $kapasitasPerHari = [];
 
             foreach ($booking->items as $item) {
-
                 $hari = $item->hari;
-
                 if (!isset($kapasitasPerHari[$hari])) {
                     $kapasitasPerHari[$hari] = 0;
                 }
-
-                $kapasitasPerHari[$hari] +=
-                    ($item->paketWisata->kapasitas ?? 0) * $item->qty;
+                $kapasitasPerHari[$hari] += ($item->paketWisata->kapasitas ?? 0) * $item->qty;
             }
 
-            $kapasitasMaksimal = !empty($kapasitasPerHari)
-                ? max($kapasitasPerHari)
-                : 0;
-
+            $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
             $jumlahTiketTambahan = 0;
             $subtotalTiketTambahan = 0;
 
             if ($request->jumlah_pengunjung > $kapasitasMaksimal) {
-
-                $jumlahTiketTambahan =
-                    $request->jumlah_pengunjung - $kapasitasMaksimal;
-
-                $subtotalTiketTambahan =
-                    $jumlahTiketTambahan * 25000;
-
+                $jumlahTiketTambahan = $request->jumlah_pengunjung - $kapasitasMaksimal;
+                $subtotalTiketTambahan = $jumlahTiketTambahan * 25000;
                 $total += $subtotalTiketTambahan;
             }
 
@@ -668,9 +595,7 @@ public function confirmStore(Request $request)
                 ->with('success', 'Berhasil diperbarui');
 
         } catch (\Exception $e) {
-
             DB::rollBack();
-
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
@@ -694,7 +619,6 @@ public function confirmStore(Request $request)
         ]);
 
         $booking = Booking::findOrFail($id);
-
         $nominal = $request->tipe_pembayaran === 'dp'
             ? max(100000, round($booking->total_harga_final * 0.10, 2))
             : $booking->total_harga_final;
@@ -755,17 +679,15 @@ public function confirmStore(Request $request)
 
         $file = $request->file('bukti_pembayaran');
 
-        // VALIDASI tambahan keamanan file
         if (!$file->isValid()) {
             return back()->with('error', 'File tidak valid.');
         }
 
         $filename = 'BUKTI-' . $booking->kode_booking . '-' . time() . '.' . $file->getClientOriginalExtension();
-
         $file->storeAs('public/bukti_pembayaran', $filename);
 
         if ($pembayaran->bukti_pembayaran) {
-            \Storage::disk('public')->delete($pembayaran->bukti_pembayaran);
+            Storage::disk('public')->delete($pembayaran->bukti_pembayaran);
         }
 
         $booking->update([
@@ -780,11 +702,5 @@ public function confirmStore(Request $request)
         ]);
 
         return back()->with('success', 'Bukti berhasil diupload, menunggu verifikasi admin.');
-    }
-
-    public function hapusDraft(Request $request)
-    {
-        $request->session()->forget('temp_booking_data');
-        return redirect()->route('pengunjung.booking.booking-form')->with('success', 'Draft berhasil dibersihkan.');
     }
 }

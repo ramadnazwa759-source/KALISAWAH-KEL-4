@@ -390,44 +390,10 @@
     }
 </style>
 
-@php
-
-$statePackages = [];
-$stateFasilitas = [];
-
-if(isset($booking))
-{
-    foreach($booking->items->groupBy('hari') as $hari => $items)
-    {
-        foreach($items as $item)
-        {
-            $statePackages[$hari][] = [
-                'id' => $item->paket_wisata_id,
-                'nama' => $item->paketWisata->nama_paket ?? '-',
-                'qty' => $item->qty,
-                'harga' => $item->harga,
-                'kapasitas' => $item->paketWisata->kapasitas ?? 0,
-            ];
-        }
-    }
-
-    foreach($booking->fasilitas->groupBy('hari') as $hari => $items)
-    {
-        foreach($items as $item)
-        {
-            $stateFasilitas[$hari][$item->fasilitas_id] = $item->qty;
-        }
-    }
-}
-
-@endphp
-
 <script>
 
     @php
-
         $statePackages = [];
-
         if(isset($booking))
         {
             foreach($booking->items->groupBy('hari') as $hari => $items)
@@ -446,7 +412,6 @@ if(isset($booking))
         }
 
         $stateFasilitas = [];
-
         if(isset($booking))
         {
             foreach($booking->fasilitas->groupBy('hari') as $hari => $items)
@@ -457,15 +422,11 @@ if(isset($booking))
                 }
             }
         }
-
     @endphp
 
     let statePackages = @json($statePackages);
-
     let stateFasilitas = @json($stateFasilitas);
-
     let targetHariAktif = 0;
-
     let activeFasCategory = {};
 
     const allFasilitas = @json($fasilitas);
@@ -485,7 +446,6 @@ if(isset($booking))
         lahan: @json(old('lahan', [])),
     };
 
-    // persistence
     const STORAGE_KEY = 'booking_form_draft_v1';
     let isEditing = @json(isset($booking));
 
@@ -697,18 +657,10 @@ if(isset($booking))
         }
 
         const totalHari = jmlMalam === 0 ? 1 : jmlMalam;
-
-        const tanggalCheckin =
-            document.getElementById('tanggal_checkin').value;
-
-        const containerTab =
-            document.getElementById('container-tab');
-
-        const containerKonten =
-            document.getElementById('container-konten-hari');
-
-        const hiddenInputs =
-            document.getElementById('hidden-inputs');
+        const tanggalCheckin = document.getElementById('tanggal_checkin').value;
+        const containerTab = document.getElementById('container-tab');
+        const containerKonten = document.getElementById('container-konten-hari');
+        const hiddenInputs = document.getElementById('hidden-inputs');
 
         containerTab.innerHTML = '';
         containerKonten.innerHTML = '';
@@ -767,11 +719,8 @@ if(isset($booking))
         }
 
         let html = `
-
             <div class="mb-10">
-
                 <div class="flex justify-between items-center mb-6">
-
                     <div>
                         <h3 class="font-bold text-xl text-slate-800">
                             Paket Hari ${targetHariAktif + 1}
@@ -789,7 +738,6 @@ if(isset($booking))
                     >
                         Tambah Paket
                     </button>
-
                 </div>
         `;
 
@@ -798,19 +746,14 @@ if(isset($booking))
             statePackages[targetHariAktif].forEach((p, idx) => {
 
                 html += `
-
                     <div class="border border-slate-200 rounded-3xl p-5 mb-5">
-
                         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-
                             <div>
-
                                 <h4 class="font-bold text-slate-800 text-lg mb-2">
                                     ${p.nama}
                                 </h4>
 
                                 <div class="flex flex-wrap gap-3">
-
                                     <span class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-2 rounded-xl">
                                         Rp ${Number(p.harga).toLocaleString('id-ID')}
                                     </span>
@@ -818,15 +761,11 @@ if(isset($booking))
                                     <span class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl">
                                         Kapasitas ${p.kapasitas} Orang
                                     </span>
-
                                 </div>
-
                             </div>
 
                             <div class="flex items-center gap-4">
-
                                 <div class="flex items-center gap-2">
-
                                     <button
                                         type="button"
                                         onclick="ubahQtyPaket(${targetHariAktif}, ${idx}, -1)"
@@ -846,7 +785,6 @@ if(isset($booking))
                                     >
                                         +
                                     </button>
-
                                 </div>
 
                                 <button
@@ -856,11 +794,8 @@ if(isset($booking))
                                 >
                                     Hapus
                                 </button>
-
                             </div>
-
                         </div>
-
                     </div>
                 `;
             });
@@ -877,25 +812,19 @@ if(isset($booking))
         let groupedFas = {};
 
         allFasilitas.forEach(f => {
-
             let cat = f.kategori?.nama_kategori || 'Lainnya';
-
             if(!groupedFas[cat])
             {
                 groupedFas[cat] = [];
             }
-
             groupedFas[cat].push(f);
         });
 
         let cats = Object.keys(groupedFas);
 
         html += `
-
             <div class="mt-14 pt-10 border-t border-slate-100">
-
                 <div class="mb-6">
-
                     <h3 class="font-bold text-xl text-slate-800">
                         Fasilitas Tambahan
                     </h3>
@@ -903,21 +832,18 @@ if(isset($booking))
                     <p class="text-sm text-slate-400 mt-2">
                         Fasilitas dihitung per malam menginap
                     </p>
-
                 </div>
         `;
 
         if(cats.length > 0)
         {
-            let curIdx =
-                activeFasCategory[targetHariAktif] || 0;
+            let curIdx = activeFasCategory[targetHariAktif] || 0;
 
             html += `
                 <div class="flex gap-3 overflow-x-auto hide-scrollbar mb-8 pb-2">
             `;
 
             cats.forEach((c, idx) => {
-
                 html += `
                     <button
                         type="button"
@@ -941,9 +867,7 @@ if(isset($booking))
             `;
 
             groupedFas[cats[curIdx]].forEach(f => {
-
-                let qty =
-                    stateFasilitas[targetHariAktif]?.[f.id] || 0;
+                let qty = stateFasilitas[targetHariAktif]?.[f.id] || 0;
 
                 html += `
                     <div class="border rounded-3xl p-5 flex justify-between items-center gap-5
@@ -954,7 +878,6 @@ if(isset($booking))
                     }">
 
                         <div>
-
                             <h4 class="font-bold text-slate-800 mb-2">
                                 ${f.nama_fasilitas}
                             </h4>
@@ -962,11 +885,9 @@ if(isset($booking))
                             <p class="text-sm text-slate-500">
                                 Rp ${Number(f.harga).toLocaleString('id-ID')} / malam
                             </p>
-
                         </div>
 
                         <div class="flex items-center gap-2">
-
                             <button
                                 type="button"
                                 onclick="ubahQtyFas(${targetHariAktif}, ${f.id}, -1)"
@@ -986,9 +907,7 @@ if(isset($booking))
                             >
                                 +
                             </button>
-
                         </div>
-
                     </div>
                 `;
             });
@@ -1005,17 +924,9 @@ if(isset($booking))
         for(let h in statePackages)
         {
             statePackages[h].forEach(p => {
-
                 hiddenHtml += `
-                    <input type="hidden"
-                        name="paket[${h}][]"
-                        value="${p.id}">
-                `;
-
-                hiddenHtml += `
-                    <input type="hidden"
-                        name="paket_qty[${h}][${p.id}]"
-                        value="${p.qty}">
+                    <input type="hidden" name="paket[${h}][]" value="${p.id}">
+                    <input type="hidden" name="paket_qty[${h}][${p.id}]" value="${p.qty}">
                 `;
             });
         }
@@ -1025,29 +936,24 @@ if(isset($booking))
             for(let fId in stateFasilitas[h])
             {
                 hiddenHtml += `
-                    <input type="hidden"
-                        name="fasilitas[${h}][${fId}]"
-                        value="${stateFasilitas[h][fId]}">
+                    <input type="hidden" name="fasilitas[${h}][${fId}]" value="${stateFasilitas[h][fId]}">
                 `;
             }
         }
 
         hiddenInputs.innerHTML = hiddenHtml;
-        // persist after any render
         saveDraft();
     }
 
     function gantiHari(i)
     {
         targetHariAktif = i;
-
         renderTabs();
     }
 
     function changeFasCat(h, i)
     {
         activeFasCategory[h] = i;
-
         renderTabs();
     }
 
@@ -1079,38 +985,26 @@ if(isset($booking))
     function hapusPaket(h, i)
     {
         statePackages[h].splice(i, 1);
-
         renderTabs();
     }
 
     function bukaModal(h)
     {
         targetHariAktif = h;
-
-        document
-            .getElementById('modal-pilih-paket')
-            .classList.remove('hidden');
-
+        document.getElementById('modal-pilih-paket').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
 
     function tutupModal()
     {
-        document
-            .getElementById('modal-pilih-paket')
-            .classList.add('hidden');
-
+        document.getElementById('modal-pilih-paket').classList.add('hidden');
         document.body.style.overflow = '';
     }
 
-    document.getElementById('btn-close-modal').onclick =
-        tutupModal;
+    document.getElementById('btn-close-modal').onclick = tutupModal;
 
-    document.querySelectorAll('.item-paket-modal')
-        .forEach(el => {
-
+    document.querySelectorAll('.item-paket-modal').forEach(el => {
         el.onclick = () => {
-
             if(!statePackages[targetHariAktif])
             {
                 statePackages[targetHariAktif] = [];
@@ -1125,7 +1019,6 @@ if(isset($booking))
             });
 
             tutupModal();
-
             renderTabs();
         };
     });
@@ -1135,9 +1028,7 @@ if(isset($booking))
     };
 
     document.getElementById('btn-kurang-p').onclick = () => {
-
         let i = document.getElementById('jumlah_pengunjung');
-
         if(i.value > 1)
         {
             i.value--;
@@ -1145,50 +1036,34 @@ if(isset($booking))
     };
 
     document.getElementById('btn-tambah-malam').onclick = () => {
-
-        let input =
-            document.getElementById('lama_menginap');
-
+        let input = document.getElementById('lama_menginap');
         input.value = parseInt(input.value || 0) + 1;
-
         updateCheckout();
-
         renderTabs();
     };
 
     document.getElementById('btn-kurang-malam').onclick = () => {
-
-        let input =
-            document.getElementById('lama_menginap');
-
+        let input = document.getElementById('lama_menginap');
         if(parseInt(input.value) > 0)
         {
             input.value = parseInt(input.value) - 1;
-
             updateCheckout();
-
             renderTabs();
         }
     };
 
-    document.getElementById('tanggal_checkin')
-        .addEventListener('change', hitungMalam);
+    document.getElementById('tanggal_checkin').addEventListener('change', hitungMalam);
+    document.getElementById('tanggal_checkout').addEventListener('change', hitungMalam);
 
-    document.getElementById('tanggal_checkout')
-        .addEventListener('change', hitungMalam);
-
-    // restore draft (if any) then render
     loadDraft();
     renderTabs();
 
-    // save on form input changes
     document.querySelectorAll('#form-reservasi input, #form-reservasi select, #form-reservasi textarea')
         .forEach(el => {
             el.addEventListener('input', saveDraft);
             el.addEventListener('change', saveDraft);
         });
 
-    // also save before submit
     document.getElementById('form-reservasi').addEventListener('submit', saveDraft);
 
 </script>
