@@ -3,8 +3,8 @@
     {{-- Logo --}}
     <div class="flex items-center">
         <a href="{{ route('landing-page.home') }}">
-            <img 
-                src="{{ asset('images/logoKalisawah.png') }}" 
+            <img
+                src="{{ asset('images/logoKalisawah.png') }}"
                 alt="Kalisawah Adventure"
                 class="h-10 md:h-12"
                 onerror="this.src='https://picsum.photos/150/50'"
