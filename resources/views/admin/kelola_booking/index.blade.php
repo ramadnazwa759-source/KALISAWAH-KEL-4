@@ -12,14 +12,14 @@
         margin-bottom: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     .section-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
-    
+
     .payment-section { background: #fff7ed; border: 1px solid #fed7aa; }
     .payment-section .section-title { color: #9a3412; }
 
     .form-label { font-weight: 600; color: #64748b; font-size: 0.85rem; margin-bottom: 0.5rem; }
     .form-control, .form-select { background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.6rem 1rem; font-size: 0.95rem; font-weight: 500; transition: all 0.2s; }
     .form-control:focus, .form-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); background-color: #fff; }
-    
+
     .input-group-qty-modern { display: flex; align-items: center; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 3px; width: fit-content; }
     .btn-qty { width: 34px; height: 34px; border-radius: 0.5rem; background: white; border: 1px solid #cbd5e1; font-weight: bold; color: #334155; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
     .btn-qty:hover { background: #e2e8f0; }
@@ -29,22 +29,22 @@
     .day-tab { padding: 10px 20px; background: #f1f5f9; border-radius: 30px; font-size: 0.85rem; font-weight: 700; color: #64748b; cursor: pointer; border: 1px solid #cbd5e1; transition: all 0.2s; }
     .day-tab:hover { background: #e2e8f0; }
     .day-tab.active { background: #2563eb; color: white; border-color: #2563eb; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
-    
+
     .itinerary-panel { display: none; }
     .itinerary-panel.active { display: block; }
 
     .item-card { background: #ffffff; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
     .item-card:hover { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); transform: translateY(-2px); }
-    
+
     .item-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transition: all 0.2s; margin-top: 0.5rem; }
-    
+
     .summary-card { padding: 1.5rem; border-radius: 1rem; height: 100%; display: flex; flex-direction: column; justify-content: center; }
     .card-blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
     .btn-save { background: #2563eb; color: white; font-weight: 700; padding: 1rem 2rem; border-radius: 0.75rem; border: none; font-size: 1rem; transition: all 0.2s; }
     .btn-save:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
-    
+
     .empty-state-box { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0.75rem; padding: 2rem; text-align: center; color: #64748b; }
-    
+
     .custom-scrollbar::-webkit-scrollbar { height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -53,7 +53,7 @@
 </style>
 
 <div class="container-fluid px-4 py-4">
-    
+
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
             <i class="fas fa-check-circle me-2"></i> <strong>Berhasil!</strong> {{ session('success') }}
@@ -168,7 +168,7 @@
                                     <button type="button" class="btn btn-sm btn-info text-white rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalShowBooking{{ $b->id }}">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    
+
                                     <button type="button" class="btn btn-sm btn-warning text-dark rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalEditBooking{{ $b->id }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -183,7 +183,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="p-3 border-top d-flex justify-content-center bg-white rounded-bottom-4">
                 {{ method_exists($data, 'links') ? $data->links('pagination::bootstrap-5') : '' }}
             </div>
@@ -195,7 +195,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <form action="{{ url('/admin/booking-admin') }}" method="POST" id="formTambahBooking" class="w-100 h-100 d-flex flex-column" enctype="multipart/form-data">
             @csrf
-            
+
             <input type="hidden" name="jumlah_tiket_tambahan" id="hidden_tiket_tambahan" value="0">
             <input type="hidden" name="harga_tiket_tambahan" value="25000">
             <input type="hidden" name="subtotal_tiket_tambahan" id="hidden_subtotal_tiket" value="0">
@@ -290,7 +290,7 @@
                                         <input type="text" id="nominal_bayar_input" class="form-control fw-bold text-success" onkeyup="formatRupiahRealtime(this, 'nominal_bayar')" required>
                                         <input type="hidden" name="nominal" id="nominal_bayar" value="0">
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Upload Bukti (Opsional)</label>
                                         <input type="file" name="bukti_pembayaran" id="bukti_pembayaran" class="form-control" accept=".jpg,.jpeg,.png" onchange="validateFile(this)">
@@ -298,7 +298,7 @@
                                             <i class="fas fa-times-circle me-1"></i> <span id="file_error_text"></span>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-0 border-top pt-3">
                                         <label class="form-label text-danger">Diskon Manual (Rp)</label>
                                         <input type="text" id="diskon_manual_input" class="form-control" onkeyup="formatRupiahRealtime(this, 'diskon_manual')">
@@ -308,7 +308,7 @@
 
                                 <div class="summary-card card-blue shadow-sm mb-3">
                                     <small class="d-block mb-3 fw-bold text-uppercase"><i class="fas fa-receipt"></i> Rincian Harga</small>
-                                    
+
                                     <div class="d-flex justify-content-between mb-2 small">
                                         <span class="text-secondary">Subtotal Paket Wisata:</span>
                                         <span id="disp-sub-paket" class="fw-bold text-dark">Rp 0</span>
@@ -325,15 +325,15 @@
                                         <span class="text-primary">Diskon:</span>
                                         <span id="disp-diskon" class="fw-bold text-primary">- Rp 0</span>
                                     </div>
-                                    
+
                                     <hr class="my-2 border-primary opacity-20">
-                                    
+
                                     <div class="d-flex justify-content-between align-items-center mt-2">
                                         <span class="fw-bold text-dark">Total Akhir:</span>
                                         <span id="disp-total" class="fs-4 fw-bold text-success">Rp 0</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="summary-card bg-white border shadow-sm">
                                     <small class="d-block mb-1 fw-bold text-uppercase text-secondary"><i class="fas fa-users"></i> Kapasitas Menginap / Hari</small>
                                     <div class="d-flex align-items-baseline gap-2">
@@ -382,13 +382,13 @@
                         <div class="bg-white p-3 rounded-3 border h-100">
                             <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Status & Bukti</h6>
                             <p class="mb-2"><span class="text-secondary d-inline-block" style="width: 120px;">Status Booking</span>: <span class="badge bg-warning text-dark">{{ $b->status_booking }}</span></p>
-                            
+
                             @if($b->bukti_pembayaran)
                                 <div class="mt-3">
                                     <p class="fw-bold text-secondary mb-1">Bukti Pembayaran Terakhir:</p>
                                     <a href="{{ url('storage/'.$b->bukti_pembayaran) }}" target="_blank">
-                                        <img src="{{ url('storage/'.$b->bukti_pembayaran) }}" 
-                                             onerror="this.onerror=null;this.src='{{ asset('public/storage/'.$b->bukti_pembayaran) }}';" 
+                                        <img src="{{ url('storage/'.$b->bukti_pembayaran) }}"
+                                             onerror="this.onerror=null;this.src='{{ asset('public/storage/'.$b->bukti_pembayaran) }}';"
                                              class="img-fluid rounded border" style="max-height: 150px; object-fit: contain;">
                                     </a>
                                 </div>
@@ -476,7 +476,7 @@
                                         <option value="Dibatalkan" {{ $b->status_booking == 'Dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
                                     </select>
                                 </div>
-                                
+
                                 <div class="mb-3 pt-3 border-top">
                                     <label class="form-label text-danger fw-bold">Diskon Manual (Rp)</label>
                                     <input type="text" id="edit_diskon_input_{{ $b->id }}" class="form-control" value="{{ number_format(round($b->diskon_manual), 0, ',', '.') }}" onkeyup="formatRupiahEdit(this, {{ $b->id }})">
@@ -685,7 +685,7 @@
         }
         rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
         input.value = rupiah;
-        
+
         let numeric = parseInt(value) || 0;
         document.getElementById(hiddenId).value = numeric;
         calculateTotal();
@@ -710,27 +710,27 @@
     function renderItinerary() {
         let ci = new Date(document.getElementById('tanggal_kunjungan').value);
         let co = new Date(document.getElementById('tanggal_selesai').value);
-        
+
         if (isNaN(ci) || isNaN(co)) return;
-        
+
         let totalMalam = Math.ceil((co - ci) / (1000 * 60 * 60 * 24));
         if (totalMalam < 1) totalMalam = 1;
-        
+
         document.getElementById('jml_malam').value = totalMalam;
         document.getElementById('label_jml_malam').innerText = totalMalam;
-        
+
         let tabs = document.getElementById('day-tabs-container');
         let panels = document.getElementById('itinerary-panels-container');
         tabs.innerHTML = '';
         panels.innerHTML = '';
-        
+
         for (let i = 0; i < totalMalam; i++) {
             let cur = new Date(ci);
             cur.setDate(ci.getDate() + i);
             let dateStr = cur.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-            
+
             tabs.insertAdjacentHTML('beforeend', `<div class="day-tab ${i===0?'active':''}" id="tab-${i}" onclick="switchTab(${i})">HARI ${i+1} (${dateStr})</div>`);
-            
+
             let pktTabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">`;
             let pktPanesHtml = `<div class="tab-content mb-4">`;
             let isFirstCat = true;
@@ -738,9 +738,9 @@
                 let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
                 let activeBtn = isFirstCat ? 'btn-primary' : 'btn-light text-secondary border';
                 let activePane = isFirstCat ? 'd-block' : 'd-none';
-                
+
                 pktTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} cat-btn-${i}" onclick="switchCatTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
-                
+
                 let cardsHtml = `<div class="row g-2">`;
                 groupedPaket[katName].forEach(p => {
                     let safeNama = p.nama_paket.replace(/'/g, "\\'");
@@ -769,9 +769,9 @@
                 let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '-fas';
                 let activeBtn = isFirstFasCat ? 'btn-success' : 'btn-light text-secondary border';
                 let activePane = isFirstFasCat ? 'd-block' : 'd-none';
-                
+
                 fasTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} fas-btn-${i}" onclick="switchFasTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
-                
+
                 let fCardsHtml = `<div class="row g-2">`;
                 groupedFasilitas[katName].forEach(f => {
                     let safeNama = f.nama_fasilitas.replace(/'/g, "\\'");
@@ -789,23 +789,23 @@
             }
             fasTabsHtml += `</div>`;
             fasPanesHtml += `</div>`;
-            
+
             let panelHtml = `
             <div class="itinerary-panel ${i===0?'active':''}" id="panel-${i}">
                 <h6 class="fw-bold text-primary mb-3"><i class="fas fa-box"></i> Pilih Paket Wisata (Hari ke-${i+1})</h6>
                 ${pktTabsHtml}
                 ${pktPanesHtml}
-                
+
                 <h6 class="fw-bold text-success mb-3 mt-4"><i class="fas fa-plus-circle"></i> Pilih Fasilitas Tambahan (Hari ke-${i+1})</h6>
                 ${fasTabsHtml}
                 ${fasPanesHtml}
-                
+
                 <div class="pt-3 border-top mt-4 bg-light p-3 rounded">
                     <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Terpilih (Hari ke-${i+1}):</h6>
                     <div id="selected-items-hari-${i}"></div>
                 </div>
             </div>`;
-            
+
             panels.insertAdjacentHTML('beforeend', panelHtml);
         }
         calculateTotal();
@@ -919,13 +919,13 @@
     function calculateTotal() {
         let totalPaket = 0;
         let totalFasilitas = 0;
-        let totalKapasitasMenginap = 0; 
-        
+        let totalKapasitasMenginap = 0;
+
         document.querySelectorAll('.pkt-row').forEach(row => {
             let qty = parseInt(row.querySelector('.qty-input').value) || 0;
             let harga = parseFloat(row.querySelector('.paket-harga-hidden').value) || 0;
             let kap = parseInt(row.querySelector('.paket-kapasitas-hidden').value) || 0;
-            
+
             totalPaket += (qty * harga);
             if (kap > 1) {
                 totalKapasitasMenginap += (qty * kap);
@@ -940,14 +940,14 @@
 
         let pengunjung = parseInt(document.getElementById('jml_pengunjung').value) || 0;
         let tiketTambahanQty = 0;
-        
+
         if (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap) {
             tiketTambahanQty = pengunjung - totalKapasitasMenginap;
         }
-        
+
         let subtotalTiket = tiketTambahanQty * 25000;
         let diskonManual = parseFloat(document.getElementById('diskon_manual').value) || 0;
-        
+
         let totalAwal = totalPaket + totalFasilitas + subtotalTiket;
         let totalAkhir = totalAwal - diskonManual;
         if (totalAkhir < 0) totalAkhir = 0;
@@ -969,16 +969,16 @@
         let sel = document.getElementById('add_paket_sel_' + bId);
         let hari = document.getElementById('add_paket_hari_' + bId).value || 1;
         let qty = document.getElementById('add_paket_qty_' + bId).value || 1;
-        
+
         if(sel.selectedIndex <= 0) return alert('Pilih paket wisata');
-        
+
         let opt = sel.options[sel.selectedIndex];
         let pId = opt.value;
         let nama = opt.getAttribute('data-nama');
         let harga = parseFloat(opt.getAttribute('data-harga'));
         let kap = parseInt(opt.getAttribute('data-kapasitas')) || 0;
         editItemCounter++;
-        
+
         let html = `
         <div class="row g-2 align-items-center mb-2 edit-paket-row-${bId} pb-2 border-bottom border-light">
             <div class="col-md-4">
@@ -1012,15 +1012,15 @@
         let sel = document.getElementById('add_fas_sel_' + bId);
         let hari = document.getElementById('add_fas_hari_' + bId).value || 1;
         let qty = document.getElementById('add_fas_qty_' + bId).value || 1;
-        
+
         if(sel.selectedIndex <= 0) return alert('Pilih fasilitas');
-        
+
         let opt = sel.options[sel.selectedIndex];
         let fId = opt.value;
         let nama = opt.getAttribute('data-nama');
         let harga = parseFloat(opt.getAttribute('data-harga'));
         editItemCounter++;
-        
+
         let html = `
         <div class="row g-2 align-items-center mb-2 edit-fas-row-${bId} pb-2 border-bottom border-light">
             <div class="col-md-4">
@@ -1048,47 +1048,52 @@
         document.getElementById('edit-fas-container-' + bId).insertAdjacentHTML('beforeend', html);
         calcEditTotal(bId);
     }
+  function calcEditTotal(id) {
+    let modal = document.getElementById('modalEditBooking' + id);
+    if (!modal) return;
 
-    function calcEditTotal(id) {
-        let totalPaket = 0;
-        let totalFas = 0;
-        let totalKapasitasMenginap = 0;
-        
-        document.querySelectorAll('.edit-paket-row-' + id).forEach(row => {
-            let qty = parseInt(row.querySelector('.edit-qty-' + id).value) || 0;
-            let harga = parseFloat(row.querySelector('.edit-harga-paket-' + id).value) || 0;
-            let kap = parseInt(row.querySelector('.edit-kapasitas-paket-' + id).value) || 0;
-            
-            totalPaket += (qty * harga);
-            if (kap > 1) {
-                totalKapasitasMenginap += (qty * kap);
-            }
-        });
-        
-        document.querySelectorAll('.edit-fas-row-' + id).forEach(row => {
-            let qty = parseInt(row.querySelector('.edit-qty-fas-' + id).value) || 0;
-            let harga = parseFloat(row.querySelector('.edit-harga-fas-' + id).value) || 0;
-            totalFas += (qty * harga);
-        });
-        
-        let pengunjung = parseInt(document.getElementById('edit_pengunjung_' + id).value) || 0;
-        let tiketTambahanQty = 0;
-        
-        if (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap) {
-            tiketTambahanQty = pengunjung - totalKapasitasMenginap;
+    // 1. Ambil input pengunjung dan diskon menggunakan ID spesifik
+    let pengunjung = parseInt(document.getElementById('edit_pengunjung_' + id)?.value) || 0;
+
+    // Ambil nilai diskon dari input hidden (yang value-nya angka bersih)
+    let diskon = parseInt(document.getElementById('edit_diskon_' + id)?.value) || 0;
+
+    let totalPaket = 0;
+    let totalFas = 0;
+    let totalKapasitasMenginap = 0;
+
+    // 2. Hitung Paket
+    modal.querySelectorAll('.edit-paket-row').forEach(row => {
+        let qty = parseInt(row.querySelector('.edit-qty-paket')?.value) || 0;
+        let harga = parseFloat(row.querySelector('.edit-harga-paket')?.value) || 0;
+        let kap = parseInt(row.querySelector('.edit-kapasitas-paket')?.value) || 0;
+
+        totalPaket += (qty * harga);
+        if (kap >= 1) { // Sesuaikan logika kapasitas Anda
+            totalKapasitasMenginap += (qty * kap);
         }
-        let subtotalTiket = tiketTambahanQty * 25000;
-        
-        let total = totalPaket + totalFas + subtotalTiket;
-        let diskon = parseFloat(document.getElementById('edit_diskon_' + id).value) || 0;
-        let final = total - diskon;
-        if (final < 0) final = 0;
-        
-        let lblDasar = document.getElementById('label_edit_dasar_' + id);
-        if(lblDasar) lblDasar.innerText = total.toLocaleString('id-ID');
-        
-        let lblFinal = document.getElementById('label_edit_final_' + id);
-        if(lblFinal) lblFinal.innerText = final.toLocaleString('id-ID');
-    }
+    });
+
+    // 3. Hitung Fasilitas
+    modal.querySelectorAll('.edit-fas-row').forEach(row => {
+        let qty = parseInt(row.querySelector('.edit-qty-fas')?.value) || 0;
+        let harga = parseFloat(row.querySelector('.edit-harga-fas')?.value) || 0;
+        totalFas += (qty * harga);
+    });
+
+    // 4. Kalkulasi Total
+    let tiketTambahanQty = (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap)
+                           ? (pengunjung - totalKapasitasMenginap) : 0;
+
+    let total = totalPaket + totalFas + (tiketTambahanQty * 25000);
+    let final = Math.max(0, total - diskon);
+
+    // 5. Update Tampilan ke Label (Pakai ID spesifik agar tidak error null)
+    let lblDasar = document.getElementById('label_edit_dasar_' + id);
+    let lblFinal = document.getElementById('label_edit_final_' + id);
+
+    if (lblDasar) lblDasar.innerText = total.toLocaleString('id-ID');
+    if (lblFinal) lblFinal.innerText = final.toLocaleString('id-ID');
+}
 </script>
 @endsection

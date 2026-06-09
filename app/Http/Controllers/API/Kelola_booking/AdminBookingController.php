@@ -35,7 +35,7 @@ class AdminBookingController extends Controller
         // REVISI: Menggunakan paginate(10) agar muncul maksimal 10 per halaman dengan tombol Next/Prev
         $data = $query->paginate(10);
         // Pertahankan query string saat next page
-        $data->appends($request->all()); 
+        $data->appends($request->all());
 
         $fasilitasList = Fasilitas::where('tipe_fasilitas', 'sewa')->get();
         $paketList = PaketWisata::all();
@@ -49,7 +49,7 @@ class AdminBookingController extends Controller
         $groupedPaket = [
             'Semua Paket' => []
         ];
-        
+
         foreach ($paketList as $p) {
             $katName = $this->parseKategoriName($p->kategori);
             $groupedPaket['Semua Paket'][] = $p;
@@ -64,15 +64,15 @@ class AdminBookingController extends Controller
     private function parseKategoriName($kategori)
     {
         if (empty($kategori)) return 'Semua Paket';
-        
+
         if (is_object($kategori)) {
             return $kategori->nama_kategori ?? $kategori->NAMA_KATEGORI ?? 'Semua Paket';
         }
-        
+
         if (is_array($kategori)) {
             return $kategori['NAMA_KATEGORI'] ?? $kategori['nama_kategori'] ?? 'Semua Paket';
         }
-        
+
         if (is_string($kategori)) {
             $dec = json_decode(html_entity_decode($kategori), true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($dec)) {
@@ -86,7 +86,7 @@ class AdminBookingController extends Controller
             }
             return $kategori;
         }
-        
+
         return 'Semua Paket';
     }
 
@@ -137,7 +137,7 @@ class AdminBookingController extends Controller
                     $tanggal = Carbon::parse($request->tanggal_kunjungan)
                                 ->addDays($p['hari'] - 1)
                                 ->format('Y-m-d');
-                    
+
                     $subtotal = round($p['qty'] * $p['harga']);
 
                     BookingItem::create([
@@ -158,7 +158,7 @@ class AdminBookingController extends Controller
                     $tanggal = Carbon::parse($request->tanggal_kunjungan)
                                 ->addDays($f['hari'] - 1)
                                 ->format('Y-m-d');
-                    
+
                     $subtotal = round($f['qty'] * $f['harga']);
 
                     BookingFasilitas::create([
@@ -250,7 +250,7 @@ class AdminBookingController extends Controller
             // REVISI: Hitung ulang tiket tambahan secara otomatis di Backend
             $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
             $jumlahPengunjung = $request->jumlah_pengunjung ?? $booking->jumlah_pengunjung;
-            
+
             $tiketTambahanQty = 0;
             if ($kapasitasMaksimal > 0 && $jumlahPengunjung > $kapasitasMaksimal) {
                 $tiketTambahanQty = $jumlahPengunjung - $kapasitasMaksimal;
@@ -301,14 +301,14 @@ class AdminBookingController extends Controller
 
             $booking->items()->delete();
             $booking->fasilitas()->delete();
-            
+
             foreach($booking->pembayaran as $pembayaran) {
                 if ($pembayaran->bukti_pembayaran) {
                     Storage::disk('local')->delete($pembayaran->bukti_pembayaran);
                 }
                 $pembayaran->delete();
             }
-            
+
             $booking->delete();
 
             DB::commit();

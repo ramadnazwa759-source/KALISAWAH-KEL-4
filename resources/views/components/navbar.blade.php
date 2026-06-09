@@ -72,7 +72,7 @@
         </li>
 
         <li>
-            <a href="#tentang-kalisawah"
+            <a href="#testimoni"
                class="hover:text-hover-primary transition-colors">
                 Tentang Kalisawah
             </a>
