@@ -120,7 +120,7 @@ class AdminBookingController extends Controller
 
             $buktiPath = null;
             if ($request->hasFile('bukti_pembayaran')) {
-                $buktiPath = $request->file('bukti_pembayaran')->store('pembayaran_dp', 'local');
+                $buktiPath = $request->file('bukti_pembayaran')->store('pembayaran_dp', 'public');
             }
 
             Pembayaran::create([
@@ -132,46 +132,100 @@ class AdminBookingController extends Controller
                 'tanggal_pembayaran' => now()
             ]);
 
+            // if ($request->has('paket')) {
+            //     foreach ($request->paket as $p) {
+            //         $tanggal = Carbon::parse($request->tanggal_kunjungan)
+            //                     ->addDays($p['hari'] - 1)
+            //                     ->format('Y-m-d');
+
+            //         $subtotal = round($p['qty'] * $p['harga']);
+
+            //         BookingItem::create([
+            //             'booking_id' => $booking->id,
+            //             'paket_wisata_id' => $p['paket_id'], // REVISI: Disesuaikan dengan view form (paket_id)
+            //             'hari' => $p['hari'],
+            //             'tanggal' => $tanggal,
+            //             'qty' => $p['qty'],
+            //             'harga' => round($p['harga']),
+            //             'subtotal' => $subtotal,
+            //         ]);
+            //     }
+            // }
+
             if ($request->has('paket')) {
-                foreach ($request->paket as $p) {
-                    $tanggal = Carbon::parse($request->tanggal_kunjungan)
-                                ->addDays($p['hari'] - 1)
-                                ->format('Y-m-d');
+            foreach ($request->paket as $p) {
 
-                    $subtotal = round($p['qty'] * $p['harga']);
+                if (!isset($p['paket_id'], $p['qty'], $p['hari'])) continue;
 
-                    BookingItem::create([
-                        'booking_id' => $booking->id,
-                        'paket_wisata_id' => $p['paket_id'], // REVISI: Disesuaikan dengan view form (paket_id)
-                        'hari' => $p['hari'],
-                        'tanggal' => $tanggal,
-                        'qty' => $p['qty'],
-                        'harga' => round($p['harga']),
-                        'subtotal' => $subtotal,
-                    ]);
-                }
+                $paket = \App\Models\PaketWisata::find($p['paket_id']);
+                if (!$paket) continue;
+
+                $harga = $paket->harga;
+
+                $tanggal = \Carbon\Carbon::parse($request->tanggal_kunjungan)
+                            ->addDays($p['hari'] - 1)
+                            ->format('Y-m-d');
+
+                $subtotal = $p['qty'] * $harga;
+                BookingItem::create([
+                    'booking_id' => $booking->id,
+                    'paket_wisata_id' => $p['paket_id'],
+                    'hari' => $p['hari'],
+                    'tanggal' => $tanggal,
+                    'qty' => $p['qty'],
+                    'harga' => $harga,
+                    'subtotal' => $subtotal,
+                ]);
             }
+        }
+            // if ($request->has('fasilitas')) {
+            //     foreach ($request->fasilitas as $f) {
+            //         // REVISI: Langsung simpan sesuai 'hari' yang dikirim view, tidak lagi dilooping paksa ke seluruh jumlah_malam
+            //         $tanggal = Carbon::parse($request->tanggal_kunjungan)
+            //                     ->addDays($f['hari'] - 1)
+            //                     ->format('Y-m-d');
+
+            //         $subtotal = round($f['qty'] * $f['harga']);
+
+            //         BookingFasilitas::create([
+            //             'booking_id' => $booking->id,
+            //             'fasilitas_id' => $f['fasilitas_id'],
+            //             'hari' => $f['hari'],
+            //             'tanggal' => $tanggal,
+            //             'qty' => $f['qty'],
+            //             'harga' => round($f['harga']),
+            //             'subtotal' => $subtotal,
+            //         ]);
+            //     }
+            // }
 
             if ($request->has('fasilitas')) {
-                foreach ($request->fasilitas as $f) {
-                    // REVISI: Langsung simpan sesuai 'hari' yang dikirim view, tidak lagi dilooping paksa ke seluruh jumlah_malam
-                    $tanggal = Carbon::parse($request->tanggal_kunjungan)
-                                ->addDays($f['hari'] - 1)
-                                ->format('Y-m-d');
+            foreach ($request->fasilitas as $f) {
 
-                    $subtotal = round($f['qty'] * $f['harga']);
+                if (!isset($f['fasilitas_id'], $f['qty'], $f['hari'])) continue;
 
-                    BookingFasilitas::create([
-                        'booking_id' => $booking->id,
-                        'fasilitas_id' => $f['fasilitas_id'],
-                        'hari' => $f['hari'],
-                        'tanggal' => $tanggal,
-                        'qty' => $f['qty'],
-                        'harga' => round($f['harga']),
-                        'subtotal' => $subtotal,
-                    ]);
-                }
-            }
+                $fas = \App\Models\Fasilitas::find($f['fasilitas_id']);
+                if (!$fas) continue;
+
+                $harga = $fas->harga;
+
+                $tanggal = \Carbon\Carbon::parse($request->tanggal_kunjungan)
+                            ->addDays($f['hari'] - 1)
+                            ->format('Y-m-d');
+
+                $subtotal = $f['qty'] * $harga;
+
+                \App\Models\BookingFasilitas::create([
+                    'booking_id' => $booking->id,
+                    'fasilitas_id' => $f['fasilitas_id'],
+                    'hari' => $f['hari'],
+                    'tanggal' => $tanggal,
+                    'qty' => $f['qty'],
+                    'harga' => $harga,
+                    'subtotal' => $subtotal,
+                ]);
+    }
+}
 
             DB::commit();
             return redirect('/admin/booking-admin')->with('success', 'Data booking berhasil ditambahkan!');
@@ -181,111 +235,145 @@ class AdminBookingController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
-    {
-        DB::beginTransaction();
-        try {
-            $booking = Booking::findOrFail($id);
-            $diskonBaru = round($request->diskon_manual ?? $booking->diskon_manual);
+  public function update(Request $request, $id)
+{
+    DB::beginTransaction();
+    try {
+        $booking = Booking::findOrFail($id);
+        $diskonBaru = round($request->diskon_manual ?? $booking->diskon_manual);
 
-            // REVISI: Bersihkan relasi paket & fasilitas lama terlebih dahulu
-            $booking->items()->delete();
-            $booking->fasilitas()->delete();
-
-            $totalPaket = 0;
-            $kapasitasPerHari = [];
-
-            // REVISI: Simpan ulang Paket & Hitung total + kapasitas dari Backend
-            if ($request->has('paket')) {
-                foreach ($request->paket as $p) {
-                    // Ambil detail asli paket dari DB untuk keamanannya
-                    $paketModel = PaketWisata::find($p['paket_id']);
-                    if (!$paketModel) continue;
-
-                    $subtotal = $p['qty'] * $paketModel->harga;
-                    $totalPaket += $subtotal;
-
-                    // Hitung Kapasitas hanya untuk paket berkapasitas > 1 (Menginap)
-                    if (!isset($kapasitasPerHari[$p['hari']])) {
-                        $kapasitasPerHari[$p['hari']] = 0;
-                    }
-                    if ($paketModel->kapasitas > 1) {
-                        $kapasitasPerHari[$p['hari']] += ($p['qty'] * $paketModel->kapasitas);
-                    }
-
-                    BookingItem::create([
-                        'booking_id' => $booking->id,
-                        'paket_wisata_id' => $p['paket_id'],
-                        'hari' => $p['hari'],
-                        'tanggal' => Carbon::parse($booking->tanggal_kunjungan)->addDays($p['hari'] - 1)->format('Y-m-d'),
-                        'qty' => $p['qty'],
-                        'harga' => $paketModel->harga,
-                        'subtotal' => $subtotal
-                    ]);
-                }
-            }
-
-            $totalFasilitas = 0;
-            // REVISI: Simpan ulang Fasilitas & Hitung total
-            if ($request->has('fasilitas')) {
-                foreach ($request->fasilitas as $f) {
-                    $fasModel = Fasilitas::find($f['fasilitas_id']);
-                    if (!$fasModel) continue;
-
-                    $subtotal = $f['qty'] * $fasModel->harga;
-                    $totalFasilitas += $subtotal;
-
-                    BookingFasilitas::create([
-                        'booking_id' => $booking->id,
-                        'fasilitas_id' => $f['fasilitas_id'],
-                        'hari' => $f['hari'],
-                        'tanggal' => Carbon::parse($booking->tanggal_kunjungan)->addDays($f['hari'] - 1)->format('Y-m-d'),
-                        'qty' => $f['qty'],
-                        'harga' => $fasModel->harga,
-                        'subtotal' => $subtotal
-                    ]);
-                }
-            }
-
-            // REVISI: Hitung ulang tiket tambahan secara otomatis di Backend
-            $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
-            $jumlahPengunjung = $request->jumlah_pengunjung ?? $booking->jumlah_pengunjung;
-
-            $tiketTambahanQty = 0;
-            if ($kapasitasMaksimal > 0 && $jumlahPengunjung > $kapasitasMaksimal) {
-                $tiketTambahanQty = $jumlahPengunjung - $kapasitasMaksimal;
-            }
-            $subtotalTiket = $tiketTambahanQty * 25000;
-
-            // Kalkulasi Final
-            $totalHargaSistem = $totalPaket + $totalFasilitas + $subtotalTiket;
-            $hargaFinalBaru = $totalHargaSistem - $diskonBaru;
-            if ($hargaFinalBaru < 0) {
-                $hargaFinalBaru = 0;
-            }
-
-            // REVISI: Update ke tabel Booking dengan detail lengkap yang baru
-            $booking->update([
-                'nama_pemesan' => $request->nama_pemesan ?? $booking->nama_pemesan,
-                'no_hp' => $request->no_hp ?? $booking->no_hp,
-                'jumlah_pengunjung' => $jumlahPengunjung,
-                'diskon_manual' => $diskonBaru,
-                'jumlah_tiket_tambahan' => $tiketTambahanQty,
-                'subtotal_tiket_tambahan' => $subtotalTiket,
-                'total_harga' => $totalHargaSistem,
-                'total_harga_final' => $hargaFinalBaru,
-                'status_booking' => $request->status_booking ?? $booking->status_booking,
-            ]);
-
-            DB::commit();
-            return back()->with('success', 'Data pemesanan dan tagihan berhasil diupdate');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Gagal mengupdate: ' . $e->getMessage());
+        $tanggalAktif = $booking->tanggal_kunjungan;
+        if (!empty($request->tanggal_reschedule)) {
+            $tanggalAktif = $request->tanggal_reschedule;
         }
-    }
 
+        // 1. Back-up data item lama ke memory sebelum dihapus dari database
+        // Ini taktik biar kita tahu paket_wisata_id aslinya kalau form HTML salah kirim key
+        $oldItems = $booking->items()->get()->keyBy('id');
+        $oldFasilitas = $booking->fasilitas()->get()->keyBy('id');
+
+        // Bersihkan relasi paket & fasilitas lama di database
+        $booking->items()->delete();
+        $booking->fasilitas()->delete();
+
+        $totalPaket = 0;
+        $kapasitasPerHari = [];
+
+        // 2. Simpan ulang Paket Wisata (Anti Error Undefined Key)
+        if ($request->has('paket')) {
+            foreach ($request->paket as $key => $p) {
+                // Cari ID paket dari segala kemungkinan key yang dikirim HTML (paket_wisata_id, paket_id, atau id)
+                $paketId = $p['paket_wisata_id'] ?? $p['paket_id'] ?? $p['id'] ?? null;
+
+                // Kalau di HTML pakai ID item relasi lama sebagai key array, ambil dari backup memory
+                if (!$paketId && $oldItems->has($key)) {
+                    $paketId = $oldItems->get($key)->paket_wisata_id;
+                }
+
+                if (!$paketId) continue; // Lewati jika benar-benar tidak ketemu ID-nya
+
+                $paketModel = PaketWisata::find($paketId);
+                if (!$paketModel) continue;
+
+                $qty = $p['qty'] ?? 1;
+                $hari = $p['hari'] ?? 1;
+                $subtotal = $qty * $paketModel->harga;
+                $totalPaket += $subtotal;
+
+                // Hitung Kapasitas untuk paket menginap
+                if (!isset($kapasitasPerHari[$hari])) {
+                    $kapasitasPerHari[$hari] = 0;
+                }
+                if ($paketModel->kapasitas > 1) {
+                    $kapasitasPerHari[$hari] += ($qty * $paketModel->kapasitas);
+                }
+
+                BookingItem::create([
+                    'booking_id' => $booking->id,
+                    'paket_wisata_id' => $paketId,
+                    'hari' => $hari,
+                    'tanggal' => Carbon::parse($tanggalAktif)->addDays($hari - 1)->format('Y-m-d'),
+                    'qty' => $qty,
+                    'harga' => $paketModel->harga,
+                    'subtotal' => $subtotal
+                ]);
+            }
+        }
+
+        $totalFasilitas = 0;
+        // 3. Simpan ulang Fasilitas (Anti Error Undefined Key)
+        if ($request->has('fasilitas')) {
+            foreach ($request->fasilitas as $key => $f) {
+                // Cari ID fasilitas dari segala kemungkinan key
+                $fasilitasId = $f['fasilitas_id'] ?? $f['id'] ?? null;
+
+                if (!$fasilitasId && $oldFasilitas->has($key)) {
+                    $fasilitasId = $oldFasilitas->get($key)->fasilitas_id;
+                }
+
+                if (!$fasilitasId) continue;
+
+                $fasModel = Fasilitas::find($fasilitasId);
+                if (!$fasModel) continue;
+
+                $qty = $f['qty'] ?? 1;
+                $hari = $f['hari'] ?? 1;
+                $subtotal = $qty * $fasModel->harga;
+                $totalFasilitas += $subtotal;
+
+                BookingFasilitas::create([
+                    'booking_id' => $booking->id,
+                    'fasilitas_id' => $fasilitasId,
+                    'hari' => $hari,
+                    'tanggal' => Carbon::parse($tanggalAktif)->addDays($hari - 1)->format('Y-m-d'),
+                    'qty' => $qty,
+                    'harga' => $fasModel->harga,
+                    'subtotal' => $subtotal
+                ]);
+            }
+        }
+
+        // 4. Hitung ulang tiket tambahan secara otomatis
+        $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
+        $jumlahPengunjung = $request->jumlah_pengunjung ?? $booking->jumlah_pengunjung;
+
+        $tiketTambahanQty = 0;
+        if ($kapasitasMaksimal > 0 && $jumlahPengunjung > $kapasitasMaksimal) {
+            $tiketTambahanQty = $jumlahPengunjung - $kapasitasMaksimal;
+        }
+        $subtotalTiket = $tiketTambahanQty * 25000;
+
+        // 5. Kalkulasi Final Keuangan
+        $totalHargaSistem = $totalPaket + $totalFasilitas + $subtotalTiket;
+        $hargaFinalBaru = $totalHargaSistem - $diskonBaru;
+        if ($hargaFinalBaru < 0) {
+            $hargaFinalBaru = 0;
+        }
+
+        // 6. Update ke master data Booking
+        $booking->update([
+            'nama_pemesan' => $request->nama_pemesan ?? $booking->nama_pemesan,
+            'no_hp' => $request->no_hp ?? $booking->no_hp,
+            'jumlah_pengunjung' => $jumlahPengunjung,
+            'tanggal_reschedule' => $request->tanggal_reschedule,
+            'alasan_reschedule' => $request->alasan_reschedule,
+            'jumlah_reschedule' => $request->jumlah_reschedule ?? 0,
+            'diskon_manual' => $diskonBaru,
+            'jumlah_tiket_tambahan' => $tiketTambahanQty,
+            'subtotal_tiket_tambahan' => $subtotalTiket,
+            'total_harga' => $totalHargaSistem,
+            'total_harga_final' => $hargaFinalBaru,
+            'status_booking' => $request->status_booking ?? $booking->status_booking,
+        ]);
+
+        DB::commit();
+        return back()->with('success', 'Data pemesanan dan tagihan berhasil diupdate');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Gagal mengupdate: ' . $e->getMessage());
+    }
+}
     public function destroy($id)
     {
         $booking = Booking::with(['fasilitas.fasilitas'])->findOrFail($id);
@@ -304,7 +392,7 @@ class AdminBookingController extends Controller
 
             foreach($booking->pembayaran as $pembayaran) {
                 if ($pembayaran->bukti_pembayaran) {
-                    Storage::disk('local')->delete($pembayaran->bukti_pembayaran);
+                    Storage::disk('public')->delete($pembayaran->bukti_pembayaran);
                 }
                 $pembayaran->delete();
             }

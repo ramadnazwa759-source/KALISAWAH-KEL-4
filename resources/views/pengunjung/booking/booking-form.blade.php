@@ -12,7 +12,7 @@
         {{-- HEADER --}}
         <div class="text-center mb-14">
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
-                {{ isset($booking) ? 'Ubah Reservasi' : 'Reservasi Camping' }}
+                {{ isset($booking) ? 'Ubah Reservasi' : 'Reservasi Paket Wisata' }}
             </h1>
 
             <p class="text-slate-500 mt-3 text-base leading-relaxed max-w-3xl mx-auto">

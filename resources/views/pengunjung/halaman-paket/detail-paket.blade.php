@@ -5,19 +5,19 @@
 
 @section('content')
     <section class="relative h-[60vh] min-h-[500px] w-full overflow-hidden">
-        <img src="{{ $kategori->hero_image ? asset('storage/' . $kategori->hero_image) : asset('images/default-hero.jpg') }}" 
-             alt="{{ $kategori->nama_kategori }}" 
+        <img src="{{ $kategori->hero_image ? asset('storage/' . $kategori->hero_image) : asset('images/default-hero.jpg') }}"
+             alt="{{ $kategori->nama_kategori }}"
              class="absolute inset-0 w-full h-full object-cover">
-        
+
         <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
-        
+
         <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto">
             <div class="max-w-2xl">
                 <h1 class="text-primary text-4xl md:text-6xl font-bold mb-2 uppercase">{{ $kategori->nama_kategori }}</h1>
                 <h2 class="font-script text-secondary text-3xl md:text-5xl mb-6">
                     {{ $kategori->tagline ?? 'Petualangan Terbaik Menanti Anda!' }}
                 </h2>
-                
+
                 @if($kategori->deskripsi)
                     <p class="text-white/80 text-lg mb-8">{{ $kategori->deskripsi }}</p>
                 @endif
@@ -41,13 +41,13 @@
             @forelse($pakets as $paket)
             <div class="bg-white rounded-[32px] overflow-hidden shadow-xl border border-gray-100 flex flex-col group hover:shadow-2xl transition-all duration-300">
                 <div class="relative h-64 overflow-hidden shrink-0">
-                    <img src="{{ $paket->foto ? asset('storage/' . $paket->foto) : asset('images/default-package.jpg') }}" 
+                    <img src="{{ $paket->foto ? asset('storage/' . $paket->foto) : asset('images/default-package.jpg') }}"
                          alt="{{ $paket->nama_paket }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                 </div>
 
                 <div class="p-8 flex flex-col flex-grow">
                     <h3 class="text-primary text-2xl font-black mb-2 uppercase">{{ $paket->nama_paket }}</h3>
-                    
+
                     <p class="text-gray-600 text-sm mb-4 leading-relaxed">
                         {{ Str::limit($paket->deskripsi, 100) }}
                     </p>
@@ -62,7 +62,7 @@
                             <span>{{ $paket->kapasitas }} Orang</span>
                         </div>
                     </div>
-                    
+
                     <div class="space-y-4 mb-6 flex-grow">
                         <h4 class="font-black text-dark-navy text-xs uppercase tracking-widest flex items-center gap-2">
                             <span class="w-1.5 h-4 bg-secondary rounded-full"></span> Fasilitas

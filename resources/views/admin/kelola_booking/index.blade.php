@@ -172,10 +172,10 @@
                                     <button type="button" class="btn btn-sm btn-warning text-dark rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalEditBooking{{ $b->id }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-
-                                    <a href="{{ url('/admin/pembayaran?booking_id='.$b->id) }}" class="btn btn-sm btn-success text-white rounded-3 shadow-sm px-2.5 py-2" title="Lihat Data Pembayaran">
+                                   <!-- Tombol Pembayaran -->
+                                   <button type="button" class="btn btn-sm btn-success text-white rounded-3 shadow-sm px-2.5 py-2" data-bs-toggle="modal" data-bs-target="#modalPembayaran{{ $b->id }}">
                                         <i class="fas fa-wallet"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -293,7 +293,7 @@
 
                                     <div class="mb-3">
                                         <label class="form-label">Upload Bukti (Opsional)</label>
-                                        <input type="file" name="bukti_pembayaran" id="bukti_pembayaran" class="form-control" accept=".jpg,.jpeg,.png" onchange="validateFile(this)">
+                                        <input type="file" name="bukti_pembayaran" id="bukti_pembayaran" class="form-control" accept=".jpg,.jpeg,.png">
                                         <div id="file_error_msg" class="text-danger fw-bold small mt-1 d-none">
                                             <i class="fas fa-times-circle me-1"></i> <span id="file_error_text"></span>
                                         </div>
@@ -383,20 +383,27 @@
                             <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Status & Bukti</h6>
                             <p class="mb-2"><span class="text-secondary d-inline-block" style="width: 120px;">Status Booking</span>: <span class="badge bg-warning text-dark">{{ $b->status_booking }}</span></p>
 
-                            @if($b->bukti_pembayaran)
-                                <div class="mt-3">
-                                    <p class="fw-bold text-secondary mb-1">Bukti Pembayaran Terakhir:</p>
-                                    <a href="{{ url('storage/'.$b->bukti_pembayaran) }}" target="_blank">
-                                        <img src="{{ url('storage/'.$b->bukti_pembayaran) }}"
-                                             onerror="this.onerror=null;this.src='{{ asset('public/storage/'.$b->bukti_pembayaran) }}';"
-                                             class="img-fluid rounded border" style="max-height: 150px; object-fit: contain;">
-                                    </a>
-                                </div>
-                            @else
-                                <p class="text-muted fst-italic mt-3">Belum ada bukti pembayaran.</p>
-                            @endif
-                        </div>
+                           {{-- 1. Definisikan variabel tepat sebelum digunakan --}}
+                        @php
+                            $pembayaranTerakhir = $b->pembayaran->last();
+                        @endphp
+
+                        {{-- 2. Baru gunakan variabel tersebut --}}
+                        @if($pembayaranTerakhir && $pembayaranTerakhir->bukti_pembayaran)
+                            <div class="mt-3">
+                                <p class="fw-bold text-secondary mb-1">Bukti Pembayaran Terakhir:</p>
+                                <a href="{{ asset('storage/' . $pembayaranTerakhir->bukti_pembayaran) }}" target="_blank">
+                                    <img src="{{ asset('storage/' . $pembayaranTerakhir->bukti_pembayaran) }}"
+                                        class="img-fluid rounded border"
+                                        style="max-height: 150px; object-fit: contain;"
+                                        alt="Bukti Pembayaran">
+                                </a>
+                            </div>
+                        @else
+                            <p class="text-muted fst-italic mt-3">Belum ada bukti pembayaran.</p>
+                        @endif
                     </div>
+                </div>
                 </div>
 
                 <div class="bg-white p-3 rounded-3 border mb-4">
@@ -442,7 +449,7 @@
 
 <div class="modal fade" id="modalEditBooking{{ $b->id }}" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
-        <form action="{{ url('/admin/booking-admin/update/'.$b->id) }}" method="POST">
+       <form action="{{ url('/admin/booking-admin/' . $b->id) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="modal-content shadow-lg rounded-4 border-0">
@@ -470,11 +477,31 @@
                                 <div class="mb-3">
                                     <label class="form-label">Status Booking</label>
                                     <select name="status_booking" class="form-select">
-                                        <option value="Menunggu Konfirmasi" {{ $b->status_booking == 'Menunggu Konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
-                                        <option value="Terkonfirmasi" {{ $b->status_booking == 'Terkonfirmasi' ? 'selected' : '' }}>Terkonfirmasi</option>
-                                        <option value="Selesai" {{ $b->status_booking == 'Selesai' ? 'selected' : '' }}>Selesai</option>
-                                        <option value="Dibatalkan" {{ $b->status_booking == 'Dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
+                                        <option value="pending"{{ $b->status_booking == 'pending' ? 'selected' : '' }}> Menunggu Konfirmasi</option>
+                                        <option value="dikonfirmasi"{{ $b->status_booking == 'dikonfirmasi' ? 'selected' : '' }}>Terkonfirmasi</option>
+                                        <option value="selesai"{{ $b->status_booking == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                        <option value="dibatalkan"{{ $b->status_booking == 'dibatalkan' ? 'selected' : '' }}> Dibatalkan</option>
                                     </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal Kunjungan Awal</label>
+                                    <input type="date" class="form-control" value="{{ \Carbon\Carbon::parse($b->tanggal_kunjungan)->format('Y-m-d') }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal Reschedule</label>
+                                    <input type="date" name="tanggal_reschedule" class="form-control" value="{{ $b->tanggal_reschedule }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Jumlah Reschedule</label>
+                                    <input type="number" name="jumlah_reschedule" class="form-control" value="{{ $b->jumlah_reschedule ?? 0 }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Alasan Reschedule</label>
+                                    <textarea name="alasan_reschedule" class="form-control" rows="3">{{ $b->alasan_reschedule }}</textarea>
                                 </div>
 
                                 <div class="mb-3 pt-3 border-top">
@@ -500,33 +527,34 @@
                             <div class="bg-white p-4 rounded-3 border shadow-sm mb-4">
                                 <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Manajemen Paket Wisata</h6>
                                 <div id="edit-paket-container-{{ $b->id }}" class="mb-3">
-                                    @foreach($b->items as $item)
-                                    <div class="row g-2 align-items-center mb-2 edit-paket-row-{{ $b->id }} pb-2 border-bottom border-light">
-                                        <div class="col-md-4">
-                                            <div class="fw-bold text-dark">{{ $item->paketWisata->nama_paket ?? 'Paket Terhapus' }} <span class="badge bg-secondary ms-1">Kap: {{ $item->paketWisata->kapasitas ?? 0 }}</span></div>
-                                            <small class="text-success fw-bold">Rp {{ number_format(round($item->harga),0,',','.') }}</small>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="input-group input-group-sm">
-                                                <span class="input-group-text bg-light">Hari Ke-</span>
-                                                <input type="number" name="paket[{{ $item->id }}][hari]" class="form-control" value="{{ $item->hari }}" min="1">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="input-group input-group-sm">
-                                                <span class="input-group-text bg-light">Qty</span>
-                                                <input type="number" name="paket[{{ $item->id }}][qty]" class="form-control edit-qty-{{ $b->id }}" value="{{ $item->qty }}" min="1" oninput="calcEditTotal({{ $b->id }})">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2 text-end">
-                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-{{ $b->id }}').remove(); calcEditTotal({{ $b->id }})"><i class="fas fa-trash"></i></button>
-                                            <input type="hidden" name="paket[{{ $item->id }}][paket_id]" value="{{ $item->paket_id }}">
-                                            <input type="hidden" class="edit-harga-paket-{{ $b->id }}" value="{{ round($item->harga) }}">
-                                            <input type="hidden" class="edit-kapasitas-paket-{{ $b->id }}" value="{{ $item->paketWisata->kapasitas ?? 0 }}">
+                                @foreach($b->items as $item)
+                                <div class="row g-2 align-items-center mb-2 edit-paket-row-{{ $b->id }} edit-paket-item-row pb-2 border-bottom border-light">
+                                    <div class="col-md-4">
+                                        <div class="fw-bold text-dark">{{ $item->paketWisata->nama_paket ?? 'Paket Terhapus' }} <span class="badge bg-secondary ms-1">Kap: {{ $item->paketWisata->kapasitas ?? 0 }}</span></div>
+                                        <small class="text-success fw-bold">Rp {{ number_format(round($item->harga),0,',','.') }}</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light">Hari Ke-</span>
+                                            <input type="number" name="paket[{{ $item->id }}][hari]" class="form-control" value="{{ $item->hari }}" min="1">
                                         </div>
                                     </div>
-                                    @endforeach
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light">Qty</span>
+                                            <input type="number" name="paket[{{ $item->id }}][qty]" class="form-control edit-qty-paket" value="{{ $item->qty }}" min="1" oninput="calcEditTotal({{ $b->id }})">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-{{ $b->id }}').remove(); calcEditTotal({{ $b->id }})"><i class="fas fa-trash"></i></button>
+
+                                        <input type="hidden" name="paket[{{ $item->id }}][paket_id]" value="{{ $item->paket_wisata_id }}">
+                                        <input type="hidden" class="edit-harga-paket" value="{{ round($item->harga) }}">
+                                        <input type="hidden" class="edit-kapasitas-paket" value="{{ $item->paketWisata->kapasitas ?? 0 }}">
+                                    </div>
                                 </div>
+                                @endforeach
+                            </div>
                                 <div class="p-3 bg-light rounded-3 border">
                                     <label class="form-label fw-bold text-primary mb-2 small"><i class="fas fa-plus-circle me-1"></i> Tambah Paket Baru</label>
                                     <div class="row g-2">
@@ -560,33 +588,34 @@
 
                             <div class="bg-white p-4 rounded-3 border shadow-sm">
                                 <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">Manajemen Fasilitas Tambahan</h6>
-                                <div id="edit-fas-container-{{ $b->id }}" class="mb-3">
-                                    @foreach($b->fasilitas as $fas)
-                                    <div class="row g-2 align-items-center mb-2 edit-fas-row-{{ $b->id }} pb-2 border-bottom border-light">
-                                        <div class="col-md-4">
-                                            <div class="fw-bold text-dark">{{ $fas->fasilitas->nama_fasilitas ?? 'Terhapus' }}</div>
-                                            <small class="text-success fw-bold">Rp {{ number_format(round($fas->harga),0,',','.') }}</small>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="input-group input-group-sm">
-                                                <span class="input-group-text bg-light">Hari Ke-</span>
-                                                <input type="number" name="fasilitas[{{ $fas->id }}][hari]" class="form-control" value="{{ $fas->hari ?? 1 }}" min="1">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="input-group input-group-sm">
-                                                <span class="input-group-text bg-light">Qty</span>
-                                                <input type="number" name="fasilitas[{{ $fas->id }}][qty]" class="form-control edit-qty-fas-{{ $b->id }}" value="{{ $fas->qty }}" min="1" oninput="calcEditTotal({{ $b->id }})">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2 text-end">
-                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-fas-row-{{ $b->id }}').remove(); calcEditTotal({{ $b->id }})"><i class="fas fa-trash"></i></button>
-                                            <input type="hidden" name="fasilitas[{{ $fas->id }}][fasilitas_id]" value="{{ $fas->fasilitas_id }}">
-                                            <input type="hidden" class="edit-harga-fas-{{ $b->id }}" value="{{ round($fas->harga) }}">
+                               <div id="edit-fas-container-{{ $b->id }}" class="mb-3">
+                                @foreach($b->fasilitas as $fas)
+                                <div class="row g-2 align-items-center mb-2 edit-fas-row-{{ $b->id }} edit-fas-item-row pb-2 border-bottom border-light">
+                                    <div class="col-md-4">
+                                        <div class="fw-bold text-dark">{{ $fas->fasilitas->nama_fasilitas ?? 'Fasilitas Terhapus' }}</div>
+                                        <small class="text-success fw-bold">Rp {{ number_format(round($fas->harga),0,',','.') }}</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light">Hari Ke-</span>
+                                            <input type="number" name="fasilitas[{{ $fas->id }}][hari]" class="form-control" value="{{ $fas->hari }}" min="1">
                                         </div>
                                     </div>
-                                    @endforeach
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light">Qty</span>
+                                            <input type="number" name="fasilitas[{{ $fas->id }}][qty]" class="form-control edit-qty-fas" value="{{ $fas->qty }}" min="1" oninput="calcEditTotal({{ $b->id }})">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-fas-row-{{ $b->id }}').remove(); calcEditTotal({{ $b->id }})"><i class="fas fa-trash"></i></button>
+
+                                        <input type="hidden" name="fasilitas[{{ $fas->id }}][fasilitas_id]" value="{{ $fas->fasilitas_id }}">
+                                        <input type="hidden" class="edit-harga-fas" value="{{ round($fas->harga) }}">
+                                    </div>
                                 </div>
+                                @endforeach
+                            </div>
                                 <div class="p-3 bg-light rounded-3 border">
                                     <label class="form-label fw-bold text-primary mb-2 small"><i class="fas fa-plus-circle me-1"></i> Tambah Fasilitas Baru</label>
                                     <div class="row g-2">
@@ -628,467 +657,570 @@
         </form>
     </div>
 </div>
+
+<div class="modal fade" id="modalPembayaran{{ $b->id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg rounded-4 border-0">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold text-dark mb-0">
+                    <i class="fas fa-wallet text-success me-2"></i>Detail & Verifikasi Pembayaran
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4 bg-white">
+                <div class="mb-4 bg-light p-3 rounded-3 border">
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-secondary d-block">Kode Booking</small>
+                            <strong class="text-primary">{{ $b->kode_booking }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-secondary d-block">Nama Pemesan</small>
+                            <strong class="text-dark">{{ $b->nama_pemesan }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                @if($b->pembayaran && $b->pembayaran->count() > 0)
+    @foreach($b->pembayaran as $p)
+
+        <form id="formVerifikasiPembayaran{{ $p->id }}" action="{{ route('admin.pembayaran.verifikasi', $p->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="card border shadow-sm rounded-3 overflow-hidden mb-4">
+                <div class="card-header bg-light fw-bold py-2 text-secondary d-flex justify-content-between align-items-center" style="font-size: 0.85rem;">
+                    <span>ID PEMBAYARAN: #{{ $p->id }}</span>
+                    <span class="badge bg-secondary text-uppercase">{{ $p->status_verifikasi }}</span>
+                </div>
+                <div class="card-body bg-white">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary mb-1">Tipe Pembayaran</label>
+                            <input type="text" class="form-control bg-light text-uppercase fw-bold" value="{{ $p->tipe_pembayaran }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary mb-1">Metode</label>
+                            <input type="text" class="form-control bg-light text-uppercase fw-bold" value="{{ $p->metode_pembayaran }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary mb-1">Nominal Rupiah</label>
+                            <input type="text" class="form-control bg-light fw-bold text-primary" value="Rp {{ number_format($p->nominal, 0, ',', '.') }}" readonly>
+                            {{-- <input type="hidden" name="nominal" value="{{ $p->nominal }}"> --}}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary mb-1">Status Verifikasi</label>
+                            <select name="status_verifikasi" class="form-select border-primary fw-bold">
+                                <option value="pending" {{ $p->status_verifikasi == 'pending' ? 'selected' : '' }}>⏳ Pending</option>
+                                <option value="valid" {{ $p->status_verifikasi == 'valid' ? 'selected' : '' }}>✅ Valid / Diterima</option>
+                                <option value="ditolak" {{ $p->status_verifikasi == 'ditolak' ? 'selected' : '' }}>❌ Ditolak</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label fw-semibold text-secondary mb-1">Catatan Admin</label>
+                        <textarea name="catatan" class="form-control" rows="2" placeholder="Tambahkan catatan verifikasi di sini...">{{ $p->catatan }}</textarea>
+                    </div>
+
+                    @if($p->bukti_pembayaran)
+                        <div class="mt-3 p-2 bg-light rounded border text-center">
+                            <span class="small d-block text-secondary fw-semibold mb-2">Lampiran Bukti Transfer:</span>
+                            <a href="{{ asset('storage/' . $p->bukti_pembayaran) }}" target="_blank" class="btn btn-sm btn-outline-secondary px-3 mb-2">
+                                <i class="fas fa-search-plus me-1"></i> Lihat Gambar Penuh
+                            </a>
+                            <div class="mt-1">
+                                <img src="{{ asset('storage/' . $p->bukti_pembayaran) }}" class="img-fluid rounded border shadow-sm" style="max-height: 180px; object-fit: contain;">
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="mt-3 text-end border-top pt-2">
+                        <button type="submit" class="btn btn-success fw-bold btn-sm px-4 shadow-sm">
+                            <i class="fas fa-save me-1"></i> Simpan Status Transaksi #{{ $p->id }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </form> @endforeach
+@else
+                    <div class="alert alert-warning mb-0 text-center py-4 rounded-3">
+                        <i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>
+                        <span>Belum ada riwayat transaksi pembayaran masuk untuk data booking ini.</span>
+                    </div>
+                @endif
+            </div>
+
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-secondary fw-bold px-4 btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endforeach
 
 <script>
-    const groupedPaket = {!! json_encode($groupedPaket ?? []) !!};
-    const groupedFasilitas = {!! json_encode($groupedFasilitas ?? []) !!};
+{{-- const groupedPaket = {!! json_encode($groupedPaket ?? []) !!}; --}}
+const groupedFasilitas = {!! json_encode($groupedFasilitas ?? []) !!};
 
-    let pIdx = 0;
-    let fIdx = 0;
-    let editItemCounter = 999;
+let pIdx = 0;
+let fIdx = 0;
+let editItemCounter = 999;
 
-    // VALIDASI FILE UPLOAD CLIENT-SIDE
-    function validateFile(input) {
-        const file = input.files[0];
-        const errorMsg = document.getElementById('file_error_msg');
-        const errorText = document.getElementById('file_error_text');
-        const submitBtn = document.getElementById('btn_submit_booking');
+// VALIDASI FILE UPLOAD CLIENT-SIDE
+function validateFile(input) {
+    const file = input.files[0];
+    const errorMsg = document.getElementById('file_error_msg');
+    const errorText = document.getElementById('file_error_text');
+    const submitBtn = document.getElementById('btn_submit_booking');
 
-        if (file) {
-            // Hanya izinkan image/jpeg dan image/png
-            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            const maxSize = 2 * 1024 * 1024; // 2 MB
+    if (file) {
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        const maxSize = 2 * 1024 * 1024; // 2 MB
 
-            if (!validTypes.includes(file.type)) {
-                errorText.innerText = "Format file ditolak! Hanya boleh mengunggah file JPG atau PNG.";
-                errorMsg.classList.remove('d-none');
-                input.value = ''; // Reset file input
-                submitBtn.disabled = true; // Kunci tombol submit
-                return;
-            }
-
-            if (file.size > maxSize) {
-                errorText.innerText = "Ukuran file terlalu besar! Ukuran maksimal adalah 2MB.";
-                errorMsg.classList.remove('d-none');
-                input.value = ''; // Reset file input
-                submitBtn.disabled = true; // Kunci tombol submit
-                return;
-            }
-
-            // Jika valid, hilangkan pesan error & buka tombol submit
-            errorMsg.classList.add('d-none');
-            submitBtn.disabled = false;
+        if (!validTypes.includes(file.type)) {
+            errorText.innerText = "Format file ditolak! Hanya boleh mengunggah file JPG atau PNG.";
+            errorMsg.classList.remove('d-none');
+            input.value = '';
+            submitBtn.disabled = true;
+            return;
         }
-    }
 
-    function formatRupiahRealtime(input, hiddenId) {
-        let value = input.value.replace(/[^,\d]/g, '').toString();
-        let split = value.split(',');
-        let sisa = split[0].length % 3;
-        let rupiah = split[0].substr(0, sisa);
-        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-        if (ribuan) {
-            let separator = sisa ? '.' : '';
-            rupiah += separator + ribuan.join('.');
+        if (file.size > maxSize) {
+            errorText.innerText = "Ukuran file terlalu besar! Ukuran maksimal adalah 2MB.";
+            errorMsg.classList.remove('d-none');
+            input.value = '';
+            submitBtn.disabled = true;
+            return;
         }
-        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-        input.value = rupiah;
 
-        let numeric = parseInt(value) || 0;
-        document.getElementById(hiddenId).value = numeric;
-        calculateTotal();
+        errorMsg.classList.add('d-none');
+        submitBtn.disabled = false;
     }
+}
 
-    function formatRupiahEdit(input, bId) {
-        let value = input.value.replace(/[^,\d]/g, '').toString();
-        let split = value.split(',');
-        let sisa = split[0].length % 3;
-        let rupiah = split[0].substr(0, sisa);
-        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+function formatRupiahRealtime(input, hiddenId) {
+    let value = input.value.replace(/[^,\d]/g, '').toString();
+    let split = value.split(',');
+    let sisa = split[0].length % 3;
+    let rupiah = split[0].substr(0, sisa);
+    let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
-        if (ribuan) {
-            let separator = sisa ? '.' : '';
-            rupiah += separator + ribuan.join('.');
-        }
-        input.value = rupiah;
-        document.getElementById('edit_diskon_' + bId).value = parseInt(value) || 0;
-        calcEditTotal(bId);
+    if (ribuan) {
+        let separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
     }
+    rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+    input.value = rupiah;
 
-    function renderItinerary() {
-        let ci = new Date(document.getElementById('tanggal_kunjungan').value);
-        let co = new Date(document.getElementById('tanggal_selesai').value);
+    let numeric = parseInt(value.replace(/\./g, '')) || 0;
+    document.getElementById(hiddenId).value = numeric;
+    calculateTotal();
+}
 
-        if (isNaN(ci) || isNaN(co)) return;
+function formatRupiahEdit(input, bId) {
+    let value = input.value.replace(/[^,\d]/g, '').toString();
+    let split = value.split(',');
+    let sisa = split[0].length % 3;
+    let rupiah = split[0].substr(0, sisa);
+    let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
-        let totalMalam = Math.ceil((co - ci) / (1000 * 60 * 60 * 24));
-        if (totalMalam < 1) totalMalam = 1;
+    if (ribuan) {
+        let separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+    }
+    input.value = rupiah;
 
-        document.getElementById('jml_malam').value = totalMalam;
-        document.getElementById('label_jml_malam').innerText = totalMalam;
+    let angka = parseInt(value.replace(/\./g, '')) || 0;
+    document.getElementById('edit_diskon_' + bId).value = angka;
+    calcEditTotal(bId);
+}
 
-        let tabs = document.getElementById('day-tabs-container');
-        let panels = document.getElementById('itinerary-panels-container');
-        tabs.innerHTML = '';
-        panels.innerHTML = '';
+function renderItinerary() {
+    let ci = new Date(document.getElementById('tanggal_kunjungan').value);
+    let co = new Date(document.getElementById('tanggal_selesai').value);
 
-        for (let i = 0; i < totalMalam; i++) {
-            let cur = new Date(ci);
-            cur.setDate(ci.getDate() + i);
-            let dateStr = cur.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    if (isNaN(ci) || isNaN(co)) return;
 
-            tabs.insertAdjacentHTML('beforeend', `<div class="day-tab ${i===0?'active':''}" id="tab-${i}" onclick="switchTab(${i})">HARI ${i+1} (${dateStr})</div>`);
+    let totalMalam = Math.ceil((co - ci) / (1000 * 60 * 60 * 24));
+    if (totalMalam < 1) totalMalam = 1;
 
-            let pktTabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">`;
-            let pktPanesHtml = `<div class="tab-content mb-4">`;
-            let isFirstCat = true;
-            for (const katName in groupedPaket) {
-                let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-                let activeBtn = isFirstCat ? 'btn-primary' : 'btn-light text-secondary border';
-                let activePane = isFirstCat ? 'd-block' : 'd-none';
+    document.getElementById('jml_malam').value = totalMalam;
+    document.getElementById('label_jml_malam').innerText = totalMalam;
 
-                pktTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} cat-btn-${i}" onclick="switchCatTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
+    let tabs = document.getElementById('day-tabs-container');
+    let panels = document.getElementById('itinerary-panels-container');
+    tabs.innerHTML = '';
+    panels.innerHTML = '';
 
-                let cardsHtml = `<div class="row g-2">`;
-                groupedPaket[katName].forEach(p => {
-                    let safeNama = p.nama_paket.replace(/'/g, "\\'");
-                    cardsHtml += `
-                    <div class="col-md-6">
-                        <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addPaketData('${p.id}', '${safeNama}', '${p.harga}', '${p.kapasitas}', ${i})">
-                            <div class="fw-bold text-dark mb-2">${p.nama_paket}</div>
-                            <div class="d-flex justify-content-between align-items-center mt-auto">
-                                <span class="badge bg-info bg-opacity-10 text-info border border-info"><i class="fas fa-users"></i> ${p.kapasitas} Org</span>
-                                <span class="text-success fw-bold">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</span>
-                            </div>
+    for (let i = 0; i < totalMalam; i++) {
+        let cur = new Date(ci);
+        cur.setDate(ci.getDate() + i);
+        let dateStr = cur.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+
+        tabs.insertAdjacentHTML('beforeend', `<div class="day-tab ${i===0?'active':''}" id="tab-${i}" onclick="switchTab(${i})">HARI ${i+1} (${dateStr})</div>`);
+
+        let pktTabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom">`;
+        let pktPanesHtml = `<div class="tab-content mb-4">`;
+        let isFirstCat = true;
+        for (const katName in groupedPaket) {
+            let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+            let activeBtn = isFirstCat ? 'btn-primary' : 'btn-light text-secondary border';
+            let activePane = isFirstCat ? 'd-block' : 'd-none';
+
+            pktTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} cat-btn-${i}" onclick="switchCatTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
+
+            let cardsHtml = `<div class="row g-2">`;
+            groupedPaket[katName].forEach(p => {
+                let safeNama = p.nama_paket.replace(/'/g, "\\'");
+                cardsHtml += `
+                <div class="col-md-6">
+                    <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addPaketData('${p.id}', '${safeNama}', '${p.harga}', '${p.kapasitas}', ${i})">
+                        <div class="fw-bold text-dark mb-2">${p.nama_paket}</div>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="badge bg-info bg-opacity-10 text-info border border-info"><i class="fas fa-users"></i> ${p.kapasitas} Org</span>
+                            <span class="text-success fw-bold">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</span>
                         </div>
-                    </div>`;
-                });
-                cardsHtml += `</div>`;
-                pktPanesHtml += `<div id="pane-${slug}-${i}" class="cat-pane-${i} ${activePane}">${cardsHtml}</div>`;
-                isFirstCat = false;
-            }
-            pktTabsHtml += `</div>`;
-            pktPanesHtml += `</div>`;
-
-            let fasTabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom mt-4">`;
-            let fasPanesHtml = `<div class="tab-content mb-4">`;
-            let isFirstFasCat = true;
-            for (const katName in groupedFasilitas) {
-                let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '-fas';
-                let activeBtn = isFirstFasCat ? 'btn-success' : 'btn-light text-secondary border';
-                let activePane = isFirstFasCat ? 'd-block' : 'd-none';
-
-                fasTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} fas-btn-${i}" onclick="switchFasTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
-
-                let fCardsHtml = `<div class="row g-2">`;
-                groupedFasilitas[katName].forEach(f => {
-                    let safeNama = f.nama_fasilitas.replace(/'/g, "\\'");
-                    fCardsHtml += `
-                    <div class="col-md-6">
-                        <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addFasilitasData('${f.id}', '${safeNama}', '${f.harga}', ${i})">
-                            <div class="fw-bold text-dark mb-2">${f.nama_fasilitas}</div>
-                            <div class="text-success fw-bold text-end">Rp ${parseInt(f.harga).toLocaleString('id-ID')}</div>
-                        </div>
-                    </div>`;
-                });
-                fCardsHtml += `</div>`;
-                fasPanesHtml += `<div id="pane-${slug}-${i}" class="fas-pane-${i} ${activePane}">${fCardsHtml}</div>`;
-                isFirstFasCat = false;
-            }
-            fasTabsHtml += `</div>`;
-            fasPanesHtml += `</div>`;
-
-            let panelHtml = `
-            <div class="itinerary-panel ${i===0?'active':''}" id="panel-${i}">
-                <h6 class="fw-bold text-primary mb-3"><i class="fas fa-box"></i> Pilih Paket Wisata (Hari ke-${i+1})</h6>
-                ${pktTabsHtml}
-                ${pktPanesHtml}
-
-                <h6 class="fw-bold text-success mb-3 mt-4"><i class="fas fa-plus-circle"></i> Pilih Fasilitas Tambahan (Hari ke-${i+1})</h6>
-                ${fasTabsHtml}
-                ${fasPanesHtml}
-
-                <div class="pt-3 border-top mt-4 bg-light p-3 rounded">
-                    <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Terpilih (Hari ke-${i+1}):</h6>
-                    <div id="selected-items-hari-${i}"></div>
-                </div>
-            </div>`;
-
-            panels.insertAdjacentHTML('beforeend', panelHtml);
+                    </div>
+                </div>`;
+            });
+            cardsHtml += `</div>`;
+            pktPanesHtml += `<div id="pane-${slug}-${i}" class="cat-pane-${i} ${activePane}">${cardsHtml}</div>`;
+            isFirstCat = false;
         }
-        calculateTotal();
-    }
+        pktTabsHtml += `</div>`;
+        pktPanesHtml += `</div>`;
 
-    function addPaketData(id, nama, harga, kap, hariIndex) {
-        let html = `
-        <div class="row g-2 item-row pkt-row align-items-center bg-white p-2 rounded mb-2 border shadow-sm">
-            <div class="col-md-7">
-                <div class="fw-bold text-dark fs-6 mb-1">${nama} <span class="badge bg-secondary ms-1">Kap: ${kap}</span></div>
-                <div class="text-primary small fw-bold">Rp ${parseInt(harga).toLocaleString('id-ID')}</div>
-                <input type="hidden" name="paket[${pIdx}][paket_id]" value="${id}">
-                <input type="hidden" name="paket[${pIdx}][hari]" value="${hariIndex + 1}">
-                <input type="hidden" class="paket-harga-hidden" value="${harga}">
-                <input type="hidden" class="paket-kapasitas-hidden" value="${kap}">
-            </div>
-            <div class="col-md-4">
-                <div class="input-group-qty-modern mx-auto">
-                    <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
-                    <input type="number" name="paket[${pIdx}][qty]" class="qty-input-modern qty-input text-center" value="1" min="1" oninput="calculateTotal()" readonly>
-                    <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
-                </div>
-            </div>
-            <div class="col-md-1 text-end">
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.pkt-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>`;
-        document.getElementById(`selected-items-hari-${hariIndex}`).insertAdjacentHTML('beforeend', html);
-        pIdx++;
-        calculateTotal();
-    }
+        let fasTabsHtml = `<div class="d-flex gap-2 overflow-auto custom-scrollbar pb-2 mb-3 border-bottom mt-4">`;
+        let fasPanesHtml = `<div class="tab-content mb-4">`;
+        let isFirstFasCat = true;
+        for (const katName in groupedFasilitas) {
+            let slug = katName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() + '-fas';
+            let activeBtn = isFirstFasCat ? 'btn-success' : 'btn-light text-secondary border';
+            let activePane = isFirstFasCat ? 'd-block' : 'd-none';
 
-    function addFasilitasData(id, nama, harga, hariIndex) {
-        let html = `
-        <div class="row g-2 item-row fas-row align-items-center bg-white p-2 rounded mb-2 border shadow-sm">
-            <div class="col-md-7">
-                <div class="fw-bold text-dark fs-6 mb-1">${nama}</div>
-                <div class="text-success small fw-bold">Rp ${parseInt(harga).toLocaleString('id-ID')}</div>
-                <input type="hidden" name="fasilitas[${fIdx}][fasilitas_id]" value="${id}">
-                <input type="hidden" name="fasilitas[${fIdx}][hari]" value="${hariIndex + 1}">
-                <input type="hidden" class="fas-harga-hidden" value="${harga}">
-            </div>
-            <div class="col-md-4">
-                <div class="input-group-qty-modern mx-auto">
-                    <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
-                    <input type="number" name="fasilitas[${fIdx}][qty]" class="qty-input-modern qty-input text-center" value="1" min="1" oninput="calculateTotal()" readonly>
-                    <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
-                </div>
-            </div>
-            <div class="col-md-1 text-end">
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.fas-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>`;
-        document.getElementById(`selected-items-hari-${hariIndex}`).insertAdjacentHTML('beforeend', html);
-        fIdx++;
-        calculateTotal();
-    }
+            fasTabsHtml += `<button type="button" class="btn btn-sm rounded-pill px-4 py-2 fw-bold text-nowrap ${activeBtn} fas-btn-${i}" onclick="switchFasTab(this, 'pane-${slug}-${i}', ${i})">${katName}</button>`;
 
-    function switchTab(i) {
-        document.querySelectorAll('.day-tab').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.itinerary-panel').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + i).classList.add('active');
-        document.getElementById('panel-' + i).classList.add('active');
-    }
-
-    function switchCatTab(btn, paneId, dayIndex) {
-        document.querySelectorAll(`.cat-btn-${dayIndex}`).forEach(el => {
-            el.classList.remove('btn-primary');
-            el.classList.add('btn-light', 'text-secondary', 'border');
-        });
-        btn.classList.remove('btn-light', 'text-secondary', 'border');
-        btn.classList.add('btn-primary');
-        document.querySelectorAll(`.cat-pane-${dayIndex}`).forEach(el => {
-            el.classList.remove('d-block'); el.classList.add('d-none');
-        });
-        document.getElementById(paneId).classList.remove('d-none');
-        document.getElementById(paneId).classList.add('d-block');
-    }
-
-    function switchFasTab(btn, paneId, dayIndex) {
-        document.querySelectorAll(`.fas-btn-${dayIndex}`).forEach(el => {
-            el.classList.remove('btn-success');
-            el.classList.add('btn-light', 'text-secondary', 'border');
-        });
-        btn.classList.remove('btn-light', 'text-secondary', 'border');
-        btn.classList.add('btn-success');
-        document.querySelectorAll(`.fas-pane-${dayIndex}`).forEach(el => {
-            el.classList.remove('d-block'); el.classList.add('d-none');
-        });
-        document.getElementById(paneId).classList.remove('d-none');
-        document.getElementById(paneId).classList.add('d-block');
-    }
-
-    function changeQtyValue(id, val) {
-        let input = document.getElementById(id);
-        let newVal = parseInt(input.value) + val;
-        if (newVal >= 1) { input.value = newVal; calculateTotal(); }
-    }
-
-    function changeQty(btn, val, allowDelete) {
-        let input = btn.parentElement.querySelector('input');
-        let newVal = parseInt(input.value) + val;
-        if (newVal < 1) {
-            if (allowDelete) { btn.closest('.item-row').remove(); } else { input.value = 1; }
-        } else {
-            input.value = newVal;
+            let fCardsHtml = `<div class="row g-2">`;
+            groupedFasilitas[katName].forEach(f => {
+                let safeNama = f.nama_fasilitas.replace(/'/g, "\\'");
+                fCardsHtml += `
+                <div class="col-md-6">
+                    <div class="border rounded-3 p-3 item-card h-100 d-flex flex-column justify-content-between" onclick="addFasilitasData('${f.id}', '${safeNama}', '${f.harga}', ${i})">
+                        <div class="fw-bold text-dark mb-2">${f.nama_fasilitas}</div>
+                        <div class="text-success fw-bold text-end">Rp ${parseInt(f.harga).toLocaleString('id-ID')}</div>
+                    </div>
+                </div>`;
+            });
+            fCardsHtml += `</div>`;
+            fasPanesHtml += `<div id="pane-${slug}-${i}" class="fas-pane-${i} ${activePane}">${fCardsHtml}</div>`;
+            isFirstFasCat = false;
         }
-        calculateTotal();
+        fasTabsHtml += `</div>`;
+        fasPanesHtml += `</div>`;
+
+        let panelHtml = `
+        <div class="itinerary-panel ${i===0?'active':''}" id="panel-${i}">
+            <h6 class="fw-bold text-primary mb-3"><i class="fas fa-box"></i> Pilih Paket Wisata (Hari ke-${i+1})</h6>
+            ${pktTabsHtml}
+            ${pktPanesHtml}
+
+            <h6 class="fw-bold text-success mb-3 mt-4"><i class="fas fa-plus-circle"></i> Pilih Fasilitas Tambahan (Hari ke-${i+1})</h6>
+            ${fasTabsHtml}
+            ${fasPanesHtml}
+
+            <div class="pt-3 border-top mt-4 bg-light p-3 rounded">
+                <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-shopping-cart"></i> Item Terpilih (Hari ke-${i+1}):</h6>
+                <div id="selected-items-hari-${i}"></div>
+            </div>
+        </div>`;
+
+        panels.insertAdjacentHTML('beforeend', panelHtml);
     }
+    calculateTotal();
+}
 
-    function calculateTotal() {
-        let totalPaket = 0;
-        let totalFasilitas = 0;
-        let totalKapasitasMenginap = 0;
+function addPaketData(id, nama, harga, kap, hariIndex) {
+    let html = `
+    <div class="row g-2 item-row pkt-row align-items-center bg-white p-2 rounded mb-2 border shadow-sm">
+        <div class="col-md-7">
+            <div class="fw-bold text-dark fs-6 mb-1">${nama} <span class="badge bg-secondary ms-1">Kap: ${kap}</span></div>
+            <div class="text-primary small fw-bold">Rp ${parseInt(harga).toLocaleString('id-ID')}</div>
+            <input type="hidden" name="paket[${pIdx}][paket_id]" value="${id}">
+            <input type="hidden" name="paket[${pIdx}][hari]" value="${hariIndex + 1}">
+            <input type="hidden" class="paket-harga-hidden" value="${harga}">
+            <input type="hidden" class="paket-kapasitas-hidden" value="${kap}">
+        </div>
+        <div class="col-md-4">
+            <div class="input-group-qty-modern mx-auto">
+                <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
+                <input type="number" name="paket[${pIdx}][qty]" class="qty-input-modern qty-input text-center" value="1" min="1" oninput="calculateTotal()" readonly>
+                <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+        <div class="col-md-1 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.pkt-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
+        </div>
+    </div>`;
+    document.getElementById(`selected-items-hari-${hariIndex}`).insertAdjacentHTML('beforeend', html);
+    pIdx++;
+    calculateTotal();
+}
 
-        document.querySelectorAll('.pkt-row').forEach(row => {
-            let qty = parseInt(row.querySelector('.qty-input').value) || 0;
-            let harga = parseFloat(row.querySelector('.paket-harga-hidden').value) || 0;
-            let kap = parseInt(row.querySelector('.paket-kapasitas-hidden').value) || 0;
+function addFasilitasData(id, nama, harga, hariIndex) {
+    let html = `
+    <div class="row g-2 item-row fas-row align-items-center bg-white p-2 rounded mb-2 border shadow-sm">
+        <div class="col-md-7">
+            <div class="fw-bold text-dark fs-6 mb-1">${nama}</div>
+            <div class="text-success small fw-bold">Rp ${parseInt(harga).toLocaleString('id-ID')}</div>
+            <input type="hidden" name="fasilitas[${fIdx}][fasilitas_id]" value="${id}">
+            <input type="hidden" name="fasilitas[${fIdx}][hari]" value="${hariIndex + 1}">
+            <input type="hidden" class="fas-harga-hidden" value="${harga}">
+        </div>
+        <div class="col-md-4">
+            <div class="input-group-qty-modern mx-auto">
+                <button type="button" class="btn-qty" onclick="changeQty(this, -1, true)">-</button>
+                <input type="number" name="fasilitas[${fIdx}][qty]" class="qty-input-modern qty-input text-center" value="1" min="1" oninput="calculateTotal()" readonly>
+                <button type="button" class="btn-qty" onclick="changeQty(this, 1)">+</button>
+            </div>
+        </div>
+        <div class="col-md-1 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.fas-row').remove(); calculateTotal()"><i class="fas fa-trash"></i></button>
+        </div>
+    </div>`;
+    document.getElementById(`selected-items-hari-${hariIndex}`).insertAdjacentHTML('beforeend', html);
+    fIdx++;
+    calculateTotal();
+}
 
-            totalPaket += (qty * harga);
-            if (kap > 1) {
-                totalKapasitasMenginap += (qty * kap);
-            }
-        });
+function switchTab(i) {
+    document.querySelectorAll('.day-tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.itinerary-panel').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + i).classList.add('active');
+    document.getElementById('panel-' + i).classList.add('active');
+}
 
-        document.querySelectorAll('.fas-row').forEach(row => {
-            let qty = parseInt(row.querySelector('.qty-input').value) || 0;
-            let harga = parseFloat(row.querySelector('.fas-harga-hidden').value) || 0;
-            totalFasilitas += (qty * harga);
-        });
+function switchCatTab(btn, paneId, dayIndex) {
+    document.querySelectorAll(`.cat-btn-${dayIndex}`).forEach(el => {
+        el.classList.remove('btn-primary');
+        el.classList.add('btn-light', 'text-secondary', 'border');
+    });
+    btn.classList.remove('btn-light', 'text-secondary', 'border');
+    btn.classList.add('btn-primary');
+    document.querySelectorAll(`.cat-pane-${dayIndex}`).forEach(el => {
+        el.classList.remove('d-block'); el.classList.add('d-none');
+    });
+    document.getElementById(paneId).classList.remove('d-none');
+    document.getElementById(paneId).classList.add('d-block');
+}
 
-        let pengunjung = parseInt(document.getElementById('jml_pengunjung').value) || 0;
-        let tiketTambahanQty = 0;
+function switchFasTab(btn, paneId, dayIndex) {
+    document.querySelectorAll(`.fas-btn-${dayIndex}`).forEach(el => {
+        el.classList.remove('btn-success');
+        el.classList.add('btn-light', 'text-secondary', 'border');
+    });
+    btn.classList.remove('btn-light', 'text-secondary', 'border');
+    btn.classList.add('btn-success');
+    document.querySelectorAll(`.fas-pane-${dayIndex}`).forEach(el => {
+        el.classList.remove('d-block'); el.classList.add('d-none');
+    });
+    document.getElementById(paneId).classList.remove('d-none');
+    document.getElementById(paneId).classList.add('d-block');
+}
 
-        if (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap) {
-            tiketTambahanQty = pengunjung - totalKapasitasMenginap;
+function changeQtyValue(id, val) {
+    let input = document.getElementById(id);
+    let newVal = parseInt(input.value) + val;
+    if (newVal >= 1) { input.value = newVal; calculateTotal(); }
+}
+
+function changeQty(btn, val, allowDelete) {
+    let input = btn.parentElement.querySelector('input');
+    let newVal = parseInt(input.value) + val;
+    if (newVal < 1) {
+        if (allowDelete) { btn.closest('.item-row').remove(); } else { input.value = 1; }
+    } else {
+        input.value = newVal;
+    }
+    calculateTotal();
+}
+
+function calculateTotal() {
+    let totalPaket = 0;
+    let totalFasilitas = 0;
+    let totalKapasitasMenginap = 0;
+
+    document.querySelectorAll('.pkt-row').forEach(row => {
+        let qty = parseInt(row.querySelector('.qty-input').value) || 0;
+        let harga = parseFloat(row.querySelector('.paket-harga-hidden').value) || 0;
+        let kap = parseInt(row.querySelector('.paket-kapasitas-hidden').value) || 0;
+
+        totalPaket += (qty * harga);
+        if (kap > 1) {
+            totalKapasitasMenginap += (qty * kap);
         }
+    });
 
-        let subtotalTiket = tiketTambahanQty * 25000;
-        let diskonManual = parseFloat(document.getElementById('diskon_manual').value) || 0;
+    document.querySelectorAll('.fas-row').forEach(row => {
+        let qty = parseInt(row.querySelector('.qty-input').value) || 0;
+        let harga = parseFloat(row.querySelector('.fas-harga-hidden').value) || 0;
+        totalFasilitas += (qty * harga);
+    });
 
-        let totalAwal = totalPaket + totalFasilitas + subtotalTiket;
-        let totalAkhir = totalAwal - diskonManual;
-        if (totalAkhir < 0) totalAkhir = 0;
+    let pengunjung = parseInt(document.getElementById('jml_pengunjung').value) || 0;
+    let tiketTambahanQty = 0;
 
-        document.getElementById('disp-sub-paket').innerText = 'Rp ' + totalPaket.toLocaleString('id-ID');
-        document.getElementById('disp-sub-fasilitas').innerText = 'Rp ' + totalFasilitas.toLocaleString('id-ID');
-        document.getElementById('disp-sub-tiket').innerText = 'Rp ' + subtotalTiket.toLocaleString('id-ID');
-        document.getElementById('disp-diskon').innerText = '- Rp ' + diskonManual.toLocaleString('id-ID');
-        document.getElementById('disp-total').innerText = 'Rp ' + totalAkhir.toLocaleString('id-ID');
-        document.getElementById('disp-kapasitas').innerText = totalKapasitasMenginap;
-
-        document.getElementById('hidden_tiket_tambahan').value = tiketTambahanQty;
-        document.getElementById('hidden_subtotal_tiket').value = subtotalTiket;
-        document.getElementById('hidden_total_harga').value = totalAwal;
-        document.getElementById('hidden_total_harga_final').value = totalAkhir;
+    if (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap) {
+        tiketTambahanQty = pengunjung - totalKapasitasMenginap;
     }
 
-    function addEditPaket(bId) {
-        let sel = document.getElementById('add_paket_sel_' + bId);
-        let hari = document.getElementById('add_paket_hari_' + bId).value || 1;
-        let qty = document.getElementById('add_paket_qty_' + bId).value || 1;
+    let subtotalTiket = tiketTambahanQty * 25000;
+    let diskonManual = parseFloat(document.getElementById('diskon_manual').value) || 0;
 
-        if(sel.selectedIndex <= 0) return alert('Pilih paket wisata');
+    let totalAwal = totalPaket + totalFasilitas + subtotalTiket;
+    let totalAkhir = totalAwal - diskonManual;
+    if (totalAkhir < 0) totalAkhir = 0;
 
-        let opt = sel.options[sel.selectedIndex];
-        let pId = opt.value;
-        let nama = opt.getAttribute('data-nama');
-        let harga = parseFloat(opt.getAttribute('data-harga'));
-        let kap = parseInt(opt.getAttribute('data-kapasitas')) || 0;
-        editItemCounter++;
+    document.getElementById('disp-sub-paket').innerText = 'Rp ' + totalPaket.toLocaleString('id-ID');
+    document.getElementById('disp-sub-fasilitas').innerText = 'Rp ' + totalFasilitas.toLocaleString('id-ID');
+    document.getElementById('disp-sub-tiket').innerText = 'Rp ' + subtotalTiket.toLocaleString('id-ID');
+    document.getElementById('disp-diskon').innerText = '- Rp ' + diskonManual.toLocaleString('id-ID');
+    document.getElementById('disp-total').innerText = 'Rp ' + totalAkhir.toLocaleString('id-ID');
+    document.getElementById('disp-kapasitas').innerText = totalKapasitasMenginap;
 
-        let html = `
-        <div class="row g-2 align-items-center mb-2 edit-paket-row-${bId} pb-2 border-bottom border-light">
-            <div class="col-md-4">
-                <div class="fw-bold text-dark">${nama} <span class="badge bg-secondary ms-1">Kap: ${kap}</span></div>
-                <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')}</small>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light">Hari Ke-</span>
-                    <input type="number" name="paket[new_${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light">Qty</span>
-                    <input type="number" name="paket[new_${editItemCounter}][qty]" class="form-control edit-qty-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
-                </div>
-            </div>
-            <div class="col-md-2 text-end">
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
-                <input type="hidden" name="paket[new_${editItemCounter}][paket_id]" value="${pId}">
-                <input type="hidden" class="edit-harga-paket-${bId}" value="${harga}">
-                <input type="hidden" class="edit-kapasitas-paket-${bId}" value="${kap}">
-            </div>
-        </div>`;
-        document.getElementById('edit-paket-container-' + bId).insertAdjacentHTML('beforeend', html);
-        calcEditTotal(bId);
-    }
+    document.getElementById('hidden_tiket_tambahan').value = tiketTambahanQty;
+    document.getElementById('hidden_subtotal_tiket').value = subtotalTiket;
+    document.getElementById('hidden_total_harga').value = totalAwal;
+    document.getElementById('hidden_total_harga_final').value = totalAkhir;
+}
 
-    function addEditFasilitas(bId) {
-        let sel = document.getElementById('add_fas_sel_' + bId);
-        let hari = document.getElementById('add_fas_hari_' + bId).value || 1;
-        let qty = document.getElementById('add_fas_qty_' + bId).value || 1;
+function addEditPaket(bId) {
+    let sel = document.getElementById('add_paket_sel_' + bId);
+    let hari = document.getElementById('add_paket_hari_' + bId).value || 1;
+    let qty = document.getElementById('add_paket_qty_' + bId).value || 1;
 
-        if(sel.selectedIndex <= 0) return alert('Pilih fasilitas');
+    if(sel.selectedIndex <= 0) return alert('Pilih paket wisata');
 
-        let opt = sel.options[sel.selectedIndex];
-        let fId = opt.value;
-        let nama = opt.getAttribute('data-nama');
-        let harga = parseFloat(opt.getAttribute('data-harga'));
-        editItemCounter++;
+    let opt = sel.options[sel.selectedIndex];
+    let pId = opt.value;
+    let nama = opt.getAttribute('data-nama');
+    let harga = parseFloat(opt.getAttribute('data-harga'));
+    let kap = parseInt(opt.getAttribute('data-kapasitas')) || 0;
+    editItemCounter++;
 
-        let html = `
-        <div class="row g-2 align-items-center mb-2 edit-fas-row-${bId} pb-2 border-bottom border-light">
-            <div class="col-md-4">
-                <div class="fw-bold text-dark">${nama}</div>
-                <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')}</small>
+    let html = `
+    <div class="row g-2 align-items-center mb-2 edit-paket-row-${bId} edit-paket-item-row pb-2 border-bottom border-light">
+        <div class="col-md-4">
+            <div class="fw-bold text-dark">${nama} <span class="badge bg-secondary ms-1">Kap: ${kap}</span></div>
+            <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')}</small>
+        </div>
+        <div class="col-md-3">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light">Hari Ke-</span>
+                <input type="number" name="paket[new_${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
             </div>
-            <div class="col-md-3">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light">Hari Ke-</span>
-                    <input type="number" name="fasilitas[new_${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light">Qty</span>
+                <input type="number" name="paket[new_${editItemCounter}][qty]" class="form-control edit-qty-paket" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
             </div>
-            <div class="col-md-3">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light">Qty</span>
-                    <input type="number" name="fasilitas[new_${editItemCounter}][qty]" class="form-control edit-qty-fas-${bId}" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
-                </div>
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-paket-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
+            <input type="hidden" name="paket[new_${editItemCounter}][paket_id]" value="${pId}">
+            <input type="hidden" class="edit-harga-paket" value="${harga}">
+            <input type="hidden" class="edit-kapasitas-paket" value="${kap}">
+        </div>
+    </div>`;
+    document.getElementById('edit-paket-container-' + bId).insertAdjacentHTML('beforeend', html);
+    calcEditTotal(bId);
+}
+
+function addEditFasilitas(bId) {
+    let sel = document.getElementById('add_fas_sel_' + bId);
+    let hari = document.getElementById('add_fas_hari_' + bId).value || 1;
+    let qty = document.getElementById('add_fas_qty_' + bId).value || 1;
+
+    if(sel.selectedIndex <= 0) return alert('Pilih fasilitas');
+
+    let opt = sel.options[sel.selectedIndex];
+    let fId = opt.value;
+    let nama = opt.getAttribute('data-nama');
+    let harga = parseFloat(opt.getAttribute('data-harga'));
+    editItemCounter++;
+
+    let html = `
+    <div class="row g-2 align-items-center mb-2 edit-fas-row-${bId} edit-fas-item-row pb-2 border-bottom border-light">
+        <div class="col-md-4">
+            <div class="fw-bold text-dark">${nama}</div>
+            <small class="text-success fw-bold">Rp ${harga.toLocaleString('id-ID')}</small>
+        </div>
+        <div class="col-md-3">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light">Hari Ke-</span>
+                <input type="number" name="fasilitas[new_${editItemCounter}][hari]" class="form-control" value="${hari}" min="1">
             </div>
-            <div class="col-md-2 text-end">
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-fas-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
-                <input type="hidden" name="fasilitas[new_${editItemCounter}][fasilitas_id]" value="${fId}">
-                <input type="hidden" class="edit-harga-fas-${bId}" value="${harga}">
+        </div>
+        <div class="col-md-3">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light">Qty</span>
+                <input type="number" name="fasilitas[new_${editItemCounter}][qty]" class="form-control edit-qty-fas" value="${qty}" min="1" oninput="calcEditTotal(${bId})">
             </div>
-        </div>`;
-        document.getElementById('edit-fas-container-' + bId).insertAdjacentHTML('beforeend', html);
-        calcEditTotal(bId);
-    }
-  function calcEditTotal(id) {
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.edit-fas-row-${bId}').remove(); calcEditTotal(${bId})"><i class="fas fa-trash"></i></button>
+            <input type="hidden" name="fasilitas[new_${editItemCounter}][fasilitas_id]" value="${fId}">
+            <input type="hidden" class="edit-harga-fas" value="${harga}">
+        </div>
+    </div>`;
+    document.getElementById('edit-fas-container-' + bId).insertAdjacentHTML('beforeend', html);
+    calcEditTotal(bId);
+}
+
+function calcEditTotal(id) {
     let modal = document.getElementById('modalEditBooking' + id);
     if (!modal) return;
 
-    // 1. Ambil input pengunjung dan diskon menggunakan ID spesifik
     let pengunjung = parseInt(document.getElementById('edit_pengunjung_' + id)?.value) || 0;
-
-    // Ambil nilai diskon dari input hidden (yang value-nya angka bersih)
     let diskon = parseInt(document.getElementById('edit_diskon_' + id)?.value) || 0;
 
     let totalPaket = 0;
     let totalFas = 0;
     let totalKapasitasMenginap = 0;
 
-    // 2. Hitung Paket
-    modal.querySelectorAll('.edit-paket-row').forEach(row => {
+    // Hitung Paket berdasarkan row item yang ada di dalam modal edit spesifik
+    modal.querySelectorAll('.edit-paket-item-row').forEach(row => {
         let qty = parseInt(row.querySelector('.edit-qty-paket')?.value) || 0;
         let harga = parseFloat(row.querySelector('.edit-harga-paket')?.value) || 0;
         let kap = parseInt(row.querySelector('.edit-kapasitas-paket')?.value) || 0;
 
         totalPaket += (qty * harga);
-        if (kap >= 1) { // Sesuaikan logika kapasitas Anda
+        if (kap >= 1) {
             totalKapasitasMenginap += (qty * kap);
         }
     });
 
-    // 3. Hitung Fasilitas
-    modal.querySelectorAll('.edit-fas-row').forEach(row => {
+    // Hitung Fasilitas
+    modal.querySelectorAll('.edit-fas-item-row').forEach(row => {
         let qty = parseInt(row.querySelector('.edit-qty-fas')?.value) || 0;
         let harga = parseFloat(row.querySelector('.edit-harga-fas')?.value) || 0;
         totalFas += (qty * harga);
     });
 
-    // 4. Kalkulasi Total
+    // Hitung Tiket Tambahan (Maksimal 0 kalau kapasitas mencukupi)
     let tiketTambahanQty = (totalKapasitasMenginap > 0 && pengunjung > totalKapasitasMenginap)
                            ? (pengunjung - totalKapasitasMenginap) : 0;
 
     let total = totalPaket + totalFas + (tiketTambahanQty * 25000);
     let final = Math.max(0, total - diskon);
 
-    // 5. Update Tampilan ke Label (Pakai ID spesifik agar tidak error null)
     let lblDasar = document.getElementById('label_edit_dasar_' + id);
     let lblFinal = document.getElementById('label_edit_final_' + id);
 

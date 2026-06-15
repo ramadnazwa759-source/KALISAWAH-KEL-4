@@ -38,62 +38,59 @@ class PembayaranAdminController extends Controller
 
         return response()->json($data, 200);
     }
-
+    
     // ======================================================
-    // UPDATE VERIFIKASI PEMBAYARAN (ADMIN)
+    // UPDATE VERIFIKASI PEMBAYARAN (ADMIN) - FIX TOTAL
     // ======================================================
     public function update(Request $request, $id)
     {
         $request->validate([
             'status_verifikasi' => 'required|in:pending,valid,ditolak',
-            'nominal' => 'required_if:status_verifikasi,valid|nullable|numeric|min:1',
+            'nominal' => 'nullable',
             'catatan' => 'nullable|string'
         ]);
 
         DB::beginTransaction();
 
         try {
-
             $pembayaran = Pembayaran::find($id);
 
             if (!$pembayaran) {
-                return response()->json([
-                    'message' => 'Pembayaran tidak ditemukan'
-                ], 404);
+                return back()->with('error', 'Pembayaran tidak ditemukan');
             }
 
             $booking = Booking::find($pembayaran->booking_id);
 
             if (!$booking) {
-                return response()->json([
-                    'message' => 'Booking tidak ditemukan'
-                ], 404);
+                return back()->with('error', 'Booking tidak ditemukan');
             }
 
-            // UPDATE PEMBAYARAN
+            // Bersihkan nominal dari teks format rupiah jika ada pengganggu string
+            $nominalInput = $request->nominal;
+            if ($nominalInput !== null) {
+                $nominalCleaned = preg_replace('/[^0-9]/', '', $nominalInput);
+                // Jika input bernilai 0 atau kosong, pertahankan nominal lama yang ada di data awal/database (jangan dipaksa 0)
+                $nominalFinal = ($nominalCleaned !== '' && (int)$nominalCleaned > 0) ? (int)$nominalCleaned : $pembayaran->nominal;
+            } else {
+                $nominalFinal = $pembayaran->nominal;
+            }
+
+            // Update data pembayaran Anda
             $pembayaran->update([
                 'status_verifikasi' => $request->status_verifikasi,
-                'nominal' => $request->status_verifikasi == 'valid'
-                    ? $request->nominal
-                    : null,
-                'catatan' => $request->catatan
+                'nominal'           => $nominalFinal,
+                'catatan'           => $request->catatan
             ]);
 
+            // Jalankan sinkronisasi status booking
             $this->syncBooking($booking);
 
             DB::commit();
-
-            return response()->json([
-                'message' => 'Verifikasi pembayaran berhasil',
-                'data' => $pembayaran->load('booking')
-            ], 200);
+            return back()->with('success', 'Status verifikasi pembayaran berhasil diperbarui!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            return back()->with('error', 'Gagal memperbarui status: ' . $e->getMessage());
         }
     }
 
@@ -135,17 +132,21 @@ class PembayaranAdminController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'message' => 'Pembayaran berhasil ditambahkan',
-                'data' => $pembayaran
-            ], 201);
+            // return response()->json([
+            //     'message' => 'Pembayaran berhasil ditambahkan',
+            //     'data' => $pembayaran
+            // ], 201);
+
+            return redirect()->back()->with('success', 'Pembayaran berhasil ditambahkan!');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 500);
+            // return response()->json([
+            //     'message' => $e->getMessage()
+            // ], 500);
+
+            redirect()->back()->with('error', 'Gagal menambahkan pembayaran: ' . $e->getMessage());
         }
     }
 
@@ -173,25 +174,66 @@ class PembayaranAdminController extends Controller
         ], 200);
     }
 
-    // ======================================================
-    // SYNC STATUS BOOKING (FIX INTI)
-    // ======================================================
-    private function syncBooking($booking)
+        public function detailBooking($bookingId)
     {
-        $total = Pembayaran::where('booking_id', $booking->id)
-            ->where('status_verifikasi', 'valid')
-            ->sum('nominal');
+        $booking = Booking::with('pembayaran')
+                    ->findOrFail($bookingId);
 
-        if ($total >= $booking->total_harga_final) {
+        return view(
+            'admin.kelola_booking.modal_pembayaran',
+            compact('booking')
+        );
+    }
+
+  private function syncBooking($booking)
+{
+    // 💡 JIKA STATUS SUDAH 'SELESAI' ATAU 'DIBATALKAN' SECARA MANUAL, JANGAN DIUBAH LAGI
+    if (in_array($booking->status_booking, ['selesai', 'dibatalkan'])) {
+        return; // Berhenti di sini, biarkan statusnya tetap seperti itu
+    }
+
+    // 1. Hitung total nominal pembayaran yang murni berstatus VALID
+    $totalValid = (int) Pembayaran::where('booking_id', $booking->id)
+        ->where('status_verifikasi', 'valid')
+        ->sum('nominal');
+
+    // 2. Hitung jumlah transaksi yang masih PENDING dan DITOLAK
+    $jumlahPending = Pembayaran::where('booking_id', $booking->id)->where('status_verifikasi', 'pending')->count();
+    $jumlahDitolak = Pembayaran::where('booking_id', $booking->id)->where('status_verifikasi', 'ditolak')->count();
+
+    // 3. Bersihkan nilai total_harga_final agar menjadi angka integer murni
+    $totalTagihan = (int) preg_replace('/[^0-9]/', '', $booking->total_harga_final);
+
+    // Ambil data pembayaran terakhir yang valid untuk dicek tipenya
+    $pembayaranTerakhir = Pembayaran::where('booking_id', $booking->id)
+        ->where('status_verifikasi', 'valid')
+        ->latest()
+        ->first();
+
+    // === JALANKAN LOGIKA PENENTUAN STATUS OTOMATIS ===
+    if ($totalValid >= $totalTagihan && $totalTagihan > 0) {
+        $booking->update([
+            'status_booking'    => 'dikonfirmasi',
+            'status_pembayaran' => 'lunas'
+        ]);
+    } elseif ($totalValid > 0) {
+        $tipeStatus = ($pembayaranTerakhir && $pembayaranTerakhir->tipe_pembayaran === 'lunas') ? 'lunas' : 'dp';
+        $booking->update([
+            'status_booking'    => 'dikonfirmasi',
+            'status_pembayaran' => $tipeStatus
+        ]);
+    } else {
+        if ($jumlahDitolak > 0 && $jumlahPending == 0) {
             $booking->update([
-                'status_booking' => 'dikonfirmasi',
-                'status_pembayaran' => 'lunas'
+                'status_booking'    => 'dibatalkan',
+                'status_pembayaran' => 'dp'
             ]);
         } else {
             $booking->update([
-                'status_booking' => 'dikonfirmasi',
+                'status_booking'    => 'pending',
                 'status_pembayaran' => 'dp'
             ]);
         }
     }
+}
 }
