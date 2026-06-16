@@ -1,24 +1,43 @@
+use App\Models\Booking;
+use App\Models\Transaksi;
+use App\Models\Pengeluaran;
+use App\Models\Inventaris;
+use Illuminate\Support\Carbon;
+
 public function index()
 {
-    // 1. pemasukan hari ini
-    $pemasukan = Transaksi::whereDate('created_at', today())
+    $today = Carbon::today();
+
+    // =========================
+    // PEMASUKAN HARI INI
+    // =========================
+    $pemasukan = Transaksi::whereDate('created_at', $today)
         ->sum('total');
 
-    // 2. pengeluaran hari ini
-    $pengeluaran = Pengeluaran::whereDate('created_at', today())
+    // =========================
+    // PENGELUARAN HARI INI
+    // =========================
+    $pengeluaran = Pengeluaran::whereDate('created_at', $today)
         ->sum('jumlah');
 
-    // 3. booking hari ini
-    $booking = Booking::whereDate('created_at', today())
+    // =========================
+    // BOOKING HARI INI
+    // =========================
+    $booking = Booking::whereDate('created_at', $today)
         ->count();
 
-    // 4. pengunjung hari ini
-    $pengunjung = Booking::whereDate('created_at', today())
+    // =========================
+    // PENGUNJUNG HARI INI
+    // =========================
+    $pengunjung = Booking::whereDate('created_at', $today)
         ->distinct('nama_pemesan')
         ->count();
 
-    // 5. inventaris kondisi baik
-    $inventaris = Inventaris::where('kondisi', 'baik')->count();
+    // =========================
+    // INVENTARIS BAIK
+    // =========================
+    $inventaris = Inventaris::where('kondisi', 'baik')
+        ->count();
 
     return response()->json([
         'success' => true,
