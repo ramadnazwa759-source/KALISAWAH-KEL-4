@@ -538,90 +538,22 @@
                     </div>
                     <div class="space-y-1">
                         <h4 class="text-base font-extrabold text-slate-900">Alamat Lengkap</h4>
-                        <p class="text-sm text-slate-500 leading-relaxed">Jl. Raya Songgon, Area Perkebunan, Songgon, Kabupaten Banyuwangi, Jawa Timur.</p>
+                        <p class="text-sm text-slate-500 leading-relaxed">Sumberagung, Sumberbulu, Kec. Songgon, Kabupaten Banyuwangi, Jawa Timur 68463.</p>
                     </div>
                 </div>
 
                 <div class="pt-6">
-                    <a href="https://maps.google.com" target="_blank" class="inline-flex items-center gap-3 bg-slate-900 hover:bg-primary text-white text-xs font-extrabold py-4 px-8 rounded-2xl transition-all duration-300 shadow-button-dark hover:shadow-button-solid transform hover:-translate-y-0.5 uppercase tracking-widest">
+                    <a href="https://maps.app.goo.gl/hGfAXygyJ34U2wXV9" target="_blank" class="inline-flex items-center gap-3 bg-slate-900 hover:bg-primary text-white text-xs font-extrabold py-4 px-8 rounded-2xl transition-all duration-300 shadow-button-dark hover:shadow-button-solid transform hover:-translate-y-0.5 uppercase tracking-widest">
                         <i class="fa-solid fa-map-location-dot"></i> Buka di Google Maps
                     </a>
                 </div>
             </div>
 
             <div class="h-[450px] w-full rounded-[32px] overflow-hidden shadow-premium border border-slate-200/50 relative group">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3948.3307675975056!2d114.195232!3d-8.2325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd1531e2c918c57%3A0xc682f1bbaec7b526!2sKalisawah%20Adventure!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="grayscale group-hover:grayscale-0 transition-all duration-700"></iframe>
+                <iframe src="https://maps.google.com/maps?q=Kalisawah%20Adventure%20Banyuwangi&hl=id&z=17&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="grayscale group-hover:grayscale-0 transition-all duration-700"></iframe>
             </div>
         </div>
     </section>
-
-    <footer class="bg-dark-navy text-slate-300 pt-24 pb-10 border-t-4 border-primary">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-            <div class="space-y-6 md:col-span-12 lg:col-span-4">
-                <h3 class="text-4xl font-latin text-white tracking-wide">Kalisawah</h3>
-                <p class="text-sm text-slate-400 leading-relaxed max-w-sm">
-                    Pusat petualangan arung jeram dan outbound terbaik di Banyuwangi. Kami mengutamakan standar keselamatan, kenyamanan, dan keseruan tanpa batas untuk setiap pengunjung.
-                </p>
-                <div class="flex items-center gap-4 pt-4">
-                    <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all duration-300 shadow-lg transform hover:-translate-y-1"><i class="fa-brands fa-instagram text-lg"></i></a>
-                    <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all duration-300 shadow-lg transform hover:-translate-y-1"><i class="fa-brands fa-facebook-f text-lg"></i></a>
-                    <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:border-primary transition-all duration-300 shadow-lg transform hover:-translate-y-1"><i class="fa-brands fa-tiktok text-lg"></i></a>
-                </div>
-            </div>
-
-            <div class="space-y-6 md:col-span-4 lg:col-span-3 lg:col-start-6">
-                <h4 class="text-white font-extrabold uppercase text-xs tracking-widest relative inline-block">
-                    Navigasi
-                    <span class="absolute -bottom-2 left-0 w-1/2 h-0.5 bg-primary rounded-full"></span>
-                </h4>
-                <ul class="space-y-4 text-sm text-slate-400 mt-6">
-                    <li><a href="#hero" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Beranda</a></li>
-                    <li><a href="#pilih-paket" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Paket Wisata</a></li>
-                    <li><a href="#cerita-kalisawah" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Kabar & Cerita</a></li>
-                    <li><a href="#testimoni" class="hover:text-white hover:translate-x-1 inline-block transition-all duration-300"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-primary"></i> Testimoni Pengunjung</a></li>
-                </ul>
-            </div>
-
-            <div class="space-y-6 md:col-span-8 lg:col-span-4">
-                <h4 class="text-white font-extrabold uppercase text-xs tracking-widest relative inline-block">
-                    Hubungi Kami
-                    <span class="absolute -bottom-2 left-0 w-1/2 h-0.5 bg-primary rounded-full"></span>
-                </h4>
-                <ul class="space-y-5 text-sm text-slate-400 mt-6">
-                    <li class="flex items-start gap-4 group">
-                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
-                            <i class="fa-solid fa-location-dot text-white"></i>
-                        </div>
-                        <span class="mt-1 leading-relaxed">Songgon, Kabupaten Banyuwangi, Jawa Timur, Indonesia</span>
-                    </li>
-                    <li class="flex items-center gap-4 group">
-                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
-                            <i class="fa-solid fa-envelope text-white"></i>
-                        </div>
-                        <span>info@kalisawah.com</span>
-                    </li>
-                    <li class="flex items-center gap-4 group">
-                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
-                            <i class="fa-brands fa-whatsapp text-white text-lg"></i>
-                        </div>
-                        <span class="font-bold text-white tracking-wide">+62 812 3456 7890</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-xs text-slate-500 font-medium">
-                    © {{ date('Y') }} Kalisawah Adventure. All rights reserved.
-                </p>
-                <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                    <span>Didesain secara profesional</span>
-                    <i class="fa-solid fa-bolt text-secondary"></i>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    @include('components.footer')
 </body>
 </html>

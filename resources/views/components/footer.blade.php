@@ -4,16 +4,12 @@
 
     $footerData = [
         'location' => [
-            'name' => 'Kalisawah Adventure',
-            'address' => 'Glenmore, Kab. Banyuwangi, Jawa Timur 68466',
-            'maps_link' => 'https://maps.google.com'
+            'name' => 'KaliSawah Adventure',
+            'address' => 'Sumberagung, Sumberbulu, Kec. Songgon, Kabupaten Banyuwangi, Jawa Timur',
+            'maps_link' => 'https://maps.app.goo.gl/UjpSTERGC5aBL6ry5'
         ],
 
         'about_menu' => [
-            [
-                'label' => 'Tentang Kalisawah',
-                'url' => '#tentang-kalisawah'
-            ],
             [
                 'label' => 'Cerita Kalisawah',
                 'url' => '#cerita-kalisawah'
@@ -25,21 +21,20 @@
         ],
 
         'contact' => [
-            'phone' => '+62 812-3456-7890',
-            'email' => 'info@kalisawah.com',
+            'phone' => '+62 08176421713',
 
             'socials' => [
                 [
                     'icon' => 'fa-instagram',
-                    'url' => '#'
+                    'url' => 'https://www.instagram.com/kalisawah.adventure?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=='
                 ],
                 [
                     'icon' => 'fa-tiktok',
-                    'url' => '#'
+                    'url' => 'https://www.tiktok.com/@kalisawah.adventure?is_from_webapp=1&sender_device=pc'
                 ],
                 [
                     'icon' => 'fa-youtube',
-                    'url' => '#'
+                    'url' => 'https://youtube.com/@kalisawahadventure?si=0C2jBz31txaiGuM3'
                 ],
             ]
         ],
@@ -53,16 +48,17 @@
 @endphp
 
 <footer id="footer"
-    class="bg-dark-navy text-white pt-20 pb-10 px-6 md:px-20 scroll-mt-20">
+    style="background-color: #0B1224 !important;"
+    class="text-white pt-20 pb-10 px-6 md:px-20 scroll-mt-20">
 
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 
         {{-- Logo & Lokasi --}}
         <div>
 
-            <img src="{{ asset('images/logo-kalisawah-white.png') }}"
+            <img src="{{ asset('images/logoKalisawah.png') }}"
                  alt="{{ $footerData['location']['name'] }}"
-                 class="h-12 mb-6"
+                 class="h-25 mb-50"
                  onerror="this.src='https://picsum.photos/200/50'">
 
             <h3 class="text-xl font-bold mb-4">
@@ -155,23 +151,15 @@
             </h3>
 
             <ul class="space-y-4 text-gray-400 text-sm list-none p-0">
+            <li class="flex items-center gap-3">
+                <i class="fa-solid fa-phone text-secondary"></i>
 
-                <li class="flex items-center gap-3">
-
-                    <i class="fa-solid fa-phone text-secondary"></i>
-
+                <a href="https://wa.me/628176421713"
+                target="_blank"
+                class="hover:text-secondary transition-colors">
                     {{ $footerData['contact']['phone'] }}
-
-                </li>
-
-                <li class="flex items-center gap-3">
-
-                    <i class="fa-solid fa-envelope text-secondary"></i>
-
-                    {{ $footerData['contact']['email'] }}
-
-                </li>
-
+                </a>
+            </li>
             </ul>
 
             <div class="flex gap-4 mt-8">

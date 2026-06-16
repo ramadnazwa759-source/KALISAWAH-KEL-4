@@ -209,8 +209,8 @@
             <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
         </div>
         <div class="submenu">
-            <a href="{{ route('admin.kabar.index') }}" class="menu-item" style="padding-left:50px;">Kabar</a>
             <a href="{{ route('admin.landing-settings.index') }}" class="menu-item" style="padding-left:50px;">Hero Section</a>
+            <a href="{{ route('admin.kabar.index') }}" class="menu-item" style="padding-left:50px;">Kabar</a>
             <a href="{{ route('admin.client-logos.index') }}" class="menu-item" style="padding-left:50px;">Client Logo</a>
         </div>
     </div>
@@ -281,7 +281,7 @@
     </div>
 
     <div class="submenu">
-        <a href="/admin/pemasukan"class="menu-item"style="padding-left:50px;"> Pemasukan </a>
+        {{-- <a href="/admin/pemasukan"class="menu-item"style="padding-left:50px;"> Pemasukan </a> --}}
         <a href="{{ route('admin.kategori-pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Kategori Pengeluaran</a>
         <a href="{{ route('admin.pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Pengeluaran</a>
     </div>

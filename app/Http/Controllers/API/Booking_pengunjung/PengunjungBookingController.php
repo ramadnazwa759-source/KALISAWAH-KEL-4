@@ -316,7 +316,9 @@ class PengunjungBookingController extends Controller
                             $qty = (int)$qty;
                             if ($qty <= 0) continue;
 
-                            $fas = Fasilitas::findOrFail($fasId);
+                            // $fas = Fasilitas::findOrFail($fasId);
+                            $fas = Fasilitas::find($fasId);
+                            if (!$fas) continue;
                             $fas->decrement('stok', $qty);
 
                             $subtotal = $fas->harga * $qty;

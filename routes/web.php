@@ -54,8 +54,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(funct
     Route::resource('fasilitas', FasilitasController::class);
 
     Route::get('fasilitas-booking', [FasilitasController::class, 'fasilitasBooking']);
+    Route::put('booking-admin/update/{id}', [AdminBookingController::class, 'update']);
     Route::resource('booking-admin', AdminBookingController::class);
+
+    Route::put('pembayaran/verifikasi/{id}', [PembayaranAdminController::class, 'update'])->name('pembayaran.verifikasi');
+    Route::get('booking-admin/{bookingId}/pembayaran', [PembayaranAdminController::class, 'detailBooking'])->name('booking.pembayaran');
     Route::resource('pembayaran', PembayaranAdminController::class);
+
     Route::resource('kategori-pengeluaran', KategoriPengeluaranController::class);
     Route::resource('pengeluaran', PengeluaranOperasionalController::class);
 
@@ -64,6 +69,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(funct
     Route::resource('kabar', KabarController::class);
     Route::resource('client-logos', ClientLogosController::class);
     Route::resource('landing-settings', LandingSettingsController::class);
+
 });
 
 /* 2. SEKTOR PENGUNJUNG */
@@ -84,6 +90,8 @@ Route::prefix('booking')->as('pengunjung.booking.')->group(function () {
     Route::get('/{id}/payment', [PengunjungBookingController::class, 'showPayment'])->name('booking-payment');
     Route::post('/{id}/update-payment', [PengunjungBookingController::class, 'updatePaymentMethod'])->name('update-payment');
     Route::get('/{id}/success', [PengunjungBookingController::class, 'showSuccess'])->name('booking-success');
+
+    // ✅ PERBAIKAN 1: Menghapus kata '/booking' ganda, menggunakan PengunjungBookingController yang benar
     Route::post('/{id}/upload-bukti', [PengunjungBookingController::class, 'uploadBukti'])->name('upload-bukti');
 
     // Edit & Update
@@ -101,18 +109,8 @@ Route::get('/panduan-booking', function () {
     return view('pengunjung.landing-page.panduan.panduan-booking');
 })->name('panduan.booking');
 
-// Kabar
-// Route::get('/kabar', function () {
-//     return view('pengunjung.landing-page.kabar.kabar');
-// })->name('kabar.index');
-
 Route::get('/kabar', [KabarController::class, 'publicIndex'])->name('kabar.index');
 Route::get('/kabar/{id}', [KabarController::class, 'publicShow'])->name('kabar.detail');
-
-// testimoni
-// Route::get('/testimoni', function () {
-//     return view('pengunjung.landing-page.testimoni.review');
-// })->name('testimoni.create');
 
 Route::get('/testimoni', [TestimoniController::class, 'create'])->name('testimoni.create');
 Route::post('/testimoni', [TestimoniController::class, 'store'])->name('testimoni.store');
@@ -131,10 +129,12 @@ Route::post(
     [TrackingBookingController::class, 'tracking']
 )->name('cari.booking.proses');
 
-Route::post(
-    '/booking/{id}/upload-bukti',
-    [TrackingBookingController::class, 'uploadBukti']
-)->name('booking.upload-bukti');
+// Route::post(
+//     '/booking/{id}/upload-bukti',
+//     [TrackingBookingController::class, 'uploadBukti']
+// )->name('booking.upload-bukti');
+// ✅ PERBAIKAN 2: Di bawah ini rutenya di luar prefix 'booking', jadi tulisan URL-nya tetap murni '/booking/{id}/upload-bukti'
+Route::post('/booking/{id}/upload-bukti', [TrackingBookingController::class, 'uploadBukti'])->name('booking.upload-bukti');
 
 Route::get('/clear-session', function () {
     session()->forget('temp_booking_data');
