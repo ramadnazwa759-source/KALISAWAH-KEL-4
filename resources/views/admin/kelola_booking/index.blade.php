@@ -766,7 +766,7 @@
 @endforeach
 
 <script>
-{{-- const groupedPaket = {!! json_encode($groupedPaket ?? []) !!}; --}}
+const groupedPaket = {!! json_encode($groupedPaket ?? []) !!};
 const groupedFasilitas = {!! json_encode($groupedFasilitas ?? []) !!};
 
 let pIdx = 0;

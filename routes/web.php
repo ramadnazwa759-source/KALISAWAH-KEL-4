@@ -20,6 +20,7 @@ use App\Http\Controllers\API\Kelola_landingpage\kabar\KabarController;
 use App\Http\Controllers\API\Kelola_landingpage\experience\ClientLogosController;
 use App\Http\Controllers\API\Kelola_landingpage\hero_section\LandingSettingsController;
 use App\Http\Controllers\API\Kelola_landingpage\TestimoniController;
+use App\Http\Controllers\API\Pemasukan\PemasukanController;
 
 /* 1. SEKTOR ADMIN */
 Route::get('/admin/login', function () { return view('auth.login'); })->name('login');
@@ -57,12 +58,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(funct
     Route::put('booking-admin/update/{id}', [AdminBookingController::class, 'update']);
     Route::resource('booking-admin', AdminBookingController::class);
 
-    Route::put('pembayaran/verifikasi/{id}', [PembayaranAdminController::class, 'update'])->name('pembayaran.verifikasi');
+    Route::put('pembayaran/verifikasi/{id}', [PemasukanController::class, 'verifikasiPembayaran'])->name('pembayaran.verifikasi');
     Route::get('booking-admin/{bookingId}/pembayaran', [PembayaranAdminController::class, 'detailBooking'])->name('booking.pembayaran');
     Route::resource('pembayaran', PembayaranAdminController::class);
 
     Route::resource('kategori-pengeluaran', KategoriPengeluaranController::class);
     Route::resource('pengeluaran', PengeluaranOperasionalController::class);
+    route::resource('pemasukan', PemasukanController::class);
 
     // Halaman
     Route::get('/kabar/foto/{id}', [KabarController::class, 'getFoto'])->name('kabar.foto');
@@ -129,11 +131,6 @@ Route::post(
     [TrackingBookingController::class, 'tracking']
 )->name('cari.booking.proses');
 
-// Route::post(
-//     '/booking/{id}/upload-bukti',
-//     [TrackingBookingController::class, 'uploadBukti']
-// )->name('booking.upload-bukti');
-// ✅ PERBAIKAN 2: Di bawah ini rutenya di luar prefix 'booking', jadi tulisan URL-nya tetap murni '/booking/{id}/upload-bukti'
 Route::post('/booking/{id}/upload-bukti', [TrackingBookingController::class, 'uploadBukti'])->name('booking.upload-bukti');
 
 Route::get('/clear-session', function () {

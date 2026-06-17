@@ -177,6 +177,9 @@ class PengunjungBookingController extends Controller
             }
         }
 
+       /* =========================================================
+            PROSES HITUNG TIKET TAMBAHAN (OVER CAPACITY)
+           ========================================================= */
         $jumlahPengunjung = (int) ($input['jumlah_pengunjung'] ?? 0);
         $kapasitasPerHari = [];
 
@@ -185,17 +188,26 @@ class PengunjungBookingController extends Controller
             if (!isset($kapasitasPerHari[$hari])) {
                 $kapasitasPerHari[$hari] = 0;
             }
+
+            // ⭐ PERBAIKAN DI SINI: Deteksi paket aktivitas agar tidak merusak hitungan kapasitas utama
+            $namaPaket = strtolower($item->paketWisata->nama_paket ?? '');
+            if (str_contains($namaPaket, 'advanture') || str_contains($namaPaket, 'rafting')) {
+                continue; // Abaikan paket aktivitas dari perhitungan batas over-capacity
+            }
+
             $kapasitasPerHari[$hari] += ($item->paketWisata->kapasitas ?? 0) * $item->qty;
         }
 
+        // Ambil kapasitas penginapan tertinggi yang tersedia pada hari tersebut
         $kapasitasMaksimal = !empty($kapasitasPerHari) ? max($kapasitasPerHari) : 0;
         $kelebihan = 0;
         $extra = 0;
 
-        if ($jumlahPengunjung > $kapasitasMaksimal) {
-            $kelebihan = $jumlahPengunjung - $kapasitasMaksimal;
-            $extra = $kelebihan * 25000;
-            $total += $extra;
+        // Hitung selisih jika jumlah orang yang datang lebih banyak daripada kapasitas tenda/paket inap
+        if ($kapasitasMaksimal > 0 && $jumlahPengunjung > $kapasitasMaksimal) {
+            $kelebihan = $jumlahPengunjung - $kapasitasMaksimal; // Contoh: 4 orang - 2 (kapasitas camping) = 2 orang kelebihan
+            $extra = $kelebihan * 25000; // 2 * 25.000 = 50.000
+            $total += $extra; // Tambahkan biaya ke total harga review
         }
 
         $booking->jumlah_hari = $jumlahHari;
@@ -397,7 +409,7 @@ class PengunjungBookingController extends Controller
                     'jam' => $input['jam'],
                     'jumlah_pengunjung' => $input['jumlah_pengunjung'],
                     'jumlah_tiket_tambahan' => $jumlahTiketTambahan,
-                    'harga_tiket_tambahan' => 25000,
+                    'jumlah_tiket_tambahan' => 25000,
                     'subtotal_tiket_tambahan' => $subtotalTiketTambahan,
                     'total_harga' => $totalPaket + $totalFasilitas + $subtotalTiketTambahan,
                     'total_harga_final' => $totalPaket + $totalFasilitas + $subtotalTiketTambahan,
@@ -585,7 +597,7 @@ class PengunjungBookingController extends Controller
 
             $booking->update([
                 'jumlah_tiket_tambahan' => $jumlahTiketTambahan,
-                'harga_tiket_tambahan' => 25000,
+                'jumlah_tiket_tambahan' => 25000,
                 'subtotal_tiket_tambahan' => $subtotalTiketTambahan,
                 'total_harga' => $total,
                 'total_harga_final' => $total
