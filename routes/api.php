@@ -31,6 +31,8 @@ use App\Http\Controllers\API\Pembayaran\PembayaranAdminController;
 use App\Http\Controllers\API\Booking_pengunjung\TrackingBookingController;
 use App\Http\Controllers\API\Booking_pengunjung\PengunjungBookingController;
 
+use App\Http\Controllers\
+
     Route::get('/test', function () {
         return "API WORKING";
     });
