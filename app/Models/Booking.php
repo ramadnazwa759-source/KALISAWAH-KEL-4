@@ -7,34 +7,43 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     protected $table = 'booking';
-    protected $primaryKey = 'id_booking';
 
     protected $fillable = [
         'kode_booking',
         'nama_pemesan',
         'no_hp',
-        'id_paket',
         'tanggal_kunjungan',
+        'tanggal_selesai',
+        'jumlah_malam',
+        'jumlah_hari',
         'jam',
-        'jumlah_orang',
-        'jumlah_tenda',
+        'jumlah_pengunjung',
+        'jumlah_tiket_tambahan',
+        'harga_tiket_tambahan',
+        'subtotal_tiket_tambahan',
         'catatan',
-        'status_booking'
+        'total_harga',
+        'diskon_manual',
+        'total_harga_final',
+        'status_booking',
+        'status_pembayaran',
+        'tanggal_reschedule',
+        'alasan_reschedule',
+        'jumlah_reschedule'
     ];
 
-    public function paket()
+    public function items()
     {
-        return $this->belongsTo(PaketWisata::class, 'id_paket');
-    }
-
-    public function pembayaran()
-    {
-        return $this->hasOne(Pembayaran::class, 'id_booking');
+        return $this->hasMany(BookingItem::class, 'booking_id');
     }
 
     public function fasilitas()
     {
-        return $this->belongsToMany(Fasilitas::class, 'booking_fasilitas', 'id_booking', 'id_fasilitas')
-                    ->withPivot('jumlah');
+        return $this->hasMany(BookingFasilitas::class, 'booking_id');
+    }
+
+    public function pembayaran()
+    {
+        return $this->hasMany(Pembayaran::class, 'booking_id');
     }
 }

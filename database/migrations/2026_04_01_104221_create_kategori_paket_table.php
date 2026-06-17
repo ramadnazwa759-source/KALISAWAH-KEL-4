@@ -16,6 +16,9 @@ return new class extends Migration
     $table->string('nama_kategori');
     $table->text('deskripsi')->nullable();
     $table->string('gambar')->nullable();
+    $table->string('tagline')->nullable();
+    $table->string('hero_image')->nullable();
+
 });
     }
 
