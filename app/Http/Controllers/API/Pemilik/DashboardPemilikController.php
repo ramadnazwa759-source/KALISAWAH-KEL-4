@@ -1,33 +1,45 @@
-public function index()
+<?php
+
+namespace App\Http\Controllers\API\Pemilik;
+
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\Pembayaran;
+use App\Models\PengeluaranOperasional;
+use App\Models\InventarisPerUnit;
+use Illuminate\Support\Carbon;
+
+class DashboardPemilikController extends Controller
 {
-    // 1. pemasukan hari ini
-    $pemasukan = Transaksi::whereDate('created_at', today())
-        ->sum('total');
+    public function index()
+    {
+        $today = Carbon::today();
 
-    // 2. pengeluaran hari ini
-    $pengeluaran = Pengeluaran::whereDate('created_at', today())
-        ->sum('jumlah');
+        $pemasukan = Pembayaran::whereDate('tanggal_pembayaran', $today)
+            ->where('status_verifikasi', 'valid')
+            ->sum('nominal');
 
-    // 3. booking hari ini
-    $booking = Booking::whereDate('created_at', today())
-        ->count();
+        $pengeluaran = PengeluaranOperasional::whereDate('tanggal_pengeluaran', $today)
+            ->sum('jumlah_uang');
 
-    // 4. pengunjung hari ini
-    $pengunjung = Booking::whereDate('created_at', today())
-        ->distinct('nama_pemesan')
-        ->count();
+        $booking = Booking::whereDate('tanggal_kunjungan', $today)
+            ->count();
 
-    // 5. inventaris kondisi baik
-    $inventaris = Inventaris::where('kondisi', 'baik')->count();
+        $pengunjung = Booking::whereDate('tanggal_kunjungan', $today)
+            ->sum('jumlah_pengunjung');
 
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'pemasukan_hari_ini' => $pemasukan,
-            'pengeluaran_hari_ini' => $pengeluaran,
-            'booking_hari_ini' => $booking,
-            'pengunjung_hari_ini' => $pengunjung,
-            'inventaris_baik' => $inventaris,
-        ]
-    ]);
+        $inventaris = InventarisPerUnit::where('kondisi_unit', 'baik')
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'pemasukan_hari_ini' => $pemasukan,
+                'pengeluaran_hari_ini' => $pengeluaran,
+                'booking_hari_ini' => $booking,
+                'pengunjung_hari_ini' => $pengunjung,
+                'inventaris_baik' => $inventaris,
+            ]
+        ]);
+    }
 }
