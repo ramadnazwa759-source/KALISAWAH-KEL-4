@@ -13,8 +13,8 @@ class PemilikSeeder extends Seeder
    User::firstOrCreate(
     ['email' => 'owner@gmail.com'],
     [
-        'name' => 'Pemilik Kalisawah',
-        'password' => Hash::make('12345678'),
+        'name' => 'Owner Kalisawah',
+        'password' => Hash::make('KlswhOwner@26'),
         'role' => 'pemilik'
     ]
 );
