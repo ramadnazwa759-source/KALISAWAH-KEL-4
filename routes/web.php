@@ -137,3 +137,4 @@ Route::get('/clear-session', function () {
     session()->forget('temp_booking_data');
     return 'Session booking berhasil dibersihkan! Silakan kembali ke form.';
 });
+
