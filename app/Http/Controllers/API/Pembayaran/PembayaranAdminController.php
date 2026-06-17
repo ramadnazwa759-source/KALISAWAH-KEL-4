@@ -19,7 +19,10 @@ class PembayaranAdminController extends Controller
     public function index()
     {
         return view('admin.kelola_pembayaran.pembayaran', [
-            'pembayaran' => Pembayaran::with('booking')->latest()->get()
+            // Tambahkan relasi ke pembayaran milik booking agar kita bisa hitung total DP
+            'pembayaran' => Pembayaran::with(['booking.pembayaran' => function($q) {
+                $q->where('status_verifikasi', 'valid'); // Cuma hitung yang VALID
+            }])->latest()->get()
         ]);
     }
 
@@ -38,15 +41,18 @@ class PembayaranAdminController extends Controller
 
         return response()->json($data, 200);
     }
-    
+
     // ======================================================
-    // UPDATE VERIFIKASI PEMBAYARAN (ADMIN) - FIX TOTAL
+    // UPDATE VERIFIKASI PEMBAYARAN (ADMIN) - FIX TOTAL SINKRONISASI
     // ======================================================
     public function update(Request $request, $id)
     {
+        // Tambahkan 'pelunasan' ke dalam daftar validasi in:...
         $request->validate([
-            'status_verifikasi' => 'required|in:pending,valid,ditolak',
+            'status_verifikasi' => 'required|in:pending,valid,ditolak,pelunasan',
             'nominal' => 'nullable',
+            'nominal_pelunasan' => 'nullable', // Tambahan validasi untuk pelunasan hari H
+            'metode_pelunasan' => 'nullable|in:transfer,cash,qris',
             'catatan' => 'nullable|string'
         ]);
 
@@ -65,24 +71,80 @@ class PembayaranAdminController extends Controller
                 return back()->with('error', 'Booking tidak ditemukan');
             }
 
-            // Bersihkan nominal dari teks format rupiah jika ada pengganggu string
+            // =========================================================================
+            // 💡 LOGIKA BARU: JIKA ADMIN MEMILIH PELUNASAN CASH/TRANSFER DI TEMPAT HARI H
+            // =========================================================================
+            if ($request->status_verifikasi === 'pelunasan') {
+                $nominalInput = $request->nominal_pelunasan;
+                $nominalPelunasan = ($nominalInput !== null) ? (int) preg_replace('/[^0-9]/', '', $nominalInput) : 0;
+
+                if ($nominalPelunasan <= 0) {
+                    return back()->with('error', 'Nominal pelunasan harus diisi dan lebih dari 0!');
+                }
+
+                // 1. Buat record pembayaran baru (sebagai pembayaran ke-2 / Pelunasan)
+                $pembayaranBaru = Pembayaran::create([
+                    'booking_id'        => $booking->id,
+                    'tipe_pembayaran'   => 'lunas', // Tipenya disetel lunas
+                    'metode_pembayaran' => $request->metode_pelunasan ?? 'cash',
+                    'nominal'           => $nominalPelunasan,
+                    'status_verifikasi' => 'valid', // Langsung valid karena diinput admin langsung
+                    'tanggal_pembayaran'=> now(),
+                    'catatan'           => $request->catatan ?? 'Pelunasan sisa tagihan langsung di lokasi oleh Admin'
+                ]);
+
+                // 2. Catat nominal uang pelunasan ke Kas Master Pemasukan Wisata
+                \App\Models\Pemasukan::create([
+                    'pembayaran_id'    => $pembayaranBaru->id,
+                    'booking_id'       => $booking->id,
+                    'kode_pemasukan'   => 'PEM-' . strtoupper(\Illuminate\Support\Str::random(8)),
+                    'nominal'          => $nominalPelunasan,
+                    'jenis_transaksi'  => 'lunas',
+                    'metode_pemasukan' => strtolower($request->metode_pelunasan ?? 'cash'),
+                    'tanggal_masuk'    => now()
+                ]);
+
+                // 3. Jalankan sinkronisasi bawaan controller agar status booking otomatis ter-update mengikuti total uang masuk
+                $this->syncBooking($booking);
+
+                DB::commit();
+                return back()->with('success', 'Pelunasan berhasil dicatat, status booking otomatis diperbarui!');
+            }
+
+            // =========================================================================
+            // ⚙️ LOGIKA BAWAAN: JIKA CUMA VERIFIKASI ACC DATA PENGUNJUNG (VALID / TOLAK)
+            // =========================================================================
             $nominalInput = $request->nominal;
             if ($nominalInput !== null) {
                 $nominalCleaned = preg_replace('/[^0-9]/', '', $nominalInput);
-                // Jika input bernilai 0 atau kosong, pertahankan nominal lama yang ada di data awal/database (jangan dipaksa 0)
                 $nominalFinal = ($nominalCleaned !== '' && (int)$nominalCleaned > 0) ? (int)$nominalCleaned : $pembayaran->nominal;
             } else {
                 $nominalFinal = $pembayaran->nominal;
             }
 
-            // Update data pembayaran Anda
+            // Update status pembayaran pengunjung
             $pembayaran->update([
                 'status_verifikasi' => $request->status_verifikasi,
                 'nominal'           => $nominalFinal,
                 'catatan'           => $request->catatan
             ]);
 
-            // Jalankan sinkronisasi status booking
+            // Jika statusnya valid, catat data DP/Transfer awal tersebut ke Kas Pemasukan
+            if ($request->status_verifikasi === 'valid') {
+                \App\Models\Pemasukan::updateOrCreate(
+                    ['pembayaran_id' => $pembayaran->id],
+                    [
+                        'booking_id'       => $booking->id,
+                        'kode_pemasukan'   => 'REV-' . strtoupper(\Illuminate\Support\Str::random(8)),
+                        'nominal'          => $nominalFinal,
+                        'jenis_transaksi'  => strtolower($pembayaran->tipe_pembayaran ?? 'dp'),
+                        'metode_pemasukan' => strtolower($pembayaran->metode_pembayaran ?? 'transfer'),
+                        'tanggal_masuk'    => now()
+                    ]
+                );
+            }
+
+            // Jalankan sinkronisasi status booking bawaan
             $this->syncBooking($booking);
 
             DB::commit();
@@ -91,62 +153,6 @@ class PembayaranAdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal memperbarui status: ' . $e->getMessage());
-        }
-    }
-
-    // ======================================================
-    // STORE PEMBAYARAN MANUAL ADMIN
-    // ======================================================
-    public function store(Request $request)
-    {
-        $request->validate([
-            'booking_id' => 'required|exists:booking,id',
-            'tipe_pembayaran' => 'required|in:dp,lunas',
-            'metode_pembayaran' => 'required|in:transfer,cash,qris',
-            'nominal' => 'required|numeric|min:1',
-            'bukti_pembayaran' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'catatan' => 'nullable|string'
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-
-            $booking = Booking::findOrFail($request->booking_id);
-
-            $path = $request->file('bukti_pembayaran')
-                ->store('pembayaran', 'public');
-
-            $pembayaran = Pembayaran::create([
-                'booking_id' => $booking->id,
-                'tipe_pembayaran' => $request->tipe_pembayaran,
-                'metode_pembayaran' => $request->metode_pembayaran,
-                'nominal' => $request->nominal,
-                'bukti_pembayaran' => $path,
-                'status_verifikasi' => 'valid',
-                'tanggal_pembayaran' => now(),
-                'catatan' => $request->catatan
-            ]);
-
-            $this->syncBooking($booking);
-
-            DB::commit();
-
-            // return response()->json([
-            //     'message' => 'Pembayaran berhasil ditambahkan',
-            //     'data' => $pembayaran
-            // ], 201);
-
-            return redirect()->back()->with('success', 'Pembayaran berhasil ditambahkan!');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // return response()->json([
-            //     'message' => $e->getMessage()
-            // ], 500);
-
-            redirect()->back()->with('error', 'Gagal menambahkan pembayaran: ' . $e->getMessage());
         }
     }
 
@@ -171,10 +177,10 @@ class PembayaranAdminController extends Controller
 
         return response()->json([
             'message' => 'Pembayaran berhasil dihapus'
-        ], 200);
+            ], 200);
     }
 
-        public function detailBooking($bookingId)
+    public function detailBooking($bookingId)
     {
         $booking = Booking::with('pembayaran')
                     ->findOrFail($bookingId);
@@ -185,55 +191,72 @@ class PembayaranAdminController extends Controller
         );
     }
 
-  private function syncBooking($booking)
-{
-    // 💡 JIKA STATUS SUDAH 'SELESAI' ATAU 'DIBATALKAN' SECARA MANUAL, JANGAN DIUBAH LAGI
-    if (in_array($booking->status_booking, ['selesai', 'dibatalkan'])) {
-        return; // Berhenti di sini, biarkan statusnya tetap seperti itu
-    }
+    // ======================================================
+    // 🔥 BAGIAN UTAMA YANG DIUPDATE: SINKRONISASI REAL-TIME SISA TAGIHAN
+    // ======================================================
+    private function syncBooking($booking)
+    {
+        // 💡 JIKA STATUS SUDAH 'SELESAI' ATAU 'DIBATALKAN' SECARA MANUAL, JANGAN DIUBAH LAGI
+        if (in_array($booking->status_booking, ['selesai', 'dibatalkan'])) {
+            return;
+        }
 
-    // 1. Hitung total nominal pembayaran yang murni berstatus VALID
-    $totalValid = (int) Pembayaran::where('booking_id', $booking->id)
-        ->where('status_verifikasi', 'valid')
-        ->sum('nominal');
+        // 1. Hitung total nominal pembayaran yang murni berstatus VALID
+        $totalValid = (int) Pembayaran::where('booking_id', $booking->id)
+            ->where('status_verifikasi', 'valid')
+            ->sum('nominal');
 
-    // 2. Hitung jumlah transaksi yang masih PENDING dan DITOLAK
-    $jumlahPending = Pembayaran::where('booking_id', $booking->id)->where('status_verifikasi', 'pending')->count();
-    $jumlahDitolak = Pembayaran::where('booking_id', $booking->id)->where('status_verifikasi', 'ditolak')->count();
+        // 2. Hitung jumlah transaksi yang masih PENDING dan DITOLAK
+        $jumlahPending = Pembayaran::where('booking_id', $booking->id)->where('status_verifikasi', 'pending')->count();
+        $jumlahDitolak = Pembayaran::where('booking_id', $booking->id)->where('status_verifikasi', 'ditolak')->count();
 
-    // 3. Bersihkan nilai total_harga_final agar menjadi angka integer murni
-    $totalTagihan = (int) preg_replace('/[^0-9]/', '', $booking->total_harga_final);
+        // 3. Bersihkan nilai total_harga_final agar menjadi angka integer murni
+        $totalTagihan = (int) preg_replace('/[^0-9]/', '', $booking->total_harga_final);
 
-    // Ambil data pembayaran terakhir yang valid untuk dicek tipenya
-    $pembayaranTerakhir = Pembayaran::where('booking_id', $booking->id)
-        ->where('status_verifikasi', 'valid')
-        ->latest()
-        ->first();
+        // 4. 💡 LOGIKA PERHITUNGAN MATEMATIKA REAL-TIME SISA TAGIHAN
+        $sisaTagihanReal = $totalTagihan - $totalValid;
+        if ($sisaTagihanReal < 0) {
+            $sisaTagihanReal = 0; // Jaga-jaga agar tidak minus
+        }
 
-    // === JALANKAN LOGIKA PENENTUAN STATUS OTOMATIS ===
-    if ($totalValid >= $totalTagihan && $totalTagihan > 0) {
-        $booking->update([
-            'status_booking'    => 'dikonfirmasi',
-            'status_pembayaran' => 'lunas'
-        ]);
-    } elseif ($totalValid > 0) {
-        $tipeStatus = ($pembayaranTerakhir && $pembayaranTerakhir->tipe_pembayaran === 'lunas') ? 'lunas' : 'dp';
-        $booking->update([
-            'status_booking'    => 'dikonfirmasi',
-            'status_pembayaran' => $tipeStatus
-        ]);
-    } else {
-        if ($jumlahDitolak > 0 && $jumlahPending == 0) {
+        // Ambil data pembayaran terakhir yang valid untuk dicek tipenya
+        $pembayaranTerakhir = Pembayaran::where('booking_id', $booking->id)
+            ->where('status_verifikasi', 'valid')
+            ->latest()
+            ->first();
+
+        // === JALANKAN LOGIKA PENENTUAN STATUS & UPDATE SISA TAGIHAN KE DATABASE ===
+        if ($totalValid >= $totalTagihan && $totalTagihan > 0) {
             $booking->update([
-                'status_booking'    => 'dibatalkan',
-                'status_pembayaran' => 'dp'
+                'status_booking'    => 'dikonfirmasi',
+                'status_pembayaran' => 'lunas',
+                'sisa_tagihan'      => 0 // Uang masuk pas/lebih = Sisa Tagihan Rp 0 (LUNAS)
+            ]);
+        } elseif ($totalValid > 0) {
+            $tipeStatus = ($pembayaranTerakhir && $pembayaranTerakhir->tipe_pembayaran === 'lunas') ? 'lunas' : 'dp';
+
+            // Pengkondisian tambahan: jika sisa tagihan real sudah 0, set status ke lunas
+            $statusAkhir = ($sisaTagihanReal === 0) ? 'lunas' : $tipeStatus;
+
+            $booking->update([
+                'status_booking'    => 'dikonfirmasi',
+                'status_pembayaran' => $statusAkhir,
+                'sisa_tagihan'      => $sisaTagihanReal // Menyimpan sisa kekurangan pembayaran real-time
             ]);
         } else {
-            $booking->update([
-                'status_booking'    => 'pending',
-                'status_pembayaran' => 'dp'
-            ]);
+            if ($jumlahDitolak > 0 && $jumlahPending == 0) {
+                $booking->update([
+                    'status_booking'    => 'dibatalkan',
+                    'status_pembayaran' => 'dp',
+                    'sisa_tagihan'      => $totalTagihan // Belum ada uang masuk, sisa tagihan = total harga penuh
+                ]);
+            } else {
+                $booking->update([
+                    'status_booking'    => 'pending',
+                    'status_pembayaran' => 'dp',
+                    'sisa_tagihan'      => $totalTagihan // Belum ada uang masuk, sisa tagihan = total harga penuh
+                ]);
+            }
         }
     }
-}
 }

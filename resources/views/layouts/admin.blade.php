@@ -281,7 +281,7 @@
     </div>
 
     <div class="submenu">
-        {{-- <a href="/admin/pemasukan"class="menu-item"style="padding-left:50px;"> Pemasukan </a> --}}
+        <a href="{{ route('admin.pemasukan.index') }}" class="menu-item" style="padding-left:50px;"> Pemasukan </a>
         <a href="{{ route('admin.kategori-pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Kategori Pengeluaran</a>
         <a href="{{ route('admin.pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Pengeluaran</a>
     </div>

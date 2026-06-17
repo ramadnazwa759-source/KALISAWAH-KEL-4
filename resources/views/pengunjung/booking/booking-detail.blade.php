@@ -484,7 +484,7 @@
                 class="group relative overflow-hidden px-10 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_35px_rgba(37,99,235,0.35)]"
             >
                 <span class="relative z-10">
-                    Konfirmasi & Lanjut Pembayaran 
+                    Konfirmasi & Lanjut Pembayaran
                 </span>
 
                 <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-300"></div>

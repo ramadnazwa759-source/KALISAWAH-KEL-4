@@ -4,14 +4,15 @@
 @section('title', $kategori->nama_kategori . ' - Kalisawah Adventure')
 
 @section('content')
-    <section class="relative h-[60vh] min-h-[500px] w-full overflow-hidden">
+    {{-- PERBAIKAN TINGGI HERO & PADDING: Menggunakan min-h dengan padding top gajah (pt-36) biar tulisan fix turun dari navbar --}}
+    <section class="relative min-h-[70vh] w-full overflow-hidden flex items-center pt-36 pb-16 md:pt-44 md:pb-20">
         <img src="{{ $kategori->hero_image ? asset('storage/' . $kategori->hero_image) : asset('images/default-hero.jpg') }}"
              alt="{{ $kategori->nama_kategori }}"
              class="absolute inset-0 w-full h-full object-cover">
 
-        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-transparent"></div>
 
-        <div class="relative z-10 h-full flex items-center px-6 md:px-20 lg:px-32 max-w-7xl mx-auto">
+        <div class="relative z-10 w-full px-6 md:px-20 lg:px-32 max-w-7xl mx-auto">
             <div class="max-w-2xl">
                 <h1 class="text-primary text-4xl md:text-6xl font-bold mb-2 uppercase">{{ $kategori->nama_kategori }}</h1>
                 <h2 class="font-script text-secondary text-3xl md:text-5xl mb-6">
@@ -31,7 +32,8 @@
         </div>
     </section>
 
-    <section id="pilihan-paket" class="py-24 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20">
+    {{-- PERBAIKAN SEBELUM FOOTER: Mengunci padding pb-4 dan -mb-16/24 agar menempel rapat dengan footer di bawahnya --}}
+    <section id="pilihan-paket" class="py-12 md:pt-16 md:pb-4 px-6 md:px-20 max-w-7xl mx-auto scroll-mt-20 -mb-16 md:-mb-24">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-5xl font-bold text-dark-navy uppercase tracking-tight">Pilihan Paket <span class="text-secondary">{{ $kategori->nama_kategori }}</span></h2>
             <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
@@ -41,7 +43,7 @@
             @forelse($pakets as $paket)
             <div class="bg-white rounded-[32px] overflow-hidden shadow-xl border border-gray-100 flex flex-col group hover:shadow-2xl transition-all duration-300">
                 <div class="relative h-64 overflow-hidden shrink-0">
-                    <img src="{{ $paket->foto ? asset('storage/' . $paket->foto) : asset('images/default-package.jpg') }}"
+                    <img src="{{ $paket->gambar ? asset('storage/' . $paket->gambar) : asset('images/default-package.jpg') }}"
                          alt="{{ $paket->nama_paket }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                 </div>
 
@@ -92,7 +94,7 @@
         </div>
 
         @if($pakets->count() > 0)
-        <div class="mt-20 bg-white border border-gray-100 p-8 md:p-12 rounded-[32px] shadow-lg text-center max-w-3xl mx-auto">
+        <div class="mt-10 bg-white border border-gray-100 p-8 md:p-12 rounded-[32px] shadow-lg text-center max-w-3xl mx-auto">
             <h3 class="text-2xl md:text-3xl font-bold text-dark-navy mb-4">Siap untuk petualangan ini?</h3>
             <p class="text-gray-500 mb-8">Pilih paket yang paling cocok untuk kebutuhan liburan Anda dan lakukan reservasi sekarang.</p>
             <a href="{{ route('pengunjung.booking.booking-form') }}" class="inline-block bg-primary text-white px-10 py-4 rounded-xl font-bold hover:bg-hover-primary transition-all shadow-lg shadow-primary/20 text-lg uppercase tracking-wider">
@@ -101,4 +103,5 @@
         </div>
         @endif
     </section>
+
 @endsection

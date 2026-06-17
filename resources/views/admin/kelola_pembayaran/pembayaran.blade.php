@@ -46,13 +46,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($pembayaran as $key => $item)
+                      @forelse($pembayaran as $key => $item)
                         @php
                             $statusBadge = $item->status_verifikasi == 'valid'
                                 ? 'bg-success-subtle text-success border border-success'
                                 : ($item->status_verifikasi == 'ditolak'
                                     ? 'bg-danger-subtle text-danger border border-danger'
                                     : 'bg-warning-subtle text-warning border border-warning');
+
+                            // PERBAIKAN: Hitung akumulasi dari semua pembayaran valid untuk booking ini
+                            $totalHargaFinal = (float) ($item->booking->total_harga_final ?? 0);
+                            $totalSudahBayar = \App\Models\Pembayaran::where('booking_id', $item->booking_id)
+                                                ->where('status_verifikasi', 'valid')
+                                                ->sum('nominal');
+
+                            $sisaTagihan = max(0, $totalHargaFinal - $totalSudahBayar);
+                            $statusPembayaranBooking = $item->booking->status_pembayaran ?? 'belum_bayar';
                         @endphp
                         <tr>
                             <td class="fw-bold">{{ $key + 1 }}</td>
@@ -63,7 +72,7 @@
                             </td>
                             <td>
                                 <div class="fw-bold text-dark">{{ $item->booking->nama_pemesan ?? '-' }}</div>
-                                <small class="text-muted">{{ $item->booking->telepon ?? '' }}</small>
+                                <small class="text-muted">{{ $item->booking->no_hp ?? '' }}</small>
                             </td>
                             <td>
                                 @if($item->bukti_pembayaran)
@@ -75,22 +84,27 @@
                                     <span class="text-muted small italic">Belum Upload</span>
                                 @endif
                             </td>
-                            <td class="fw-bold text-success">Rp {{ number_format($item->nominal ?? 0, 0, ',', '.') }}</td>
+                            <td class="fw-bold text-success">
+                                <div>Rp {{ number_format($item->nominal ?? 0, 0, ',', '.') }}</div>
+                                <small class="text-danger" style="font-size: 0.7rem;">Sisa: Rp {{ number_format($sisaTagihan, 0, ',', '.') }}</small>
+                            </td>
                             <td>
                                 <span class="badge {{ $statusBadge }} text-uppercase px-3 py-2 rounded-pill small">
                                     {{ $item->status_verifikasi }}
                                 </span>
                             </td>
-                           <td class="text-center">
-                            <button class="btn btn-sm btn-primary rounded-2 shadow-sm px-1 py-2 "
-                                onclick="bukaModal(
-                                    '{{ $item->id }}',
-                                    '{{ $item->status_verifikasi }}',
-                                    '{{ addslashes($item->catatan ?? '') }}'
-                                )" style="font-size: 0.75rem;">
-                                <i class="fas fa-check-double" style="font-size: 0.7rem;"></i> Proses
-                            </button>
-                        </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-primary rounded-2 shadow-sm px-1 py-2"
+                                    onclick="bukaModal(
+                                        '{{ $item->id }}',
+                                        '{{ $item->status_verifikasi }}',
+                                        '{{ addslashes($item->catatan ?? '') }}',
+                                        '{{ $sisaTagihan }}',
+                                        '{{ $statusPembayaranBooking }}'
+                                    )" style="font-size: 0.75rem;">
+                                    <i class="fas fa-check-double" style="font-size: 0.7rem;"></i> Proses
+                                </button>
+                            </td>
                         </tr>
                         @empty
                         <tr>
@@ -110,28 +124,51 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <div class="modal-header border-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold"><i class="fas fa-shield-alt text-primary me-2"></i>Verifikasi Pembayaran</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-shield-alt text-primary me-2"></i>Verifikasi / Pelunasan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            {{-- Menggunakan Form Submit HTML standard agar sinkron dengan return back() Controller --}}
             <form id="formVerifikasi" method="POST" action="">
                 @csrf
                 @method('PUT')
                 <div class="modal-body px-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Ubah Status Verifikasi</label>
-                        <select name="status_verifikasi" id="status_verifikasi" class="form-select rounded-3" required>
-                            <option value="pending">⏳ PENDING (Belum Dicek)</option>
-                            <option value="valid">✅ VALID (Uang Masuk Kas/Pemasukan)</option>
-                            <option value="ditolak">❌ DITOLAK (Bukti Salah / Palsu)</option>
-                        </select>
-                        <div class="form-text text-muted small mt-1">
-                            *Jika dipilih <b>VALID</b>, sistem otomatis mengubah status booking menjadi lunas & mencatat kas masuk.
+
+                    {{-- KOTAK INFO SISA TAGIHAN OTOMATIS --}}
+                    <div id="box_sisa_tagihan" class="alert alert-warning border-0 rounded-3 mb-3 p-3 d-none">
+                        <div class="small text-muted mb-1">Status Pembayaran Booking Saat Ini: <b id="text_status_pembayaran" class="text-uppercase text-primary"></b></div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">Sisa Tagihan Pengunjung:</span>
+                            <span class="fw-bold text-danger fs-5" id="text_sisa_harga">Rp 0</span>
                         </div>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label fw-bold small">Catatan Internal / Alasan Tolak</label>
-                        <textarea name="catatan" id="catatan_verifikasi" class="form-control rounded-3" rows="3" placeholder="Contoh: Transfer via BCA Mandiri an. Pengirim sesuai, atau alasan penolakan..."></textarea>
+                        <label class="form-label fw-bold small">Pilih Tindakan / Status</label>
+                        <select name="status_verifikasi" id="status_verifikasi" class="form-select rounded-3" required onchange="togglePelunasanField(this.value)">
+                            <option value="pending">⏳ PENDING (Belum Dicek)</option>
+                            <option value="valid">✅ VALID (ACC Bukti Pembayaran Pengunjung)</option>
+                            <option value="pelunasan">💵 PELUNASAN HARI H (Bayar Sisa Tagihan di Lokasi)</option>
+                            <option value="ditolak">❌ DITOLAK (Bukti Salah / Palsu)</option>
+                        </select>
+                    </div>
+
+                    {{-- FIELD INPUT PELUNASAN --}}
+                    <div id="field_pelunasan_langsung" class="d-none bg-light p-3 rounded-3 mb-3 border">
+                        <div class="mb-2">
+                            <label class="form-label fw-bold small text-primary">Nominal Uang Sisa Pelunasan (Rp)</label>
+                            <input type="number" name="nominal_pelunasan" id="nominal_pelunasan" class="form-control rounded-3 fw-bold text-success" placeholder="Masukkan jumlah pelunasan">
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold small text-primary">Metode Pembayaran Sisa</label>
+                            <select name="metode_pelunasan" class="form-select rounded-3">
+                                <option value="cash">💵 CASH / TUNAI</option>
+                                <option value="transfer">💳 TRANSFER BANK</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Catatan Internal / Keterangan</label>
+                        <textarea name="catatan" id="catatan_verifikasi" class="form-control rounded-3" rows="3" placeholder="Masukkan catatan tambahan jika diperlukan..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 pb-4 px-4">
@@ -160,6 +197,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
         if ($.fn.DataTable.isDataTable('#pembayaranTable')) {
@@ -180,28 +218,82 @@
             }
         });
 
-        // Efek loading saat form disubmit murni agar tidak klik ganda
-        document.getElementById('formVerifikasi').addEventListener('submit', function() {
-            let btn = document.getElementById('btnSubmitVerifikasi');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
-        });
-    </script>
-    <script>
-    // Fungsi Trigger Preview Gambar
+        var formVerif = document.getElementById('formVerifikasi');
+        if(formVerif) {
+            formVerif.addEventListener('submit', function() {
+                let btn = document.getElementById('btnSubmitVerifikasi');
+                if(btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
+                }
+            });
+        }
+    });
+
     function previewBukti(urlSrc) {
         document.getElementById('imgPreviewTarget').src = urlSrc;
-        new bootstrap.Modal(document.getElementById('modalPreview')).show();
+        var modalPreview = new bootstrap.Modal(document.getElementById('modalPreview'));
+        modalPreview.show();
     }
 
-    // Mengubah Action Route Form Secara Dinamis saat Modal Dibuka
-    function bukaModal(id, status, catatan) {
-        let form = document.getElementById('formVerifikasi');
-        form.action = '/admin/pembayaran/' + id; // Set action url post Laravel target ke ID ini
+    function togglePelunasanField(value) {
+        let fieldPelunasan = document.getElementById('field_pelunasan_langsung');
+        if (fieldPelunasan) {
+            if (value === 'pelunasan') {
+                fieldPelunasan.classList.remove('d-none');
+            } else {
+                fieldPelunasan.classList.add('d-none');
+            }
+        }
+    }
 
-        document.getElementById('status_verifikasi').value = status;
-        document.getElementById('catatan_verifikasi').value = catatan;
-        new bootstrap.Modal(document.getElementById('modalVerifikasi')).show();
+    function bukaModal(id, status, catatan, sisaTagihan, statusPembayaran) {
+        let form = document.getElementById('formVerifikasi');
+        if(form) {
+            form.action = '/admin/pembayaran/' + id;
+        }
+
+        if(document.getElementById('status_verifikasi')) {
+            document.getElementById('status_verifikasi').value = status;
+        }
+        if(document.getElementById('catatan_verifikasi')) {
+            document.getElementById('catatan_verifikasi').value = catatan;
+        }
+
+        let boxSisa = document.getElementById('box_sisa_tagihan');
+        if(boxSisa) {
+            boxSisa.classList.remove('d-none');
+        }
+
+        if(document.getElementById('text_status_pembayaran')) {
+            document.getElementById('text_status_pembayaran').innerText = statusPembayaran.replace('_', ' ');
+        }
+
+        let formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            maximumFractionDigits: 0
+        });
+
+        if(document.getElementById('text_sisa_harga')) {
+            document.getElementById('text_sisa_harga').innerText = formatter.format(sisaTagihan);
+        }
+
+        let inputPelunasan = document.getElementById('nominal_pelunasan');
+        if(inputPelunasan) {
+            inputPelunasan.value = sisaTagihan;
+            // Jika sisa tagihan di atas 0, batasi input maksimal agar tidak melebihi sisa tagihan asli
+            if (parseFloat(sisaTagihan) > 0) {
+                inputPelunasan.max = sisaTagihan;
+            } else {
+                inputPelunasan.removeAttribute('max');
+            }
+        }
+
+        togglePelunasanField(status);
+
+        var myModal = new bootstrap.Modal(document.getElementById('modalVerifikasi'));
+        myModal.show();
     }
 </script>
 @endpush
