@@ -75,8 +75,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(funct
 });
 
 /* 2. SEKTOR PENGUNJUNG */
-Route::get('/', function () { return view('welcome'); });
-Route::get('/home', [ProfilWisataController::class, 'index'])->name('landing-page.home');
+// Route::get('/', function () { return view('welcome'); });
+// Route::get('/home', [ProfilWisataController::class, 'index'])->name('landing-page.home');
+Route::get('/', [ProfilWisataController::class, 'index'])->name('landing-page.home');
 
 // SISTEM BOOKING PENGUNJUNG
 Route::prefix('booking')->as('pengunjung.booking.')->group(function () {
