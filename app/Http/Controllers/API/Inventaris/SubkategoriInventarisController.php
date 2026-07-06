@@ -27,7 +27,7 @@ class SubkategoriInventarisController extends Controller
         // Kita buat fisik variabel $kategori berisi semua data Kategori Inventaris
         $kategori = KategoriInventaris::all();
 
-        return view('admin.operasional.Subkategori.index', compact('subkategori', 'kategori'));
+        return view('admin.operasional.SubKategori.index', compact('subkategori', 'kategori'));
     }
 
     /**

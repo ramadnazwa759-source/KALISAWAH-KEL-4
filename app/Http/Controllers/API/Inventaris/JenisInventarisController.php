@@ -25,7 +25,7 @@ class JenisInventarisController extends Controller
         // AMBIL DATA SUBKATEGORI UNTUK DROPDOWN MODAL
         $subkategori = SubkategoriInventaris::all();
 
-        return view('admin.operasional.JenisInventaris.index', compact('jenisInventaris', 'subkategori'));
+        return view('admin.operasional.jenisInventaris.index', compact('jenisInventaris', 'subkategori'));
     }
 
     /**

@@ -20,7 +20,7 @@ class KategoriPaketController extends Controller
         $kategoris = KategoriPaket::orderBy('id', 'desc')->paginate(6);
 
         return view(
-            'admin.layanan.kategoriPaket.index',
+            'admin.layanan.KategoriPaket.index',
             compact('kategoris')
         );
     }
