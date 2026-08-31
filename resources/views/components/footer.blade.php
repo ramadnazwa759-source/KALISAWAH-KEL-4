@@ -58,10 +58,10 @@
 
             <img src="{{ asset('images/logoKalisawah.png') }}"
                  alt="{{ $footerData['location']['name'] }}"
-                 class="h-25 mb-50"
+                 class="h-20 w-auto object-contain mb-6"
                  onerror="this.src='https://picsum.photos/200/50'">
 
-            <h3 class="text-xl font-bold mb-4">
+            <h3 class="text-base font-bold mb-4">
                 {{ $footerData['location']['name'] }}
             </h3>
 

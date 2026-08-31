@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API\Inventaris;
 
 use App\Http\Controllers\Controller;
-use App\Models\InventarisPerUnit;
+use App\Models\InventarisPerunit;
 use App\Models\JenisInventaris;
 use App\Models\LokasiPenyimpanan;
 use Illuminate\Http\Request;

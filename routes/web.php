@@ -44,10 +44,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->as('admin.')->group(funct
     })->name('logout');
 
     Route::resource('kategori-paket', KategoriPaketController::class);
-    Route::resource('paket-wisata', PaketwisataController::class);
+    Route::resource('paket-wisata', PaketWisataController::class);
     Route::resource('paket-fasilitas', PaketFasilitasController::class);
     Route::resource('kategori-inventaris', KategoriInventarisController::class);
-    Route::resource('subkategori-inventaris', SubKategoriInventarisController::class);
+    Route::resource('subkategori-inventaris', SubkategoriInventarisController::class);
     Route::resource('jenis-inventaris', JenisInventarisController::class);
     Route::resource('lokasi-penyimpanan', LokasiPenyimpananController::class);
     Route::resource('inventaris-perunit', InventarisPerUnitController::class);

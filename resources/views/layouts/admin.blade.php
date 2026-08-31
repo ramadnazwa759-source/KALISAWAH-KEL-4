@@ -180,6 +180,130 @@
             margin-bottom: 30px;
             font-size: 24px;
         }
+
+        /* ================= RESPONSIVE ADMIN ================= */
+
+/* Tombol hamburger */
+.mobile-menu-btn {
+    display: none;
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    color: #4188FF;
+    cursor: pointer;
+}
+
+/* Overlay mobile */
+.sidebar-overlay {
+    display: none;
+}
+
+
+/* ================= TABLET & HP ================= */
+@media (max-width: 991.98px) {
+
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Sidebar menjadi fixed */
+    .sidebar_pembuat {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        width: 260px;
+        min-width: 260px;
+        height: 100vh;
+        transition: left 0.3s ease;
+        z-index: 1001;
+        box-shadow: 5px 0 20px rgba(0,0,0,0.1);
+    }
+
+    /* Sidebar ketika dibuka */
+    .sidebar_pembuat.mobile-open {
+        left: 0;
+    }
+
+    /* Main memenuhi layar */
+    .main-content {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Navbar */
+    .navbar_pembuat {
+        height: 65px;
+        min-height: 65px;
+        padding: 0 20px;
+    }
+
+    /* Tombol hamburger muncul */
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    /* Tanggal */
+    #currentDate {
+        font-size: 13px;
+    }
+
+    /* Profile */
+    .user-profile span {
+        display: none;
+    }
+
+    /* Container */
+    .container-custom {
+        padding: 25px 20px;
+    }
+
+    /* Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1000;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+}
+
+
+/* ================= HP ================= */
+@media (max-width: 575.98px) {
+
+    .navbar_pembuat {
+        padding: 0 15px;
+    }
+
+    .container-custom {
+        padding: 20px 15px;
+    }
+
+    .page-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    #currentDate {
+        font-size: 11px;
+    }
+
+    .user-profile {
+        gap: 7px;
+    }
+
+    .user-profile img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .user-profile i {
+        font-size: 10px !important;
+    }
+}
     </style>
 
     @stack('styles')
@@ -290,11 +414,26 @@
     <div style="margin-bottom: 30px;"></div> <!-- Spacer bawah -->
 </div>
 
+<!-- Overlay untuk mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- ================= MAIN ================= -->
 <div class="main-content">
 
     <div class="navbar_pembuat">
+
+    <div style="display: flex; align-items: center; gap: 15px;">
+
+        <button
+            type="button"
+            class="mobile-menu-btn"
+            id="mobileMenuBtn">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
         <div id="currentDate" style="font-weight: 500; color: #666;"></div>
+
+    </div>
 
         <div class="user-profile" id="profileTrigger">
             <span>Admin Kalisawah</span>
@@ -384,6 +523,36 @@ document.getElementById('currentDate').innerText =
 //         window.location.href = "/admin/login";
 //     }
 // }
+
+// =========================
+// Mobile Sidebar
+// =========================
+
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const sidebar = document.querySelector('.sidebar_pembuat');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+if (mobileMenuBtn) {
+
+    mobileMenuBtn.addEventListener('click', function () {
+
+        sidebar.classList.toggle('mobile-open');
+        sidebarOverlay.classList.toggle('show');
+
+    });
+
+}
+
+if (sidebarOverlay) {
+
+    sidebarOverlay.addEventListener('click', function () {
+
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.remove('show');
+
+    });
+
+}
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
