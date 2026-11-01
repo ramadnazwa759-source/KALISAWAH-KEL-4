@@ -356,7 +356,6 @@
     <!-- GROUP 2: MANAJEMEN OPERASIONAL -->
     <div class="sidebar-label" style="margin-top: 10px;">Manajemen Operasional</div>
 
-
     <!-- FASILITAS -->
     <div class="menu-group">
         <div class="menu-item parent-toggle">
@@ -369,7 +368,12 @@
         </div>
     </div>
 
-    <!-- TRANSAKSI -->
+    <div class="menu-item parent-toggle">
+            <i class="fa-solid fa-box"></i> Asset Management
+            <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
+        </div>
+
+    {{-- <!-- TRANSAKSI -->
     <div class="menu-group">
         <div class="menu-item parent-toggle">
             <i class="fa-solid fa-calendar-check"></i> Transaksi
@@ -379,9 +383,9 @@
             <a href="{{ route('admin.booking-admin.index') }}" class="menu-item" style="padding-left:50px;">Booking</a>
             <a href="{{ route('admin.pembayaran.index') }}" class="menu-item" style="padding-left:50px;">Pembayaran</a>
         </div>
-    </div>
+    </div> --}}
 
-    <!-- OPERASIONAL -->
+    {{-- <!-- OPERASIONAL -->
     <div class="menu-group">
         <div class="menu-item parent-toggle">
             <i class="fa-solid fa-gears"></i> Inventaris
@@ -394,22 +398,22 @@
             <a href="{{ route('admin.lokasi-penyimpanan.index') }}" class="menu-item" style="padding-left:50px;">Lokasi Penyimpanan</a>
             <a href="{{ route('admin.inventaris-perunit.index') }}" class="menu-item" style="padding-left:50px;">Data Inventaris</a>
         </div>
-    </div>
+    </div> --}}
 
-    <!-- KEUANGAN -->
+    {{-- <!-- KEUANGAN -->
     <!-- KEUANGAN -->
     <div class="menu-group">
     <div class="menu-item parent-toggle">
         <i class="fa-solid fa-wallet"></i> Keuangan
         <i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:10px;"></i>
-    </div>
+    </div> --}}
 
-    <div class="submenu">
+    {{-- <div class="submenu">
         <a href="{{ route('admin.pemasukan.index') }}" class="menu-item" style="padding-left:50px;"> Pemasukan </a>
         <a href="{{ route('admin.kategori-pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Kategori Pengeluaran</a>
         <a href="{{ route('admin.pengeluaran.index') }}" class="menu-item" style="padding-left:50px;"> Pengeluaran</a>
     </div>
-    </div>
+    </div> --}}
 
     <div style="margin-bottom: 30px;"></div> <!-- Spacer bawah -->
 </div>

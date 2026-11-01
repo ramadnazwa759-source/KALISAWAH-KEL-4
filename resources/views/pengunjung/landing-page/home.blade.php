@@ -125,9 +125,13 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 pt-4">
-                    <a href="{{ route('pengunjung.booking.booking-form', ['paket' => 'semua']) }}" class="bg-primary hover:bg-primary-hover text-white font-extrabold px-10 py-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 text-sm uppercase tracking-widest text-center flex items-center justify-center gap-3 shadow-button-solid active:translate-y-0">
-                        <i class="fa-solid fa-calendar-check text-base"></i> Booking Sekarang
-                    </a>
+                        <a href="https://wa.me/628176421713?text=Halo%20Kalisawah%20Adventure%2C%20saya%20ingin%20melakukan%20pemesanan%20paket%20wisata."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="bg-primary hover:bg-primary-hover text-white font-extrabold px-10 py-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 text-sm uppercase tracking-widest text-center flex items-center justify-center gap-3 shadow-button-solid active:translate-y-0">
+                            <i class="fa-solid fa-calendar-check text-base"></i>
+                            Booking Sekarang
+                        </a>
                     <a href="{{ route('panduan.booking') }}" class="bg-white/10 hover:bg-white/20 text-white font-bold px-10 py-5 rounded-2xl border border-white/20 backdrop-blur-sm transition-all duration-300 hover:border-white/40 text-sm uppercase tracking-widest text-center flex items-center justify-center gap-3 transform hover:-translate-y-1 active:translate-y-0">
                         <i class="fa-solid fa-book-open text-slate-300"></i> Panduan Booking
                     </a>
@@ -147,7 +151,7 @@
         </div>
     </section>
 
-    <section id="cari-booking" class="relative z-20 -mt-24 max-w-6xl mx-auto px-6">
+    {{-- <section id="cari-booking" class="relative z-20 -mt-24 max-w-6xl mx-auto px-6">
         <div class="glass-card p-8 md:p-10 rounded-[32px] shadow-premium border border-white/60 space-y-8 transform transition-all duration-500 hover:shadow-premium-hover">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/60 pb-5">
                 <div class="flex items-center gap-4">
@@ -194,7 +198,7 @@
                 </div>
             </form>
         </div>
-    </section>
+    </section> --}}
 
     <section id="trust-signal" class="pt-32 pb-16 px-6 max-w-7xl mx-auto space-y-24 scroll-mt-12">
         <div class="text-center max-w-3xl mx-auto space-y-3">
@@ -242,7 +246,10 @@
                     {{ $settings['about_description'] ?? 'Kalisawah Adventure merupakan destinasi wisata alam terintegrasi di Banyuwangi yang menghadirkan pengalaman petualangan seru di tengah keindahan sungai dan hamparan persawahan Songgon. Didukung oleh pengelolaan yang profesional serta standar keselamatan yang terjamin, kami siap memberikan pengalaman wisata yang aman, nyaman, dan berkesan.' }}
                 </p>
                 <div class="pt-4">
-                    <a href="{{ route('pengunjung.booking.booking-form', ['paket' => 'semua']) }}" class="inline-flex items-center gap-3 bg-primary hover:bg-primary-hover text-white text-xs font-extrabold py-5 px-10 rounded-2xl transition-all duration-300 shadow-button-solid transform hover:-translate-y-0.5 group">
+                    <a href="https://wa.me/628176421713?text=Halo%20Kalisawah%20Adventure%2C%20saya%20ingin%20melakukan%20pemesanan%20paket%20wisata."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-3 bg-primary hover:bg-primary-hover text-white text-xs font-extrabold py-5 px-10 rounded-2xl transition-all duration-300 shadow-button-solid transform hover:-translate-y-0.5 group">
                         MULAI RESERVASI SEKARANG <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
                     </a>
                 </div>

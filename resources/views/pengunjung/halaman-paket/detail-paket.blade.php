@@ -142,9 +142,10 @@
                     Pilih paket yang paling cocok untuk kebutuhan liburan Anda dan lakukan reservasi sekarang.
                 </p>
 
-                <a href="{{ route('pengunjung.booking.booking-form') }}"
+                <a href="https://wa.me/628176421713?text=Halo%20Kalisawah%20Adventure%2C%20saya%20ingin%20melakukan%20pemesanan%20paket%20wisata."
+                    target="_blank"
+                    el="noopener noreferrer"
                    class="inline-block bg-primary text-white px-10 py-4 rounded-xl font-bold hover:bg-hover-primary transition-all shadow-lg shadow-primary/20 text-lg uppercase tracking-wider">
-
                     Pesan Sekarang
 
                 </a>

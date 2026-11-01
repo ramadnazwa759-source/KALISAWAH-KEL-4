@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -106,7 +106,7 @@ Route::prefix('booking')->as('pengunjung.booking.')->group(function () {
 Route::get('/get-paket-by-kategori/{id}', [PengunjungBookingController::class, 'getPaketByKategori']);
 Route::get('/get-fasilitas-by-kategori/{id}', [PengunjungBookingController::class, 'getFasilitasByKategori']);
 
-// Halaman Statis
+//Halaman Statis
 
 Route::get('/panduan-booking', function () {
     return view('pengunjung.landing-page.panduan.panduan-booking');
@@ -138,4 +138,3 @@ Route::get('/clear-session', function () {
     session()->forget('temp_booking_data');
     return 'Session booking berhasil dibersihkan! Silakan kembali ke form.';
 });
-
